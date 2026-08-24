@@ -1,0 +1,40 @@
+name: pal_max
+description: A stock trading calculator app with 11 real-time tools for Android and iOS.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.6.1
+  # isar-community is the community-maintained fork of Isar,
+  # compatible with Dart 3 and modern Flutter.
+  isar_community: 3.3.2
+  isar_community_flutter_libs: 3.3.2
+  path_provider: ^2.1.5
+  intl: ^0.20.0
+  http: ^1.6.0
+  webview_flutter: ^4.14.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  # Pinned versions compatible with isar_community_generator 3.3.2
+  # (analyzer constraint <11.0.0).
+  build_runner: 2.15.1
+  isar_community_generator: 3.3.2
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  remove_alpha_ios: true
