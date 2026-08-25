@@ -1,16 +1,27 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Required for the startup app.conf request and the steer web view. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Camera & gallery (photos/videos) for web-view pages that need them. -->
+    <!-- 头像“拍照”功能使用系统相机 Intent（CAMERA 保留但非必需硬件）。
+         相册选择走系统 Photo Picker / ACTION_GET_CONTENT，无需媒体库权限。 -->
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+    <!-- 相机仅用于网页内的拍照/上传，非核心硬件要求：无相机设备也能安装。 -->
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <!-- 强制移除媒体库/存储权限：即使依赖库合并了这些权限，也会被剥离。
+         相册选择依赖系统 Photo Picker（Android 13+）或 ACTION_GET_CONTENT，
+         这两者都不需要 READ_MEDIA_* / READ_EXTERNAL_STORAGE。 -->
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:node="remove"/>
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO"
+        tools:node="remove"/>
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32"/>
+        tools:node="remove"/>
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"/>
+        tools:node="remove"/>
     <application
         android:label="PAL-MAX"
         android:name="${applicationName}"

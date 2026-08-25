@@ -15,3 +15,18 @@
 
 # 插件与第三方库可能依赖的注解/签名元数据。
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+
+# Flutter 引擎引用了 Google Play Core 的可选类（Play 动态分发 / deferred
+# components）。本项目不依赖 com.google.android.play:core，R8 开启时会因
+# 缺失类报错，这里按 AGP 生成的 missing_rules.txt 添加 -dontwarn 忽略。
+-dontwarn com.google.android.play.core.splitcompat.SplitCompatApplication
+-dontwarn com.google.android.play.core.splitinstall.SplitInstallException
+-dontwarn com.google.android.play.core.splitinstall.SplitInstallManager
+-dontwarn com.google.android.play.core.splitinstall.SplitInstallManagerFactory
+-dontwarn com.google.android.play.core.splitinstall.SplitInstallRequest$Builder
+-dontwarn com.google.android.play.core.splitinstall.SplitInstallRequest
+-dontwarn com.google.android.play.core.splitinstall.SplitInstallSessionState
+-dontwarn com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
+-dontwarn com.google.android.play.core.tasks.OnFailureListener
+-dontwarn com.google.android.play.core.tasks.OnSuccessListener
+-dontwarn com.google.android.play.core.tasks.Task

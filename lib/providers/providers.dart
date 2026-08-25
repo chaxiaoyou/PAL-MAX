@@ -91,3 +91,81 @@ final favoritesProvider =
     StateNotifierProvider<FavoritesNotifier, Set<String>>(
   (ref) => FavoritesNotifier(ref),
 );
+
+// ---------- Profile settings ----------
+
+class ProfileSettings {
+  const ProfileSettings({this.name = '', this.avatarPath});
+
+  final String name;
+  final String? avatarPath;
+
+  ProfileSettings copyWith({String? name, String? avatarPath}) {
+    return ProfileSettings(
+      name: name ?? this.name,
+      avatarPath: avatarPath ?? this.avatarPath,
+    );
+  }
+}
+
+class ProfileNotifier extends StateNotifier<ProfileSettings> {
+  ProfileNotifier(this._ref) : super(const ProfileSettings()) {
+    _load();
+  }
+
+  final Ref _ref;
+
+  Isar get _db => _ref.read(isarProvider);
+
+  Future<void> _load() async {
+    final nameSetting = await _db.appSettings
+        .filter()
+        .keyEqualTo('profile_name')
+        .findFirst();
+    final avatarSetting = await _db.appSettings
+        .filter()
+        .keyEqualTo('profile_avatar')
+        .findFirst();
+    if (!mounted) return;
+    state = ProfileSettings(
+      name: nameSetting?.value ?? '',
+      avatarPath: (avatarSetting?.value.isNotEmpty ?? false)
+          ? avatarSetting!.value
+          : null,
+    );
+  }
+
+  Future<void> saveName(String name) async {
+    final trimmed = name.trim();
+    if (!mounted) return;
+    state = state.copyWith(name: trimmed);
+    final setting = await _db.appSettings
+        .filter()
+        .keyEqualTo('profile_name')
+        .findFirst();
+    await _db.writeTxn(() async {
+      final entry = setting ?? (AppSetting()..key = 'profile_name');
+      entry.value = trimmed;
+      await _db.appSettings.put(entry);
+    });
+  }
+
+  Future<void> saveAvatar(String path) async {
+    if (!mounted) return;
+    state = state.copyWith(avatarPath: path);
+    final setting = await _db.appSettings
+        .filter()
+        .keyEqualTo('profile_avatar')
+        .findFirst();
+    await _db.writeTxn(() async {
+      final entry = setting ?? (AppSetting()..key = 'profile_avatar');
+      entry.value = path;
+      await _db.appSettings.put(entry);
+    });
+  }
+}
+
+final profileProvider =
+    StateNotifierProvider<ProfileNotifier, ProfileSettings>(
+  (ref) => ProfileNotifier(ref),
+);

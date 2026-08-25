@@ -8,6 +8,7 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'calc_scaffold.dart';
 import 'history_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -78,16 +79,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ],
                       ),
-                      child: IconButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const HistoryScreen(),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ProfileScreen(),
+                              ),
+                            ),
+                            tooltip: 'Profile',
+                            icon: const Icon(Icons.person_rounded,
+                                color: ink, size: 23),
                           ),
-                        ),
-                        tooltip: 'Saved records',
-                        icon: const Icon(Icons.history_rounded,
-                            color: ink, size: 23),
+                          IconButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const HistoryScreen(),
+                              ),
+                            ),
+                            tooltip: 'Saved records',
+                            icon: const Icon(Icons.history_rounded,
+                                color: ink, size: 23),
+                          ),
+                        ],
                       ),
                     ),
                   ],
