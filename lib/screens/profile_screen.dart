@@ -56,12 +56,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       await ref.read(profileProvider.notifier).saveAvatar(target.path);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('头像已更新')),
+        const SnackBar(content: Text('Avatar updated')),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('选择头像失败：$error')),
+        SnackBar(content: Text('Failed to pick avatar: $error')),
       );
     }
   }
@@ -79,7 +79,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera_rounded, color: accent),
-              title: const Text('拍照'),
+              title: const Text('Take photo'),
               onTap: () {
                 Navigator.pop(sheetContext);
                 _pickAvatar(ImageSource.camera);
@@ -87,7 +87,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: accent),
-              title: const Text('从相册选择'),
+              title: const Text('Choose from gallery'),
               onTap: () {
                 Navigator.pop(sheetContext);
                 _pickAvatar(ImageSource.gallery);
@@ -103,7 +103,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     await ref.read(profileProvider.notifier).saveName(_nameController.text);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('姓名已保存')),
+      const SnackBar(content: Text('Name saved')),
     );
   }
 
@@ -114,7 +114,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final hasAvatar = avatarPath != null && File(avatarPath).existsSync();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('个人信息')),
+      appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(22),
@@ -171,7 +171,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const SizedBox(height: 10),
             Center(
               child: Text(
-                profile.name.isEmpty ? '点击头像设置' : profile.name,
+                profile.name.isEmpty ? 'Tap to set avatar' : profile.name,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -181,7 +181,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 32),
             const Text(
-              '姓名',
+              'Name',
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
@@ -199,7 +199,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 color: ink,
               ),
               decoration: InputDecoration(
-                hintText: '请输入姓名',
+                hintText: 'Enter your name',
                 hintStyle: const TextStyle(color: Color(0xffc3c9d4)),
                 filled: true,
                 fillColor: Colors.white,
@@ -225,7 +225,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const SizedBox(height: 18),
             FilledButton(
               onPressed: _saveName,
-              child: const Text('保存'),
+              child: const Text('Save'),
             ),
           ],
         ),

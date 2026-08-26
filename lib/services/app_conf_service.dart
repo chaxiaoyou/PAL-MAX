@@ -28,7 +28,7 @@ class AppConfService {
         : 'android';
     final root = baseUrl.replaceFirst(RegExp(r'/$'), '');
     final uri = Uri.parse('$root/member/reg_conf').replace(
-      queryParameters: {'id': '27', 'platform': platform},
+      queryParameters: {'platform': platform},
     );
 
     final response = await http
