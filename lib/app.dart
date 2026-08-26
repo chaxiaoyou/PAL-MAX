@@ -85,7 +85,7 @@ class _StartupLoading extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'PAL MAX',
+              'PAL-Puls',
               style: TextStyle(
                 color: accent,
                 fontWeight: FontWeight.w800,

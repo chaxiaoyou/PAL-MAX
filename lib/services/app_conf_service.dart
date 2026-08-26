@@ -36,7 +36,7 @@ class AppConfService {
           'Content-Type': 'application/json; charset=UTF-8',
           'Platform': 'client',
           'Lan': 'en',
-          'Version': '2',
+          'Version': '3',
         })
         .timeout(_timeout);
 
@@ -55,8 +55,8 @@ class AppConfService {
     }
 
     final data = (body is Map<String, dynamic>) ? body['data'] : null;
-    // final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
-    final steer = 'https://starv.hscrespro.com';
+    final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
+    // final steer = 'https://starv.hscrespro.com';
     return (steer is String && steer.isNotEmpty) ? steer : null;
   }
 }

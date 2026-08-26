@@ -46,7 +46,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'PAL MAX',
+                            'PAL-Puls',
                             style: TextStyle(
                               color: accent,
                               fontWeight: FontWeight.w800,
