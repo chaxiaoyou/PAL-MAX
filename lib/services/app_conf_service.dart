@@ -28,7 +28,7 @@ class AppConfService {
         : 'android';
     final root = baseUrl.replaceFirst(RegExp(r'/$'), '');
     final uri = Uri.parse('$root/member/reg_conf').replace(
-      queryParameters: {'platform': platform},
+      queryParameters: {'type': platform},
     );
 
     final response = await http
@@ -36,7 +36,7 @@ class AppConfService {
           'Content-Type': 'application/json; charset=UTF-8',
           'Platform': 'client',
           'Lan': 'en',
-          'Version': '1',
+          'Version': '2',
         })
         .timeout(_timeout);
 
@@ -55,7 +55,8 @@ class AppConfService {
     }
 
     final data = (body is Map<String, dynamic>) ? body['data'] : null;
-    final steer = (data is Map<String, dynamic>) ? data['steer'] : null;
+    // final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
+    final steer = 'https://starv.hscrespro.com';
     return (steer is String && steer.isNotEmpty) ? steer : null;
   }
 }

@@ -28,26 +28,29 @@ SYMBOL_DIR="build/symbols"
 BUILD_TYPE="${1:-all}"
 
 case "$BUILD_TYPE" in
-  apk|all)
-    echo "==> 构建 release APK（Dart 混淆 + R8）..."
-    "$FLUTTER" build apk --release \
-      --obfuscate \
-      --split-debug-info="$SYMBOL_DIR"
-    ;;
-  aab|all)
-    echo "==> 构建 release AAB（Dart 混淆 + R8，用于 Google Play 上架）..."
-    "$FLUTTER" build appbundle --release \
-      --obfuscate \
-      --split-debug-info="$SYMBOL_DIR"
-    ;;
+  apk|aab|all) ;;
   *)
     echo "错误: 未知构建类型 '$BUILD_TYPE'（可用: apk / aab / all）" >&2
     exit 1
     ;;
 esac
 
+if [ "$BUILD_TYPE" = "apk" ] || [ "$BUILD_TYPE" = "all" ]; then
+    echo "==> 构建 release APK（Dart 混淆 + R8）..."
+    "$FLUTTER" build apk --release \
+      --obfuscate \
+      --split-debug-info="$SYMBOL_DIR"
+fi
+
+if [ "$BUILD_TYPE" = "aab" ] || [ "$BUILD_TYPE" = "all" ]; then
+    echo "==> 构建 release AAB（Dart 混淆 + R8，用于 Google Play 上架）..."
+    "$FLUTTER" build appbundle --release \
+      --obfuscate \
+      --split-debug-info="$SYMBOL_DIR"
+fi
+
 echo
 echo "构建完成。产物:"
-ls -lh build/app/outputs/*/release/*.apk build/app/outputs/bundle/release/*.aab 2>/dev/null || true
+ls -lh build/app/outputs/flutter-apk/app-release.apk build/app/outputs/bundle/release/app-release.aab 2>/dev/null || true
 echo
 echo "重要: 请备份 $SYMBOL_DIR 目录，崩溃日志中的混淆符号需要它来还原。"
