@@ -36,7 +36,7 @@ class AppConfService {
           'Content-Type': 'application/json; charset=UTF-8',
           'Platform': 'client',
           'Lan': 'en',
-          'Version': '3',
+          'Version': '4',
         })
         .timeout(_timeout);
 

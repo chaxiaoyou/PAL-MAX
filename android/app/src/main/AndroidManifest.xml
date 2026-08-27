@@ -2,9 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Required for the startup app.conf request and the steer web view. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- 头像“拍照”功能使用系统相机 Intent（CAMERA 保留但非必需硬件）。
-         相册选择走系统 Photo Picker / ACTION_GET_CONTENT，无需媒体库权限。 -->
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- 拍照走系统相机 Intent（ACTION_IMAGE_CAPTURE），不需要也不声明 CAMERA
+         权限：一旦声明，image_picker 会要求运行时授权，而 Android 对永久拒绝的
+         权限不会再弹窗，会导致“拒绝一次后拍照永久不可用”。不声明即可直接调起
+         系统相机，无授权阻塞。相册选择走 Photo Picker / ACTION_GET_CONTENT，
+         同样无需媒体库权限。 -->
     <!-- 相机仅用于网页内的拍照/上传，非核心硬件要求：无相机设备也能安装。 -->
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <!-- 强制移除媒体库/存储权限：即使依赖库合并了这些权限，也会被剥离。

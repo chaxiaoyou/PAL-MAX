@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
+import '../theme/app_theme.dart';
+
 /// Full-screen web view used to replace the native UI when the backend
 /// returns a `steer` URL on startup (same behavior as the uni-app version).
 class WebViewScreen extends StatefulWidget {
@@ -154,19 +156,27 @@ class _WebViewScreenState extends State<WebViewScreen> {
   }
 
   /// Opens the system photo picker and hands the picked file path(s) back to
-  /// the web page. Returning an empty list cancels the upload.
+  /// the web page. The user first picks between camera and gallery, matching
+  /// the avatar picker on the profile screen. Returning an empty list cancels
+  /// the upload.
   Future<List<String>> _androidFileSelector(FileSelectorParams params) async {
     debugPrint('[WebView] File selector requested: '
         'mode=${params.mode}, capture=${params.isCaptureEnabled}');
     try {
+      final source = await _showImageSourceSheet();
+      if (source == null || !mounted) return const [];
+
       final List<XFile> files;
-      if (params.mode == FileSelectorMode.openMultiple) {
+      if (source == ImageSource.camera) {
+        final XFile? file = await _imagePicker.pickImage(
+          source: ImageSource.camera,
+        );
+        files = file == null ? const [] : [file];
+      } else if (params.mode == FileSelectorMode.openMultiple) {
         files = await _imagePicker.pickMultiImage();
       } else {
         final XFile? file = await _imagePicker.pickImage(
-          source: params.isCaptureEnabled
-              ? ImageSource.camera
-              : ImageSource.gallery,
+          source: ImageSource.gallery,
         );
         files = file == null ? const [] : [file];
       }
@@ -177,11 +187,52 @@ class _WebViewScreenState extends State<WebViewScreen> {
       debugPrint('[WebView] File selector error: $error\n$stackTrace');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('选择照片失败，请重试')),
+          const SnackBar(content: Text('Failed to pick image, please try again')),
         );
       }
       return const [];
     }
+  }
+
+  /// Lets the user choose between the camera and the gallery, like the avatar
+  /// picker on the profile screen. Returns null if the sheet is dismissed.
+  Future<ImageSource?> _showImageSourceSheet() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_rounded, color: accent),
+              title: const Text('Take photo'),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded, color: accent),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+            ),
+            const Divider(height: 1, thickness: 1, color: Color(0xffeef0f4)),
+            ListTile(
+              title: const Text(
+                'Cancel',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: muted,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onTap: () => Navigator.pop(sheetContext),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
