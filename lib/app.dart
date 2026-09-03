@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
+import 'providers/providers.dart';
 import 'screens/home_screen.dart';
 import 'screens/webview_screen.dart';
 import 'services/app_conf_service.dart';
@@ -54,6 +56,15 @@ class _PalMaxAppState extends ConsumerState<PalMaxApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themePreference = ref.watch(
+      appPrefsProvider.select((prefs) => prefs.theme),
+    );
+    final themeMode = switch (themePreference) {
+      ThemePreference.light => ThemeMode.light,
+      ThemePreference.dark => ThemeMode.dark,
+      ThemePreference.system => ThemeMode.system,
+    };
+
     final Widget home;
     if (_checking) {
       home = const _StartupLoading();
@@ -64,11 +75,31 @@ class _PalMaxAppState extends ConsumerState<PalMaxApp> {
           : WebViewScreen(url: steer);
     }
 
+    final isDark = switch (themeMode) {
+      ThemeMode.light => false,
+      ThemeMode.dark => true,
+      ThemeMode.system =>
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+    };
+    final systemOverlay = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness:
+          isDark ? Brightness.light : Brightness.dark,
+    );
+
     return MaterialApp(
-      title: 'Stock Trading Calculator',
+      title: kAppName,
       debugShowCheckedModeBanner: false,
       theme: buildLightTheme(),
-      home: home,
+      darkTheme: buildDarkTheme(),
+      themeMode: themeMode,
+      home: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: systemOverlay,
+        child: home,
+      ),
     );
   }
 }
@@ -78,18 +109,19 @@ class _StartupLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'PAL-Puls',
+            Text(
+              kAppName,
               style: TextStyle(
-                color: accent,
+                color: colorScheme.primary,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 2,
+                letterSpacing: 1.5,
                 fontSize: 24,
               ),
             ),
@@ -99,7 +131,7 @@ class _StartupLoading extends StatelessWidget {
               height: 24,
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: accent,
+                color: colorScheme.primary,
               ),
             ),
           ],

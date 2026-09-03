@@ -1,7 +1,9 @@
 name: pal_max
-description: A stock trading calculator app with 11 real-time tools for Android and iOS.
+description: >-
+  A Flutter replica of the open-source Stocks Widget app: live watchlist
+  quotes, charts, search and settings for Android and iOS.
 publish_to: 'none'
-version: 1.0.8+9
+version: 2.0.0+10
 
 environment:
   sdk: '>=3.9.0 <4.0.0'

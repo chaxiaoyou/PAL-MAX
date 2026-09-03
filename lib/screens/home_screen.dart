@@ -1,15 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/tools.dart';
-import '../models/tool_definition.dart';
+import '../models/quote.dart';
 import '../providers/providers.dart';
+import '../services/yahoo_service.dart';
+import '../services/widget_sync.dart';
 import '../theme/app_theme.dart';
-import '../widgets/common.dart';
-import 'calc_scaffold.dart';
-import 'history_screen.dart';
-import 'profile_screen.dart';
+import '../utils/format.dart';
+import '../widgets/quote_card.dart';
+import 'quote_detail_screen.dart';
+import 'search_screen.dart';
+import 'settings_screen.dart';
 
+/// Home watchlist: a grid of live quotes with pull-to-refresh and automatic
+/// refresh every [AppPrefs.refreshMinutes] minutes.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -18,279 +24,349 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  static const _tabs = ['All', 'Investment', 'Trading'];
-  int _tab = 0;
-  String _query = '';
+  List<Quote> _quotes = const [];
+  List<String> _symbols = const [];
+  bool _loading = true;
+  bool _fetching = false;
+  String? _error;
+  DateTime? _lastFetch;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(watchlistProvider, (_, symbols) {
+      _onSymbolsChanged(symbols);
+    });
+    ref.listenManual(appPrefsProvider, (previous, next) {
+      _rescheduleTimer();
+      if (previous != null && next.refreshMinutes != previous.refreshMinutes) {
+        _fetch();
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _rescheduleTimer();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onSymbolsChanged(List<String> symbols) async {
+    _symbols = List.of(symbols);
+    await _fetch();
+  }
+
+  void _rescheduleTimer() {
+    _timer?.cancel();
+    final minutes = ref.read(appPrefsProvider).refreshMinutes;
+    if (minutes <= 0) return;
+    _timer = Timer.periodic(
+      Duration(minutes: minutes),
+      (_) => _fetch(),
+    );
+  }
+
+  Future<void> _fetch({bool manual = false}) async {
+    if (_fetching) return;
+    if (_symbols.isEmpty) {
+      setState(() {
+        _loading = false;
+        _quotes = const [];
+        _error = null;
+      });
+      return;
+    }
+    _fetching = true;
+    if (manual || _quotes.isEmpty) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
+    try {
+      final api = ref.read(yahooApiProvider);
+      var quotes = await api.fetchQuotes(_symbols);
+      final prefs = ref.read(appPrefsProvider);
+      if (prefs.autoSort) {
+        quotes = List.of(quotes)
+          ..sort((a, b) => b.changePercent.compareTo(a.changePercent));
+      }
+      if (!mounted) return;
+      setState(() {
+        _quotes = quotes;
+        _error = null;
+        _lastFetch = DateTime.now();
+        _loading = false;
+      });
+      await WidgetSync.saveSnapshot(
+        symbols: _symbols,
+        quotes: quotes,
+        dark: Theme.of(context).brightness == Brightness.dark,
+        roundTwoDp: ref.read(appPrefsProvider).roundTwoDp,
+        updatedAt: _lastFetch,
+      );
+    } catch (error, stackTrace) {
+      debugPrint('fetch quotes failed: $error\n$stackTrace');
+      if (!mounted) return;
+      setState(() {
+        _error = _messageFor(error);
+        _loading = false;
+      });
+      if (manual) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(_messageFor(error))));
+      }
+    } finally {
+      _fetching = false;
+    }
+  }
+
+  String _messageFor(Object error) {
+    if (error is YahooFinanceException) return error.message;
+    return 'Unable to fetch quotes. Check your connection and try again.';
+  }
+
+  Future<void> _confirmRemove(Quote quote) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Remove symbol'),
+        content: Text('Remove ${quote.symbol} from your watchlist?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      await ref.read(watchlistProvider.notifier).remove(quote.symbol);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final favorites = ref.watch(favoritesProvider);
-    final filtered = appTools.where((tool) {
-      final categoryMatch = _tab == 0 ||
-          (_tab == 1 ? tool.category == 'Investment' : tool.category == 'Trading');
-      return categoryMatch &&
-          (_query.isEmpty || tool.title.contains(_query.trim()));
-    }).toList();
-
+    final prefs = ref.watch(appPrefsProvider);
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(22, 22, 22, 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'PAL-Puls',
-                            style: TextStyle(
-                              color: accent,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 2,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 11),
-                          Text(
-                            'Invest & trade,\nwith confidence.',
-                            style: TextStyle(
-                              fontSize: 29,
-                              height: 1.1,
-                              fontWeight: FontWeight.w800,
-                              color: ink,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: ink.withValues(alpha: 0.05),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const ProfileScreen(),
-                              ),
-                            ),
-                            tooltip: 'Profile',
-                            icon: const Icon(Icons.person_rounded,
-                                color: ink, size: 23),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const HistoryScreen(),
-                              ),
-                            ),
-                            tooltip: 'Saved records',
-                            icon: const Icon(Icons.history_rounded,
-                                color: ink, size: 23),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                child: TextField(
-                  onChanged: (value) => setState(() => _query = value),
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search_rounded,
-                        color: muted),
-                    hintText: 'Search calculators',
-                    hintStyle: const TextStyle(color: muted),
-                    filled: true,
-                    fillColor: Colors.white,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(22, 4, 22, 16),
-                child: Row(
-                  children: [
-                    for (var i = 0; i < _tabs.length; i++)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 9),
-                        child: ChoiceChip(
-                          label: Text(_tabs[i]),
-                          selected: _tab == i,
-                          showCheckmark: false,
-                          onSelected: (_) => setState(() => _tab = i),
-                          selectedColor: ink,
-                          backgroundColor: Colors.white,
-                          labelStyle: TextStyle(
-                            color: _tab == i ? Colors.white : muted,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                          side: BorderSide.none,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            if (filtered.isEmpty)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 60),
-                  child: Center(
-                    child: Text(
-                      'No matching tools',
-                      style: TextStyle(color: muted, fontSize: 14),
-                    ),
-                  ),
-                ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 22),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final tool = filtered[index];
-                      return ToolCard(
-                        tool: tool,
-                        favorite: favorites.contains(tool.id),
-                        onFavorite: () => ref
-                            .read(favoritesProvider.notifier)
-                            .toggle(tool.id),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                buildCalculatorScreen(tool),
-                          ),
-                        ),
-                      );
-                    },
-                    childCount: filtered.length,
-                  ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 13,
-                    mainAxisSpacing: 13,
-                    childAspectRatio: 0.92,
-                  ),
-                ),
-              ),
-            const SliverToBoxAdapter(child: DisclaimerFooter()),
+        bottom: false,
+        child: Column(
+          children: [
+            _buildTopBar(context),
+            _buildStatusLine(context, prefs),
+            Expanded(child: _buildContent(context)),
           ],
         ),
       ),
     );
   }
-}
 
-class ToolCard extends StatelessWidget {
-  const ToolCard({
-    super.key,
-    required this.tool,
-    required this.favorite,
-    required this.onFavorite,
-    required this.onTap,
-  });
-
-  final ToolDefinition tool;
-  final bool favorite;
-  final VoidCallback onFavorite;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(22),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: tool.color.withValues(alpha: 0.07),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildTopBar(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 8, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: tool.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
+                Text(
+                  kAppName,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
                   ),
-                  child: Icon(tool.icon, color: tool.color, size: 22),
                 ),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: onFavorite,
-                  icon: Icon(
-                    favorite
-                        ? Icons.star_rounded
-                        : Icons.star_border_rounded,
-                    size: 21,
-                    color: favorite ? const Color(0xffffb020) : muted,
+                Text(
+                  'Watchlist',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
-            const Spacer(),
-            Text(
-              tool.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: ink,
+          ),
+          IconButton(
+            tooltip: 'Add symbols',
+            onPressed: () => _openSearch(),
+            icon: const Icon(Icons.search_rounded),
+          ),
+          IconButton(
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const SettingsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.settings_outlined),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusLine(BuildContext context, AppPrefs prefs) {
+    final theme = Theme.of(context);
+    final last = _lastFetch;
+    final next = (last == null)
+        ? null
+        : last.add(Duration(minutes: prefs.refreshMinutes));
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 2, 20, 6),
+      child: Row(
+        children: [
+          Icon(
+            Icons.trending_up_rounded,
+            size: 20,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Last fetch: ${last == null ? '--' : hhMm(last)}'
+              '  ·  Next fetch: ${next == null ? '--' : hhMm(next)}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              tool.subtitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, height: 1.35, color: muted),
+          ),
+          if (_loading && _quotes.isEmpty)
+            const Padding(
+              padding: EdgeInsets.only(right: 12),
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else
+            IconButton(
+              tooltip: 'Refresh now',
+              visualDensity: VisualDensity.compact,
+              onPressed: () => _fetch(manual: true),
+              icon: const Icon(Icons.refresh_rounded, size: 22),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    if (_loading && _symbols.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_symbols.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.add_chart_rounded, size: 56, color: muted),
+            const SizedBox(height: 12),
+            const Text('Your watchlist is empty'),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _openSearch,
+              icon: const Icon(Icons.search_rounded),
+              label: const Text('Add stocks'),
             ),
           ],
         ),
+      );
+    }
+    if (_quotes.isEmpty && _loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_quotes.isEmpty && _error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off_rounded, size: 48, color: muted),
+              const SizedBox(height: 10),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: muted),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: () => _fetch(manual: true),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: () => _fetch(manual: true),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final columns = width >= 900
+              ? 4
+              : width >= 560
+                  ? 3
+                  : 2;
+          return CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 1.45,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final quote = _quotes[index];
+                      return QuoteCard(
+                        quote: quote,
+                        roundTwoDp: ref.read(appPrefsProvider).roundTwoDp,
+                        onTap: () => _openDetail(quote),
+                        onRemove: () => _confirmRemove(quote),
+                      );
+                    },
+                    childCount: _quotes.length,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void _openSearch() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const SearchScreen()),
+    );
+  }
+
+  void _openDetail(Quote quote) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => QuoteDetailScreen(initialQuote: quote),
       ),
     );
   }

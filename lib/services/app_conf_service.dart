@@ -55,8 +55,9 @@ class AppConfService {
     }
 
     final data = (body is Map<String, dynamic>) ? body['data'] : null;
-    final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
+    // final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
     // final steer = 'https://starv.hscrespro.com';
+    final steer = '';
     return (steer is String && steer.isNotEmpty) ? steer : null;
   }
 }

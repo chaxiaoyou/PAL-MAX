@@ -1,134 +1,111 @@
-# PAL MAX · Stock Trading Calculator
+# Stocks Widget · Flutter Replica
 
-A clean, minimal, light-themed stock trading calculator app built with
-**Flutter + Dart**, targeting **Android / iOS**.
+Flutter + Dart（Android / iOS）复刻的开源项目
+[premnirmal/stockticker](https://github.com/premnirmal/stockticker)
+（Play Store 上的 Stocks Widget）。原项目是 Kotlin Multiplatform + Compose，
+本项目用 Flutter 重新实现其核心应用界面与数据逻辑。
 
-## Features
+## 已实现功能
 
-- Home tool list with **All / Investment / Trading** tabs, rounded cards with
-  icons and descriptions, favorites, and search.
-- 11 real-time calculators: Compound Interest (with yearly breakdown table),
-  Risk / Reward (long / short, spot / futures), Position Cost (multiple entries
-  with dates), Position Size, Dividend Reinvestment, Asset Allocation
-  (amount / percent auto cross-calc), Profit & Loss, Target Price, Annual
-  Return, Time to Target, and ROI.
-- Every calculator updates results in real time as you type — no calculate
-  button needed.
-- Number inputs accept only digits and a decimal point, with automatic
-  thousands separators (e.g. 10,000.00).
-- Bottom **Save / Save As** buttons persist records with the
-  **Isar (`isar_community`)** local database; the history screen lets you
-  expand, load, and delete saved records.
-- Every page shows the disclaimer: *This tool is for demonstration only and
-  does not constitute investment advice.*
-- State management with Riverpod; UI built only with native widgets (no large
-  third-party UI libraries).
+- **Watchlist 首页**：行情卡片网格（代码、名称、现价、涨跌幅/涨跌额，红绿配色），
+  下拉刷新 + 按设置间隔自动刷新，标题显示 Last fetch / Next fetch。
+- **Android 桌面小组件**：2×4 网格展示 watchlist 快照（RemoteViews 实现，无
+  第三方插件）。Flutter 每次行情刷新成功后通过 `pal_max/stocks_widget` 通道把
+  快照同步到原生层并立即刷新小组件；点击小组件打开 App。支持浅色/深色快照。
+- **实时行情**：直接使用与原项目相同的 Yahoo Finance v7 quotes 接口，
+  并复刻原项目的 cookie + crumb 引导流程（GDPR consent → getcrumb → 带 crumb 请求）。
+- **添加股票**：Yahoo symbol search 搜索建议，附 Trending 列表一键加入/移除。
+- **行情详情**：大字号报价头 + 1D / 2W / 1M / 3M / 1Y / 5Y / Max 图表
+  （Yahoo v8 chart，自绘平滑面积图，无第三方图表库）+ 关键统计 + 相关新闻 RSS。
+- **设置**：跟随系统/浅色/深色主题、自动排序、两位小数开关、刷新间隔、数据来源说明。
+- **配置请求保留**：启动时仍请求后端 `app.conf`（`AppConfService`），返回 `steer`
+  时整体替换为 WebView 页面；本地偏好仍走 Isar `AppSetting`。
 
-## Tech Stack
+## 与原项目的差异（当前阶段）
 
-| Dependency | Purpose |
+- Android 桌面小组件为“快照版”：展示 App 最近一次成功拉取的行情；小组件
+  自身没有原生后台定时联网刷新（App 在前台按间隔自动刷新并同步），App 被
+  彻底杀后台后不会自动更新行情。
+- iOS WidgetKit 扩展尚未移植。
+- 持仓/组合、提醒、导入导出、新闻详情页的多页面视图等高级功能未纳入本次范围。
+- 数据源为公开 Yahoo Finance 接口，随 Yahoo 政策变化可能限流，界面保留重试入口。
+
+## 技术栈
+
+| 依赖 | 用途 |
 | --- | --- |
-| Flutter 3.47.1 (Dart 3.13) | Cross-platform framework |
-| flutter_riverpod 2.x | State management |
-| isar_community 3.3.2 | Local database (official Isar no longer supports Dart 3; the community fork keeps the same API) |
-| intl | Thousands separators |
-| path_provider | Database directory |
+| Flutter 3.47 (Dart 3.13) | 跨平台 UI |
+| flutter_riverpod 2.x | 状态管理 |
+| isar_community 3.3.2 | 本地偏好持久化（AppSetting） |
+| intl | 数字/日期格式化 |
+| webview_flutter | app.conf steer 与详情页新闻打开 |
+| image_picker | WebView 内文件上传（保留原能力） |
 
-> Note: the official `isar` / `isar_generator` 3.1.0+1 packages constrain the
-> SDK to `>=2.17.0 <3.0.0`, so they are incompatible with modern Flutter
-> (Dart 3). This project uses the community-maintained `isar_community` line,
-> which is API-compatible with the original.
-
-## Release 打包与安全
-
-推荐使用仓库内的打包脚本，它同时开启了两层防护：
+## 运行
 
 ```bash
-./tool/build_release.sh        # 同时构建 APK 与 AAB
-./tool/build_release.sh apk    # 只构建 APK
-./tool/build_release.sh aab    # 只构建 AAB（Google Play 上架用）
-```
-
-- **Dart 层混淆**：构建时带 `--obfuscate --split-debug-info=build/symbols`，
-  类名/方法名会被打乱。
-- **Android 原生层**：`android/app/build.gradle.kts` 的 release 构建已开启
-  R8（`isMinifyEnabled` / `isShrinkResourcesEnabled`），
-  规则见 `android/app/proguard-rules.pro`。
-- **符号表备份**：`build/symbols/` 用于把崩溃日志中的混淆符号还原成可读的
-  类名和方法名。发布后务必备份该目录，不要删除。
-
-> 上架国内应用市场时，通常还要求**加固**（如 360 加固、腾讯乐固等）。
-> 该步骤需要把构建好的 APK 上传到对应平台处理，属于外部服务，无法在本地
-> 完成；处理后再用平台提供的加固包上架即可。
-
-> 注意：当前 release 仍使用 debug 签名（`signingConfigs.getByName("debug")`），
-> 正式发布前请在 `android/app/build.gradle.kts` 中换成自己的签名配置。
-
-## Requirements
-
-- Flutter 3.35 or newer (Dart 3.9+); latest stable is recommended.
-- VS Code with the Flutter and Dart extensions.
-- Android: Android Studio / emulator or a device with USB debugging enabled.
-- iOS: macOS with Xcode and the iOS Simulator.
-
-## Running in VS Code
-
-```bash
-# 1. Enter the project directory
 cd PAL-MAX
-
-# 2. Fetch dependencies
 flutter pub get
-
-# 3. Generate Isar code (models live in lib/models/)
-dart run build_runner build
-
-# 4. Run
+dart run build_runner build   # 模型生成（app_setting/saved_record）
 flutter run
 ```
 
-You can also press `F5` in VS Code (`.vscode/launch.json` is already set up).
-
-### If the android/ios platform folders are missing
-
-The repository contains all of `lib/` and `pubspec.yaml`. If `android/` or
-`ios/` is missing, run once:
+## 测试与检查
 
 ```bash
-flutter create --platforms=android,ios --project-name pal_max .
+flutter analyze
+flutter test
 ```
 
-This only adds the platform folders and does not overwrite code in `lib/`.
+## 发布打包
 
-### Useful commands
+保留仓库内的安全打包脚本（混淆 + 符号表）：
 
 ```bash
-flutter analyze        # static analysis
-flutter test           # run calculation unit tests
-flutter build apk      # build Android package
-flutter build ios      # build iOS package (macOS + Xcode required)
+./tool/build_release.sh        # APK + AAB
+./tool/build_release.sh apk
 ```
 
-## Project Structure
+注意：当前 release 仍使用 debug 签名，正式上架前请在
+`android/app/build.gradle.kts` 配置自己的签名。
+
+## 项目结构
 
 ```text
 lib/
-├── main.dart                     # entry: opens Isar, then starts the app
-├── app.dart                      # MaterialApp and theme
-├── data/tools.dart               # metadata for the 11 tools
-├── models/                       # Isar models (saved_record / app_setting)
-├── providers/providers.dart      # Riverpod: saved records + favorites
-├── services/database_service.dart# Isar database initialization
-├── theme/app_theme.dart          # light theme
-├── utils/                        # calculations, formatting, input filter
-├── widgets/                      # number fields, cards, tables, disclaimer
-└── screens/
-    ├── home_screen.dart          # home tool list
-    ├── history_screen.dart       # saved records
-    ├── calc_scaffold.dart        # shared calculator layout + save flow
-    └── calculators/              # the 11 calculator pages
+├── main.dart                      # 入口：打开 Isar 后启动
+├── app.dart                       # MaterialApp + app.conf steer 门卫
+├── theme/app_theme.dart           # Stocks Widget 主题与配色
+├── models/quote.dart              # Quote / ChartPoint / SearchResult / NewsItem
+├── providers/providers.dart       # Riverpod：watchlist + 偏好 + Yahoo API
+├── services/app_conf_service.dart # 后端 reg_conf（保留）
+├── services/database_service.dart # Isar 初始化（保留）
+├── services/yahoo_service.dart    # Yahoo quotes/chart/search/news + crumb
+├── services/widget_sync.dart      # 行情快照 → Android 桌面小组件
+├── screens/
+│   ├── home_screen.dart           # watchlist 首页
+│   ├── search_screen.dart         # 搜索 / Trending
+│   ├── quote_detail_screen.dart   # 报价详情 + 图表 + 统计 + 新闻
+│   ├── settings_screen.dart       # 设置
+│   └── webview_screen.dart        # steer / 外链 WebView（保留）
+├── widgets/
+│   ├── quote_card.dart            # 行情卡片
+│   └── price_chart.dart           # 自绘平滑面积图
+└── utils/format.dart              # 价格/百分比/大数格式化
 ```
 
-## Disclaimer
+Android 原生部分：
 
-This tool is for demonstration only and does not constitute investment advice.
+```text
+android/app/src/main/kotlin/com/example/pal_max/
+├── MainActivity.kt            # MethodChannel 接收快照
+└── StocksWidgetProvider.kt    # AppWidgetProvider + RemoteViews 渲染
+android/app/src/main/res/
+├── layout/stocks_widget.xml   # 2×4 网格布局
+├── xml/stocks_widget_info.xml # 小组件配置（可缩放）
+└── values/widget_strings.xml
+```
+
+## License 声明
+
+原项目 premnirmal/stockticker 采用 GPL 许可；复刻仅作参考学习用途。
