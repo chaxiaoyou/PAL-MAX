@@ -4,56 +4,48 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar_community/isar.dart';
 
 import '../models/app_setting.dart';
-import '../models/saved_record.dart';
+import '../services/yahoo_service.dart';
 
 final isarProvider = Provider<Isar>(
   (ref) => throw UnimplementedError('isarProvider must be overridden in main()'),
 );
 
-// ---------- Saved records ----------
+final yahooApiProvider = Provider<YahooFinanceApi>((ref) {
+  final api = YahooFinanceApi();
+  ref.onDispose(api.dispose);
+  return api;
+});
 
-class SavedRecordsNotifier extends StateNotifier<List<SavedRecord>> {
-  SavedRecordsNotifier(this._ref) : super(const []) {
-    _load();
-  }
+// ---------- Persistent key/value settings (Isar AppSetting) ----------
 
-  final Ref _ref;
-
-  Isar get _db => _ref.read(isarProvider);
-
-  Future<void> _load() async {
-    final records =
-        await _db.savedRecords.where().sortByCreatedAtDesc().findAll();
-    if (!mounted) return;
-    state = records;
-  }
-
-  Future<SavedRecord> add(SavedRecord record) async {
-    await _db.writeTxn(() => _db.savedRecords.put(record));
-    await _load();
-    return record;
-  }
-
-  Future<void> update(SavedRecord record) async {
-    await _db.writeTxn(() => _db.savedRecords.put(record));
-    await _load();
-  }
-
-  Future<void> delete(Id id) async {
-    await _db.writeTxn(() => _db.savedRecords.delete(id));
-    await _load();
-  }
+Future<String?> _readSetting(Isar db, String key) async {
+  final entry = await db.appSettings.filter().keyEqualTo(key).findFirst();
+  return entry?.value;
 }
 
-final savedRecordsProvider =
-    StateNotifierProvider<SavedRecordsNotifier, List<SavedRecord>>(
-  (ref) => SavedRecordsNotifier(ref),
-);
+Future<void> _writeSetting(Isar db, String key, String value) async {
+  final entry = await db.appSettings.filter().keyEqualTo(key).findFirst();
+  await db.writeTxn(() async {
+    final next = entry ?? (AppSetting()..key = key);
+    next.value = value;
+    await db.appSettings.put(next);
+  });
+}
 
-// ---------- Favorites ----------
+// ---------- Watchlist ----------
 
-class FavoritesNotifier extends StateNotifier<Set<String>> {
-  FavoritesNotifier(this._ref) : super(const {}) {
+const defaultWatchlist = <String>[
+  '^GSPC',
+  '^DJI',
+  'GOOG',
+  'AAPL',
+  'MSFT',
+];
+
+const _watchlistKey = 'watchlist_symbols';
+
+class WatchlistNotifier extends StateNotifier<List<String>> {
+  WatchlistNotifier(this._ref) : super(const []) {
     _load();
   }
 
@@ -62,54 +54,107 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
   Isar get _db => _ref.read(isarProvider);
 
   Future<void> _load() async {
-    final setting =
-        await _db.appSettings.filter().keyEqualTo('favorites').findFirst();
-    if (!mounted || setting == null) return;
+    final raw = await _readSetting(_db, _watchlistKey);
+    if (raw == null) {
+      state = List.of(defaultWatchlist);
+      await _writeSetting(
+        _db,
+        _watchlistKey,
+        jsonEncode(defaultWatchlist),
+      );
+      return;
+    }
     try {
-      final list = (jsonDecode(setting.value) as List).cast<String>();
-      state = list.toSet();
+      final list = (jsonDecode(raw) as List).cast<String>();
+      state = list;
     } catch (_) {
-      // Ignore corrupted data
+      state = List.of(defaultWatchlist);
     }
   }
 
-  Future<void> toggle(String toolId) async {
-    final next = {...state};
-    next.contains(toolId) ? next.remove(toolId) : next.add(toolId);
-    state = next;
-    final setting =
-        await _db.appSettings.filter().keyEqualTo('favorites').findFirst();
-    await _db.writeTxn(() async {
-      final entry = setting ?? (AppSetting()..key = 'favorites');
-      entry.value = jsonEncode(next.toList());
-      await _db.appSettings.put(entry);
-    });
+  Future<void> setSymbols(List<String> symbols) async {
+    final cleaned = symbols
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toSet()
+        .toList();
+    state = cleaned;
+    await _writeSetting(_db, _watchlistKey, jsonEncode(cleaned));
+  }
+
+  Future<void> add(String symbol) async {
+    final symbolTrimmed = symbol.trim();
+    if (symbolTrimmed.isEmpty || state.contains(symbolTrimmed)) return;
+    await setSymbols([...state, symbolTrimmed]);
+  }
+
+  Future<void> remove(String symbol) async {
+    await setSymbols(state.where((s) => s != symbol).toList());
+  }
+
+  Future<void> reorder(int oldIndex, int newIndex) async {
+    if (oldIndex < 0 || oldIndex >= state.length) return;
+    final next = List.of(state);
+    final item = next.removeAt(oldIndex);
+    if (newIndex > oldIndex) newIndex -= 1;
+    next.insert(newIndex.clamp(0, next.length), item);
+    await setSymbols(next);
   }
 }
 
-final favoritesProvider =
-    StateNotifierProvider<FavoritesNotifier, Set<String>>(
-  (ref) => FavoritesNotifier(ref),
+final watchlistProvider =
+    StateNotifierProvider<WatchlistNotifier, List<String>>(
+  (ref) => WatchlistNotifier(ref),
 );
 
-// ---------- Profile settings ----------
+// ---------- App preferences ----------
 
-class ProfileSettings {
-  const ProfileSettings({this.name = '', this.avatarPath});
+enum ThemePreference {
+  system('system'),
+  light('light'),
+  dark('dark');
 
-  final String name;
-  final String? avatarPath;
+  const ThemePreference(this.storageValue);
 
-  ProfileSettings copyWith({String? name, String? avatarPath}) {
-    return ProfileSettings(
-      name: name ?? this.name,
-      avatarPath: avatarPath ?? this.avatarPath,
+  final String storageValue;
+
+  static ThemePreference fromStorage(String? value) => switch (value) {
+        'light' => ThemePreference.light,
+        'dark' => ThemePreference.dark,
+        _ => ThemePreference.system,
+      };
+}
+
+class AppPrefs {
+  const AppPrefs({
+    this.theme = ThemePreference.system,
+    this.refreshMinutes = 5,
+    this.roundTwoDp = true,
+    this.autoSort = false,
+  });
+
+  final ThemePreference theme;
+  final int refreshMinutes;
+  final bool roundTwoDp;
+  final bool autoSort;
+
+  AppPrefs copyWith({
+    ThemePreference? theme,
+    int? refreshMinutes,
+    bool? roundTwoDp,
+    bool? autoSort,
+  }) {
+    return AppPrefs(
+      theme: theme ?? this.theme,
+      refreshMinutes: refreshMinutes ?? this.refreshMinutes,
+      roundTwoDp: roundTwoDp ?? this.roundTwoDp,
+      autoSort: autoSort ?? this.autoSort,
     );
   }
 }
 
-class ProfileNotifier extends StateNotifier<ProfileSettings> {
-  ProfileNotifier(this._ref) : super(const ProfileSettings()) {
+class AppPrefsNotifier extends StateNotifier<AppPrefs> {
+  AppPrefsNotifier(this._ref) : super(const AppPrefs()) {
     _load();
   }
 
@@ -118,54 +163,42 @@ class ProfileNotifier extends StateNotifier<ProfileSettings> {
   Isar get _db => _ref.read(isarProvider);
 
   Future<void> _load() async {
-    final nameSetting = await _db.appSettings
-        .filter()
-        .keyEqualTo('profile_name')
-        .findFirst();
-    final avatarSetting = await _db.appSettings
-        .filter()
-        .keyEqualTo('profile_avatar')
-        .findFirst();
-    if (!mounted) return;
-    state = ProfileSettings(
-      name: nameSetting?.value ?? '',
-      avatarPath: (avatarSetting?.value.isNotEmpty ?? false)
-          ? avatarSetting!.value
-          : null,
+    final theme = ThemePreference.fromStorage(
+      await _readSetting(_db, 'theme'),
+    );
+    final refreshRaw = await _readSetting(_db, 'refresh_minutes');
+    final roundRaw = await _readSetting(_db, 'round_2dp');
+    final autoRaw = await _readSetting(_db, 'auto_sort');
+    state = AppPrefs(
+      theme: theme,
+      refreshMinutes: int.tryParse(refreshRaw ?? '') ?? 5,
+      roundTwoDp: roundRaw != '0',
+      autoSort: autoRaw == '1',
     );
   }
 
-  Future<void> saveName(String name) async {
-    final trimmed = name.trim();
-    if (!mounted) return;
-    state = state.copyWith(name: trimmed);
-    final setting = await _db.appSettings
-        .filter()
-        .keyEqualTo('profile_name')
-        .findFirst();
-    await _db.writeTxn(() async {
-      final entry = setting ?? (AppSetting()..key = 'profile_name');
-      entry.value = trimmed;
-      await _db.appSettings.put(entry);
-    });
+  Future<void> setTheme(ThemePreference value) async {
+    state = state.copyWith(theme: value);
+    await _writeSetting(_db, 'theme', value.storageValue);
   }
 
-  Future<void> saveAvatar(String path) async {
-    if (!mounted) return;
-    state = state.copyWith(avatarPath: path);
-    final setting = await _db.appSettings
-        .filter()
-        .keyEqualTo('profile_avatar')
-        .findFirst();
-    await _db.writeTxn(() async {
-      final entry = setting ?? (AppSetting()..key = 'profile_avatar');
-      entry.value = path;
-      await _db.appSettings.put(entry);
-    });
+  Future<void> setRefreshMinutes(int value) async {
+    state = state.copyWith(refreshMinutes: value);
+    await _writeSetting(_db, 'refresh_minutes', '$value');
+  }
+
+  Future<void> setRoundTwoDp(bool value) async {
+    state = state.copyWith(roundTwoDp: value);
+    await _writeSetting(_db, 'round_2dp', value ? '1' : '0');
+  }
+
+  Future<void> setAutoSort(bool value) async {
+    state = state.copyWith(autoSort: value);
+    await _writeSetting(_db, 'auto_sort', value ? '1' : '0');
   }
 }
 
-final profileProvider =
-    StateNotifierProvider<ProfileNotifier, ProfileSettings>(
-  (ref) => ProfileNotifier(ref),
+final appPrefsProvider =
+    StateNotifierProvider<AppPrefsNotifier, AppPrefs>(
+  (ref) => AppPrefsNotifier(ref),
 );
