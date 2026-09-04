@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:isar_community/src/native/isar_core.dart';
-import 'package:pal_max/models/app_setting.dart';
-import 'package:pal_max/models/saved_record.dart';
+import 'package:needhamcapital/models/app_setting.dart';
+import 'package:needhamcapital/models/saved_record.dart';
 
 void main() {
   // Host-only smoke test: locate the native library shipped with
@@ -18,12 +18,12 @@ void main() {
   test(
     'Isar save / query / delete records',
     () async {
-      final dir = Directory.systemTemp.createTempSync('pal_max_test');
+      final dir = Directory.systemTemp.createTempSync('needhamcapital_test');
       await initializeCoreBinary(libraries: {Abi.current(): coreLib});
       final isar = await Isar.open(
         [SavedRecordSchema, AppSettingSchema],
         directory: dir.path,
-        name: 'pal_max_test',
+        name: 'needhamcapital_test',
       );
 
       final record = SavedRecord()

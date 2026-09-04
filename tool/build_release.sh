@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# PAL MAX release 打包脚本
+# Needham Capital  release 打包脚本
 #
 # 用法:
 #   ./tool/build_release.sh          # 同时构建 APK 与 AAB

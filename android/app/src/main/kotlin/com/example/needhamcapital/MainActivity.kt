@@ -1,4 +1,4 @@
-package com.example.pal_max
+package com.example.needhamcapital
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -9,7 +9,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            "pal_max/stocks_widget",
+            "NeedhamCapital/stocks_widget",
         ).setMethodCallHandler { call, result ->
             if (call.method == "update") {
                 val payload = call.arguments as? String

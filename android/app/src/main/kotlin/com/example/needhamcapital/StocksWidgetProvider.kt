@@ -1,4 +1,4 @@
-package com.example.pal_max
+package com.example.needhamcapital
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -13,7 +13,8 @@ import java.util.Locale
 
 /**
  * Home-screen widget that mirrors the in-app watchlist grid. The Flutter side
- * pushes the latest quote snapshot through `pal_max/stocks_widget` whenever a
+ * pushes the latest quote snapshot through `NeedhamCapital/stocks_widget`
+ * whenever a
  * refresh succeeds; this provider renders that snapshot with RemoteViews so the
  * widget itself does not need its own network/authentication stack.
  */

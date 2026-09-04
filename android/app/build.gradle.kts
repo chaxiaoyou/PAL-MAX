@@ -15,7 +15,7 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.example.pal_max"
+    namespace = "com.example.needhamcapital"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

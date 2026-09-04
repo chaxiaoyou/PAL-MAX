@@ -10,7 +10,7 @@ import '../utils/format.dart';
 /// Bridges the watchlist snapshot to the native Android home-screen widget.
 /// The widget itself stays offline: it renders whatever the app last fetched.
 class WidgetSync {
-  static const _channel = MethodChannel('pal_max/stocks_widget');
+  static const _channel = MethodChannel('NeedhamCapital/stocks_widget');
 
   static Future<void> saveSnapshot({
     required List<String> symbols,

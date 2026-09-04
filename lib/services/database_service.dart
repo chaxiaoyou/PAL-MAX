@@ -9,6 +9,6 @@ Future<Isar> openDatabase() async {
   return Isar.open(
     [SavedRecordSchema, AppSettingSchema],
     directory: dir.path,
-    name: 'pal_max',
+    name: 'needhamcapital',
   );
 }

@@ -10,7 +10,7 @@ Flutter + Dart（Android / iOS）复刻的开源项目
 - **Watchlist 首页**：行情卡片网格（代码、名称、现价、涨跌幅/涨跌额，红绿配色），
   下拉刷新 + 按设置间隔自动刷新，标题显示 Last fetch / Next fetch。
 - **Android 桌面小组件**：2×4 网格展示 watchlist 快照（RemoteViews 实现，无
-  第三方插件）。Flutter 每次行情刷新成功后通过 `pal_max/stocks_widget` 通道把
+  第三方插件）。Flutter 每次行情刷新成功后通过 `NeedhamCapital/stocks_widget` 通道把
   快照同步到原生层并立即刷新小组件；点击小组件打开 App。支持浅色/深色快照。
 - **实时行情**：直接使用与原项目相同的 Yahoo Finance v7 quotes 接口，
   并复刻原项目的 cookie + crumb 引导流程（GDPR consent → getcrumb → 带 crumb 请求）。
@@ -97,7 +97,7 @@ lib/
 Android 原生部分：
 
 ```text
-android/app/src/main/kotlin/com/example/pal_max/
+android/app/src/main/kotlin/com/example/needhamcapital/
 ├── MainActivity.kt            # MethodChannel 接收快照
 └── StocksWidgetProvider.kt    # AppWidgetProvider + RemoteViews 渲染
 android/app/src/main/res/
