@@ -11,7 +11,7 @@
 -keep class io.flutter.plugins.GeneratedPluginRegistrant { *; }
 
 # 主 Activity（清单中引用，R8 默认保留，这里显式声明更稳妥）。
--keep class com.example.needhamcapital.MainActivity { *; }
+-keep class com.needham.stocks.MainActivity { *; }
 
 # 插件与第三方库可能依赖的注解/签名元数据。
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod

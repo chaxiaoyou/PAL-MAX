@@ -1,4 +1,4 @@
-package com.example.needhamcapital
+package com.needham.stocks
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

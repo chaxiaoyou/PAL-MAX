@@ -1,4 +1,4 @@
-package com.example.needhamcapital
+package com.needham.stocks
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

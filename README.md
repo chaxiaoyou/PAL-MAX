@@ -97,7 +97,7 @@ lib/
 Android 原生部分：
 
 ```text
-android/app/src/main/kotlin/com/example/needhamcapital/
+android/app/src/main/kotlin/com/needham/stocks/
 ├── MainActivity.kt            # MethodChannel 接收快照
 └── StocksWidgetProvider.kt    # AppWidgetProvider + RemoteViews 渲染
 android/app/src/main/res/
