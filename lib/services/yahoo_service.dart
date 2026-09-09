@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/quote.dart';
 
-/// Client for the same Yahoo Finance endpoints the open-source Stocks Widget
+/// Client for the same Yahoo Finance endpoints the open-source Needham Capital
 /// uses: quotes (v7), historical charts (v8), symbol search (v1) and the RSS
 /// news feed. Yahoo requires browser-like cookies plus a crumb token for the
 /// quote API, so this service performs the same bootstrap flow as the original

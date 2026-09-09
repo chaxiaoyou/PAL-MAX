@@ -13,7 +13,7 @@
         android:id="@+id/widget_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stocks Widget"
+        android:text="Needham Capital"
         android:textSize="17sp"
         android:textStyle="bold" />
 
@@ -30,7 +30,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:text="Open Stocks Widget and refresh to show quotes"
+        android:text="Open Needham Capital and refresh to show quotes"
         android:textSize="14sp"
         android:visibility="gone" />
 

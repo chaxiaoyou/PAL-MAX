@@ -1,5 +1,5 @@
 /// Domain models mirroring the pieces of the Yahoo Finance responses used by
-/// the open-source Stocks Widget app.
+/// the open-source Needham Capital app.
 library;
 
 class Quote {

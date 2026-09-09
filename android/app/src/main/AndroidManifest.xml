@@ -25,7 +25,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:node="remove"/>
     <application
-        android:label="Stocks Widget"
+        android:label="Needham Capital"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -50,7 +50,7 @@
             <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Stocks Widget home-screen widget: renders the quote snapshot that
+        <!-- Needham Capital home-screen widget: renders the quote snapshot that
              the Flutter app pushes after every successful refresh. -->
         <receiver
             android:name=".StocksWidgetProvider"

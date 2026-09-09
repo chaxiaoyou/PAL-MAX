@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Palette used by the open-source Stocks Widget app (Material 3 green brand).
+// Palette used by the open-source Needham Capital app (Material 3 green brand).
 const ink = Color(0xff1a1c18); // onSurface (light)
 const muted = Color(0xff6e6e6e); // secondary text
 const paper = Color(0xfffcfdf6); // light background
@@ -39,7 +39,7 @@ Color changeColor(BuildContext context, QuoteDirection direction) {
   }
 }
 
-const String kAppName = 'Stocks Widget';
+const String kAppName = 'Needham Capital';
 
 ThemeData buildLightTheme() {
   const scheme = ColorScheme.light(

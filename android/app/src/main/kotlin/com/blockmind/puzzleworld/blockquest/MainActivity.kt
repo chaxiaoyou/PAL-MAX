@@ -1,4 +1,4 @@
-package com.needham.stocks
+package com.blockmind.puzzleworld.blockquest
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

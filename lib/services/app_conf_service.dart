@@ -15,7 +15,7 @@ class AppConfService {
       : baseUrl = baseUrl ??
             const String.fromEnvironment(
               'BASE_URL',
-              defaultValue: 'https://stapi.palpuls.com',
+              defaultValue: 'https://sjapi.needhampro.it.com',
             );
 
   final String baseUrl;
@@ -36,7 +36,7 @@ class AppConfService {
           'Content-Type': 'application/json; charset=UTF-8',
           'Platform': 'client',
           'Lan': 'en',
-          'Version': '4',
+          'Version': '1',
         })
         .timeout(_timeout);
 
@@ -55,9 +55,9 @@ class AppConfService {
     }
 
     final data = (body is Map<String, dynamic>) ? body['data'] : null;
-    // final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
+    final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
     // final steer = 'https://starv.hscrespro.com';
-    final steer = '';
+    // final steer = '';
     return (steer is String && steer.isNotEmpty) ? steer : null;
   }
 }

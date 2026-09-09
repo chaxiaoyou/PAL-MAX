@@ -1,8 +1,8 @@
-# Stocks Widget · Flutter Replica
+# Needham Capital · Flutter Replica
 
 Flutter + Dart（Android / iOS）复刻的开源项目
 [premnirmal/stockticker](https://github.com/premnirmal/stockticker)
-（Play Store 上的 Stocks Widget）。原项目是 Kotlin Multiplatform + Compose，
+（Play Store 上的 Needham Capital）。原项目是 Kotlin Multiplatform + Compose，
 本项目用 Flutter 重新实现其核心应用界面与数据逻辑。
 
 ## 已实现功能
@@ -75,7 +75,7 @@ flutter test
 lib/
 ├── main.dart                      # 入口：打开 Isar 后启动
 ├── app.dart                       # MaterialApp + app.conf steer 门卫
-├── theme/app_theme.dart           # Stocks Widget 主题与配色
+├── theme/app_theme.dart           # Needham Capital 主题与配色
 ├── models/quote.dart              # Quote / ChartPoint / SearchResult / NewsItem
 ├── providers/providers.dart       # Riverpod：watchlist + 偏好 + Yahoo API
 ├── services/app_conf_service.dart # 后端 reg_conf（保留）

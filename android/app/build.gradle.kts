@@ -15,7 +15,7 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.needham.stocks"
+    namespace = "com.blockmind.puzzleworld.blockquest"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.needham.stocks"
+        applicationId = "com.blockmind.puzzleworld.blockquest"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

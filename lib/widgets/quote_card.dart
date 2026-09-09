@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 import '../utils/format.dart';
 
 /// Compact quote card used by the watchlist grid. Mirrors the layout of the
-/// original Stocks Widget card: symbol / name on top, price on the left and
+/// original Needham Capital card: symbol / name on top, price on the left and
 /// colored percent/amount change on the right.
 class QuoteCard extends StatelessWidget {
   const QuoteCard({

@@ -1,4 +1,4 @@
-package com.needham.stocks
+package com.blockmind.puzzleworld.blockquest
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
