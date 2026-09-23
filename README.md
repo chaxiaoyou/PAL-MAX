@@ -102,17 +102,21 @@ Flutter + Dart（Android / iOS）复刻的开源项目
   越过阈值的提醒不会立刻响，要等下一次真正的穿越。
 - 触发状态（在哪一侧、上次触发时间）会写进数据库再发通知，所以重启 App 不会把
   同一次穿越重复播报。
-- **App 关闭后的检查暂不可用（已实现但跑不通）。** `AlertJobService` 用
-  JobScheduler 起无头 Flutter 引擎、跑同一个 Dart 判定函数，链路是通的——真机上
-  服务能起、引擎能加载、规则和回调句柄都送达——但引擎解析不到 Dart 入口点，
-  debug 与 release 均复现：
-  `Could not resolve main entrypoint function` → `Could not launch engine with configuration`。
-  为了不每 15 分钟白唤醒一次、也不在界面上说谎，`AlertBackground.BACKGROUND_CHECK_SUPPORTED`
-  现在是 `false`：不注册定时任务，列表页明说「只在 App 运行时检查，App 关闭期间
-  穿过的价位会在下次打开时报出」。修好入口点后把那个常量改成 `true` 即可。
-- 已修的两个真机 bug（都是只有设备能发现的）：缺 `ACCESS_NETWORK_STATE` 导致
-  `JobScheduler.schedule` 抛 SecurityException、任务从未注册成功；以及全新进程里
-  `lookupCallbackInformation` 早于 native 库加载，服务直接崩溃。
+- **App 关闭后由 Android 定时检查。** App 进程不在时，`AlertJobService` 用
+  JobScheduler 起一个无头 Flutter 引擎，跑同一个 Dart 判定函数。真机验证过：
+  服务启动 → 引擎加载 → 入口点解析 → Dart 侧读到规则并请求行情 → 完成后回报、
+  任务收尾，且请求失败时不写任何状态。周期受系统限制（最短 15 分钟，Doze/省电
+  模式会推迟）。App 进程还活着时后台任务主动让位，避免同一次穿越报两遍。
+  `AlertBackground.BACKGROUND_CHECK_SUPPORTED` 是总开关，出问题时可以关掉，
+  界面会如实改成「只在 App 运行时检查」。
+- 这条路径上踩过并修好的三个真机 bug（都只能在设备上发现）：
+  1. 缺 `ACCESS_NETWORK_STATE`，`JobScheduler.schedule` 抛 SecurityException，
+     任务从未注册成功，而异常被上层 try/catch 吞成一行日志；
+  2. 全新进程里 `lookupCallbackInformation` 早于 native 库加载 → 服务崩溃重启；
+  3. `DartExecutor.DartEntrypoint` 的**两参数**构造函数是
+     `(pathToBundle, functionName)`，会把 `dartEntrypointLibrary` 置为 null。
+     按「(库, 函数)」调用就丢掉了库名，引擎报
+     `Could not resolve main entrypoint function`。必须用三参数版本。
 - **只做 Android，iOS 不在范围内**（用户明确要求）。通知走自己写的
   `MethodChannel`（`NeedhamCapital/alerts`）而不是第三方插件：渠道、Android 13+
   运行时权限、点击回到 App、后台定时任务都是原生实现，零新依赖，与桌面小组件
@@ -126,9 +130,13 @@ Flutter + Dart（Android / iOS）复刻的开源项目
   不在启动时打扰。被拒绝时列表页会显示提示条，不会静默失败。
 - **验证状态**：debug 与 release（R8 混淆 + AOT）构建均通过；已在 Android 17 模拟器
   上真机跑过——应用启动、三个 Tab、创建提醒、通知权限、JobScheduler 注册
-  （`get-job-state` 返回 `waiting`）都确认过。`evaluateAlertRules`、规则编解码、
-  后台那一趟的完整流程（含取价失败时不落状态）都有测试。**尚未验证**：通知的真实
-  投递，以及上面那条后台入口点问题（需要继续排查 Flutter 引擎的入口点解析）。
+  （`get-job-state` 返回 `waiting`）、以及后台任务完整跑一趟（引擎起来、入口点解析、
+  Dart 后台代码执行、失败不落状态、任务收尾）。`evaluateAlertRules`、规则编解码、
+  后台那一趟的完整流程都有测试。
+- **尚未验证**：① 通知的真实投递（需要一次真实的价位穿越，而行情被网络挡住）；
+  ② Yahoo 的**真实响应形状**——所有解析都用录制的报文钉在测试里，但从开发机发出
+  的每一次请求都撞在地区封锁上，从未见过一次真实响应。`tool/check_yahoo.sh` 就是
+  为此写的：在美国网络或可用的代理下跑一次，把输出贴回来即可确认解析是否要调整。
 
 ## 技术栈
 

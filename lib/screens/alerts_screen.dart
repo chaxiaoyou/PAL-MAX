@@ -120,9 +120,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       return 'Alerts are checked while the app is running. A level crossed '
           'while the app is closed is reported the next time you open it.';
     }
-    return 'Checked while the app is running, and about every 15 minutes by '
-        'Android when it is closed (the system can delay that in battery saver '
-        'mode).';
+    return 'Checked while the app is running, and roughly every 15 minutes by '
+        'Android when it is closed — the system decides the exact timing and '
+        'can delay it in battery saver mode.';
   }
 }
 

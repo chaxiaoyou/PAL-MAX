@@ -47,17 +47,16 @@ object AlertBackground {
     }
 
     /**
-     * Whether Android can run the check while the app is closed.
+     * Whether Android runs the check while the app is closed.
      *
-     * Currently false, and deliberately so: the job registers and starts a
-     * headless engine, but the engine cannot resolve the Dart entrypoint
-     * ("Could not resolve main entrypoint function", reproduced on a device in
-     * both debug and release), so every run would be a wasted wakeup that
-     * silently does nothing. Until that is solved the app says plainly that
-     * alerts only fire while it is open, rather than pretending otherwise.
-     * Flip this to true with the engine fix.
+     * The engine resolves the Dart entrypoint with the three-argument
+     * DartEntrypoint (see AlertJobService); with the two-argument form the
+     * library name is dropped and the engine fails with "Could not resolve main
+     * entrypoint function". Keep this false only if that path breaks again, so
+     * the app stops spending a wakeup every 15 minutes on a check that cannot
+     * run.
      */
-    const val BACKGROUND_CHECK_SUPPORTED = false
+    const val BACKGROUND_CHECK_SUPPORTED = true
 
     /** Reschedules the periodic job. Returns whether it is actually scheduled. */
     fun schedule(context: Context, enabled: Boolean): Boolean {

@@ -5,6 +5,7 @@ import android.app.job.JobService
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.MethodCall
@@ -84,7 +85,16 @@ class AlertJobService : JobService() {
                 }
             }
         engine.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint(info.callbackLibraryPath, info.callbackName),
+            // Three arguments, not two. The two-argument constructor is
+            // (pathToBundle, functionName) and leaves dartEntrypointLibrary
+            // null, so passing the library path there silently drops it and the
+            // engine cannot resolve the entrypoint:
+            //   "Could not resolve main entrypoint function"
+            DartExecutor.DartEntrypoint(
+                FlutterInjector.instance().flutterLoader().findAppBundlePath(),
+                info.callbackLibraryPath,
+                info.callbackName,
+            ),
         )
 
         // A background engine that never answers must not wedge the job.
