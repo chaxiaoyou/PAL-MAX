@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/dividend.dart';
 import '../models/quote.dart';
 
 /// Client for the same Yahoo Finance endpoints the open-source Needham Capital
@@ -155,6 +156,83 @@ class YahooFinanceApi {
       }
     }
     return points;
+  }
+
+  /// Cash dividends per share over [range], from the same chart endpoint the
+  /// price history uses. Yahoo hangs them off `chart.result[].events.dividends`.
+  ///
+  /// [range] is what bounds the history, so the caller asks for as much as the
+  /// UI can show rather than paging.
+  Future<List<DividendPayment>> fetchDividends(
+    String symbol, {
+    String range = '2y',
+  }) async {
+    final encoded = Uri.encodeComponent(symbol);
+    final uri = Uri.parse('${_quoteBase}v8/finance/chart/$encoded').replace(
+      queryParameters: {
+        'range': range,
+        'interval': '1mo',
+        'events': 'div',
+        if (_crumb != null) 'crumb': _crumb!,
+      },
+    );
+    final response = await _getWithAuthRetry(uri);
+    if (response.statusCode != 200) {
+      throw YahooFinanceException(
+        'Dividend request failed with HTTP ${response.statusCode}',
+      );
+    }
+    return parseDividends(response.body, symbol: symbol);
+  }
+
+  /// Pulls `events.dividends` out of a chart response. Static and public
+  /// because this parse is the only part of dividend support that cannot be
+  /// exercised without the network: the endpoint is geo-restricted from some
+  /// regions, so the shape is pinned down by tests instead.
+  ///
+  /// A response without dividends is an empty list, not an error: plenty of
+  /// instruments simply do not pay.
+  static List<DividendPayment> parseDividends(
+    String body, {
+    required String symbol,
+  }) {
+    Object? decoded;
+    try {
+      decoded = jsonDecode(body);
+    } on FormatException {
+      return const [];
+    }
+    final chart = (decoded is Map<String, dynamic>) ? decoded['chart'] : null;
+    final result = (chart is Map<String, dynamic>) ? chart['result'] : null;
+    if (result is! List || result.isEmpty) return const [];
+    final first = result.first;
+    final events =
+        (first is Map<String, dynamic>) ? first['events'] : null;
+    final dividends =
+        (events is Map<String, dynamic>) ? events['dividends'] : null;
+    if (dividends is! Map) return const [];
+
+    final payments = <DividendPayment>[];
+    for (final entry in dividends.values) {
+      if (entry is! Map) continue;
+      final amount = entry['amount'];
+      final date = entry['date'];
+      if (amount is! num || date is! num) continue;
+      final value = amount.toDouble();
+      if (!value.isFinite) continue;
+      payments.add(
+        DividendPayment(
+          symbol: symbol,
+          amount: value,
+          date: DateTime.fromMillisecondsSinceEpoch(
+            date.toInt() * 1000,
+            isUtc: true,
+          ),
+        ),
+      );
+    }
+    payments.sort((a, b) => a.date.compareTo(b.date));
+    return payments;
   }
 
   Future<List<SearchResult>> search(String query) async {

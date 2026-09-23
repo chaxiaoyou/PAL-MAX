@@ -1,21 +1,17 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/quote.dart';
 import '../providers/providers.dart';
-import '../services/yahoo_service.dart';
 import '../services/widget_sync.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/quote_card.dart';
 import 'quote_detail_screen.dart';
 import 'search_screen.dart';
-import 'settings_screen.dart';
 
-/// Home watchlist: a grid of live quotes with pull-to-refresh and automatic
-/// refresh every [AppPrefs.refreshMinutes] minutes.
+/// Home watchlist: a grid of live quotes with pull-to-refresh. Fetching and the
+/// refresh schedule live in [QuoteBoard], which serves every screen.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -24,111 +20,36 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  List<Quote> _quotes = const [];
-  List<String> _symbols = const [];
-  bool _loading = true;
-  bool _fetching = false;
-  String? _error;
-  DateTime? _lastFetch;
-  Timer? _timer;
-
   @override
   void initState() {
     super.initState();
-    ref.listenManual(watchlistProvider, (_, symbols) {
-      _onSymbolsChanged(symbols);
-    });
-    ref.listenManual(appPrefsProvider, (previous, next) {
-      _rescheduleTimer();
-      if (previous != null && next.refreshMinutes != previous.refreshMinutes) {
-        _fetch();
-      }
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _rescheduleTimer();
-    });
+    // The Android home-screen widget mirrors the watchlist, so the snapshot is
+    // rewritten whenever the symbols or their prices change.
+    ref.listenManual(watchlistQuotesProvider, (_, _) => _saveSnapshot());
+    ref.listenManual(watchlistProvider, (_, _) => _saveSnapshot());
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _onSymbolsChanged(List<String> symbols) async {
-    _symbols = List.of(symbols);
-    await _fetch();
-  }
-
-  void _rescheduleTimer() {
-    _timer?.cancel();
-    final minutes = ref.read(appPrefsProvider).refreshMinutes;
-    if (minutes <= 0) return;
-    _timer = Timer.periodic(
-      Duration(minutes: minutes),
-      (_) => _fetch(),
+  Future<void> _saveSnapshot() async {
+    if (!mounted) return;
+    final quotes = ref.read(watchlistQuotesProvider);
+    if (quotes.isEmpty) return;
+    await WidgetSync.saveSnapshot(
+      symbols: ref.read(watchlistProvider).symbols,
+      quotes: quotes,
+      dark: Theme.of(context).brightness == Brightness.dark,
+      roundTwoDp: ref.read(appPrefsProvider).roundTwoDp,
+      updatedAt: ref.read(quoteBoardProvider).lastFetch,
     );
   }
 
-  Future<void> _fetch({bool manual = false}) async {
-    if (_fetching) return;
-    if (_symbols.isEmpty) {
-      setState(() {
-        _loading = false;
-        _quotes = const [];
-        _error = null;
-      });
-      return;
-    }
-    _fetching = true;
-    if (manual || _quotes.isEmpty) {
-      setState(() {
-        _loading = true;
-        _error = null;
-      });
-    }
-    try {
-      final api = ref.read(yahooApiProvider);
-      var quotes = await api.fetchQuotes(_symbols);
-      final prefs = ref.read(appPrefsProvider);
-      if (prefs.autoSort) {
-        quotes = List.of(quotes)
-          ..sort((a, b) => b.changePercent.compareTo(a.changePercent));
-      }
-      if (!mounted) return;
-      setState(() {
-        _quotes = quotes;
-        _error = null;
-        _lastFetch = DateTime.now();
-        _loading = false;
-      });
-      await WidgetSync.saveSnapshot(
-        symbols: _symbols,
-        quotes: quotes,
-        dark: Theme.of(context).brightness == Brightness.dark,
-        roundTwoDp: ref.read(appPrefsProvider).roundTwoDp,
-        updatedAt: _lastFetch,
-      );
-    } catch (error, stackTrace) {
-      debugPrint('fetch quotes failed: $error\n$stackTrace');
-      if (!mounted) return;
-      setState(() {
-        _error = _messageFor(error);
-        _loading = false;
-      });
-      if (manual) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(_messageFor(error))));
-      }
-    } finally {
-      _fetching = false;
-    }
-  }
-
-  String _messageFor(Object error) {
-    if (error is YahooFinanceException) return error.message;
-    return 'Unable to fetch quotes. Check your connection and try again.';
+  Future<void> _refresh({bool manual = false}) async {
+    await ref.read(quoteBoardProvider.notifier).refresh();
+    if (!mounted || !manual) return;
+    final error = ref.read(quoteBoardProvider).error;
+    if (error == null) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(error)));
   }
 
   Future<void> _confirmRemove(Quote quote) async {
@@ -202,17 +123,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onPressed: () => _openSearch(),
             icon: const Icon(Icons.search_rounded),
           ),
-          IconButton(
-            tooltip: 'Settings',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const SettingsScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.settings_outlined),
-          ),
         ],
       ),
     );
@@ -220,7 +130,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildStatusLine(BuildContext context, AppPrefs prefs) {
     final theme = Theme.of(context);
-    final last = _lastFetch;
+    final board = ref.watch(quoteBoardProvider);
+    final last = board.lastFetch;
     final next = (last == null)
         ? null
         : last.add(Duration(minutes: prefs.refreshMinutes));
@@ -243,7 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
-          if (_loading && _quotes.isEmpty)
+          if (board.fetching && board.quotes.isEmpty)
             const Padding(
               padding: EdgeInsets.only(right: 12),
               child: SizedBox(
@@ -256,7 +167,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             IconButton(
               tooltip: 'Refresh now',
               visualDensity: VisualDensity.compact,
-              onPressed: () => _fetch(manual: true),
+              onPressed: () => _refresh(manual: true),
               icon: const Icon(Icons.refresh_rounded, size: 22),
             ),
         ],
@@ -265,10 +176,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildContent(BuildContext context) {
-    if (_loading && _symbols.isEmpty) {
+    final watchlist = ref.watch(watchlistProvider);
+    final board = ref.watch(quoteBoardProvider);
+    if (!watchlist.loaded) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_symbols.isEmpty) {
+    if (watchlist.symbols.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -286,10 +199,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       );
     }
-    if (_quotes.isEmpty && _loading) {
+    var quotes = ref.watch(watchlistQuotesProvider);
+    if (ref.watch(appPrefsProvider).autoSort) {
+      quotes = List.of(quotes)
+        ..sort((a, b) => b.changePercent.compareTo(a.changePercent));
+    }
+    if (quotes.isEmpty && board.fetching) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_quotes.isEmpty && _error != null) {
+    if (quotes.isEmpty && board.error != null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(28),
@@ -299,13 +217,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const Icon(Icons.cloud_off_rounded, size: 48, color: muted),
               const SizedBox(height: 10),
               Text(
-                _error!,
+                board.error!,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: muted),
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: () => _fetch(manual: true),
+                onPressed: () => _refresh(manual: true),
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Retry'),
               ),
@@ -315,7 +233,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
     return RefreshIndicator(
-      onRefresh: () => _fetch(manual: true),
+      onRefresh: _refresh,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -338,7 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final quote = _quotes[index];
+                      final quote = quotes[index];
                       return QuoteCard(
                         quote: quote,
                         roundTwoDp: ref.read(appPrefsProvider).roundTwoDp,
@@ -346,7 +264,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         onRemove: () => _confirmRemove(quote),
                       );
                     },
-                    childCount: _quotes.length,
+                    childCount: quotes.length,
                   ),
                 ),
               ),

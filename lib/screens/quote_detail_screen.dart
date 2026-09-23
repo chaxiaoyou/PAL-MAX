@@ -7,6 +7,7 @@ import '../providers/providers.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/price_chart.dart';
+import '../widgets/alert_editor_sheet.dart';
 import 'webview_screen.dart';
 
 enum _ChartRange {
@@ -138,12 +139,32 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final inWatchlist = ref.watch(
-      watchlistProvider.select((symbols) => symbols.contains(_quote.symbol)),
+      watchlistProvider.select((state) => state.contains(_quote.symbol)),
+    );
+    final hasAlert = ref.watch(
+      alertsProvider.select(
+        (state) => state.alerts.any((alert) => alert.symbol == _quote.symbol),
+      ),
     );
     return Scaffold(
       appBar: AppBar(
         title: Text(_quote.symbol),
         actions: [
+          IconButton(
+            tooltip: 'Price alert',
+            onPressed: () => openAlertEditor(
+              context,
+              symbol: _quote.symbol,
+              name: _quote.name,
+              currency: _quote.currency,
+              currentPrice: _quote.lastPrice,
+            ),
+            icon: Icon(
+              hasAlert
+                  ? Icons.notifications_active_rounded
+                  : Icons.notifications_none_rounded,
+            ),
+          ),
           IconButton(
             tooltip: inWatchlist ? 'Remove from watchlist' : 'Add to watchlist',
             onPressed: _toggleWatchlist,

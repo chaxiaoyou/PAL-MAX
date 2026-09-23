@@ -231,7 +231,7 @@ class _TrendingTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final added = ref.watch(
-      watchlistProvider.select((symbols) => symbols.contains(quote.symbol)),
+      watchlistProvider.select((state) => state.contains(quote.symbol)),
     );
     final color = changeColor(
       context,
@@ -293,7 +293,7 @@ class _SearchResultTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final added = ref.watch(
-      watchlistProvider.select((symbols) => symbols.contains(result.symbol)),
+      watchlistProvider.select((state) => state.contains(result.symbol)),
     );
     return ListTile(
       title: Text(

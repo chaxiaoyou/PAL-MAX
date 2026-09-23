@@ -39,7 +39,13 @@ Color changeColor(BuildContext context, QuoteDirection direction) {
   }
 }
 
-const String kAppName = 'Needham Capital';
+const String kAppName = 'Axight';
+
+/// Tabular figures keep digit columns aligned, which is what makes a column of
+/// prices or totals scannable. Apply to any number the user compares.
+const List<FontFeature> tabularFigures = <FontFeature>[
+  FontFeature.tabularFigures(),
+];
 
 ThemeData buildLightTheme() {
   const scheme = ColorScheme.light(

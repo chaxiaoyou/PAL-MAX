@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 final NumberFormat _money2 = NumberFormat('#,##0.00');
 final NumberFormat _moneyAuto = NumberFormat('#,##0.##');
 final NumberFormat _pct2 = NumberFormat('0.00');
+final NumberFormat _shares = NumberFormat('#,##0.####');
 
 /// Formats a price/amount. With [roundTwoDp] the value is always shown with two
 /// decimals (e.g. `1,234.50`), otherwise trailing zeros are trimmed.
@@ -18,6 +19,13 @@ String signedAmount(double v, {bool roundTwoDp = true}) {
   if (v > 0) return '+$text';
   if (v < 0) return '-$text';
   return text;
+}
+
+/// Share count, e.g. `10` or `12,345.6789`. Whole positions stay clean,
+/// fractional ones keep up to four decimals, and both are grouped.
+String sharesText(double v) {
+  if (!v.isFinite) return '--';
+  return _shares.format(v);
 }
 
 /// Percent change, e.g. `+0.16%`.
@@ -73,4 +81,23 @@ String currencySymbol(String code) {
     'TWD': r'NT$',
   };
   return map[code] ?? code;
+}
+
+/// Currency-prefixed amount, e.g. `$1,240.50`. The sign leads the symbol for
+/// negative values (`-$120.00`) so columns stay readable.
+String moneyText(double v, String currencyCode, {bool roundTwoDp = true}) {
+  if (!v.isFinite) return '--';
+  final symbol = currencySymbol(currencyCode);
+  final text = priceText(v.abs(), roundTwoDp: roundTwoDp);
+  return v < 0 ? '-$symbol$text' : '$symbol$text';
+}
+
+/// Currency-prefixed signed amount, e.g. `+$1,240.50` / `-$120.00`.
+String signedMoney(double v, String currencyCode, {bool roundTwoDp = true}) {
+  if (!v.isFinite) return '--';
+  final symbol = currencySymbol(currencyCode);
+  final text = priceText(v.abs(), roundTwoDp: roundTwoDp);
+  if (v > 0) return '+$symbol$text';
+  if (v < 0) return '-$symbol$text';
+  return '$symbol$text';
 }

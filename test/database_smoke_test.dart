@@ -5,7 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
 import 'package:isar_community/src/native/isar_core.dart';
 import 'package:needhamcapital/models/app_setting.dart';
+import 'package:needhamcapital/models/holding.dart';
+import 'package:needhamcapital/models/price_alert.dart';
 import 'package:needhamcapital/models/saved_record.dart';
+import 'package:needhamcapital/models/transaction.dart';
 
 void main() {
   // Host-only smoke test: locate the native library shipped with
@@ -21,7 +24,13 @@ void main() {
       final dir = Directory.systemTemp.createTempSync('needhamcapital_test');
       await initializeCoreBinary(libraries: {Abi.current(): coreLib});
       final isar = await Isar.open(
-        [SavedRecordSchema, AppSettingSchema],
+        [
+          SavedRecordSchema,
+          AppSettingSchema,
+          HoldingSchema,
+          TransactionSchema,
+          PriceAlertSchema,
+        ],
         directory: dir.path,
         name: 'needhamcapital_test',
       );
@@ -56,6 +65,25 @@ void main() {
 
       await isar.writeTxn(() => isar.savedRecords.delete(record.id));
       expect(await isar.savedRecords.where().count(), 0);
+
+      final position = Holding()
+        ..symbol = 'AAPL'
+        ..name = 'Apple Inc.'
+        ..shares = 12.5
+        ..costPerShare = 180.25
+        ..currency = 'USD'
+        ..createdAt = DateTime(2026, 8, 24)
+        ..updatedAt = DateTime(2026, 8, 24);
+      await isar.writeTxn(() => isar.holdings.put(position));
+
+      final stored = await isar.holdings
+          .filter()
+          .symbolEqualTo('AAPL')
+          .findFirst();
+      expect(stored, isNotNull);
+      expect(stored!.shares, 12.5);
+      expect(stored.costPerShare, 180.25);
+      expect(stored.currency, 'USD');
 
       await isar.close();
       dir.deleteSync(recursive: true);

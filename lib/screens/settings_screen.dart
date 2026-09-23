@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
+import 'alerts_screen.dart';
 import 'webview_screen.dart';
 
 const _refreshChoices = <int>[2, 5, 15, 30, 60];
@@ -13,6 +14,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final prefs = ref.watch(appPrefsProvider);
+    final alerts = ref.watch(alertsProvider);
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -59,6 +61,25 @@ class SettingsScreen extends ConsumerWidget {
                       ref.read(appPrefsProvider.notifier).setRoundTwoDp(value),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          _sectionTitle(context, 'Alerts'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.notifications_none_rounded),
+              title: const Text('Price alerts'),
+              subtitle: Text(
+                switch (alerts.enabledCount) {
+                  0 => 'None set',
+                  1 => '1 active',
+                  final count => '$count active',
+                },
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const AlertsScreen()),
+              ),
             ),
           ),
           const SizedBox(height: 18),
