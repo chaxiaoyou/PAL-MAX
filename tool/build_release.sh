@@ -63,12 +63,14 @@ CANARIES = [
 
 path = sys.argv[1]
 with zipfile.ZipFile(path) as archive:
-    # Android: lib/<abi>/libapp.so。iOS: Payload/Runner.app/Frameworks/App.framework/App。
+    # Android APK: lib/<abi>/libapp.so。Android AAB: base/lib/<abi>/libapp.so。
+    # iOS: Payload/Runner.app/Frameworks/App.framework/App。
+    # 这里只按后缀匹配，别写成 startswith('lib/')，否则 AAB 会匹配不到而
+    # 静默跳过自检（等于没查）。
     slices = [
         name
         for name in archive.namelist()
-        if (name.startswith('lib/') and name.endswith('libapp.so'))
-        or name.endswith('App.framework/App')
+        if name.endswith('libapp.so') or name.endswith('App.framework/App')
     ]
     if not slices:
         print(f'  警告: {path} 里没有找到 libapp.so，跳过混淆自检', file=sys.stderr)
