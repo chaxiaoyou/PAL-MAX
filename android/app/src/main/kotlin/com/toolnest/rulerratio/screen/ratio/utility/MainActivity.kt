@@ -1,4 +1,4 @@
-package com.blockmind.puzzleworld.blockquest
+package com.toolnest.rulerratio.screen.ratio.utility
 
 import android.Manifest
 import android.content.pm.PackageManager

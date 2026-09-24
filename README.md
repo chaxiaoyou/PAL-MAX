@@ -251,7 +251,7 @@ lib/
 Android 原生部分：
 
 ```text
-android/app/src/main/kotlin/com/blockmind/puzzleworld/blockquest/
+android/app/src/main/kotlin/com/toolnest/rulerratio/screen/ratio/utility/
 ├── MainActivity.kt            # MethodChannel：小组件快照 + 提醒权限/通知/规则同步
 ├── AlertBackground.kt         # 规则字符串存储 + JobScheduler 注册
 ├── AlertJobService.kt         # 无头 Flutter 引擎跑后台检查

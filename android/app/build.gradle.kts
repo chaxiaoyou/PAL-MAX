@@ -15,7 +15,7 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.blockmind.puzzleworld.blockquest"
+    namespace = "com.toolnest.rulerratio.screen.ratio.utility"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.blockmind.puzzleworld.blockquest"
+        applicationId = "com.toolnest.rulerratio.screen.ratio.utility"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -35,7 +35,9 @@ android {
         // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
         // flag during build.
         versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        // pub 要求版本号写成 x.y.z（见 pubspec.yaml 的 2.0.0+2），但上架时
+        // 展示用的 versionName 需要是 "2.0"，所以这里覆盖成两位。
+        versionName = "2.0"
     }
 
     signingConfigs {
