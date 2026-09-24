@@ -7,7 +7,6 @@ import '../data/tools.dart';
 import '../models/saved_record.dart';
 import '../models/tool_definition.dart';
 import '../providers/providers.dart';
-import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import '../widgets/save_dialog.dart';
 
@@ -41,8 +40,9 @@ class CalculatorScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: paper,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(title: Text(tool.title)),
       body: SafeArea(
         top: false,
@@ -86,10 +86,13 @@ class CalculatorScaffold extends StatelessWidget {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
+          border: Border(
+            top: BorderSide(color: theme.colorScheme.outlineVariant),
+          ),
           boxShadow: [
             BoxShadow(
-              color: ink.withValues(alpha: 0.06),
+              color: theme.shadowColor.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, -2),
             ),

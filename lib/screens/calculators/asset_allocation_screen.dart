@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/tools.dart';
 import '../../models/saved_record.dart';
 import '../../models/tool_definition.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
 import '../../widgets/common.dart';
 import '../calc_scaffold.dart';
@@ -166,7 +165,10 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
           title: 'Allocations',
           trailing: Text(
             '${_rows.length} items',
-            style: const TextStyle(color: muted, fontSize: 12.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12.5,
+            ),
           ),
           children: [
             for (var i = 0; i < _rows.length; i++) ...[
@@ -219,9 +221,9 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
                         : remaining < -0.005
                             ? 'Allocation exceeds total assets by ${fmtAmount(-remaining)}'
                             : 'Allocation is not 100% (missing ${fmtPct(pctDiff.abs())})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12.5,
-                      color: Color(0xffb26a00),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -233,12 +235,13 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
   }
 
   Widget _buildRow(ToolDefinition tool, _AssetRow row) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xfffbfbfd),
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: ink.withValues(alpha: 0.07)),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -248,16 +251,18 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
                 child: TextField(
                   controller: row.nameCtrl,
                   onChanged: (_) => setState(() {}),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: ink,
+                    color: theme.colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Asset name',
-                    hintStyle: const TextStyle(color: Color(0xffc3c9d4)),
                     isDense: true,
+                    filled: false,
                     border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
                   ),
                 ),
               ),
@@ -269,12 +274,15 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
                         })
                     : null,
                 visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.delete_outline_rounded,
-                    size: 19, color: Color(0xffb3bac6)),
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 19,
+                  color: theme.colorScheme.outline,
+                ),
               ),
             ],
           ),
-          const Divider(height: 1, color: Color(0xffeef0f4)),
+          Divider(height: 1, color: theme.colorScheme.outlineVariant),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,

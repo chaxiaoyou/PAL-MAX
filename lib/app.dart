@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 
 import 'providers/providers.dart';
-import 'screens/home_screen.dart';
+import 'screens/root_shell.dart';
 import 'screens/webview_screen.dart';
 import 'services/app_conf_service.dart';
 import 'theme/app_theme.dart';
@@ -71,7 +71,7 @@ class _PalMaxAppState extends ConsumerState<PalMaxApp> {
     } else {
       final steer = _steerUrl;
       home = (steer == null || steer.isEmpty)
-          ? const HomeScreen()
+          ? const RootShell()
           : WebViewScreen(url: steer);
     }
 

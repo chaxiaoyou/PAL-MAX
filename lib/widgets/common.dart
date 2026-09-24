@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
 import '../utils/input_formatter.dart';
+
+/// Shared building blocks for every calculator screen. All of them read their
+/// colors from the active theme, so the tools look identical in light and dark
+/// mode.
 
 class NumberField extends StatelessWidget {
   const NumberField({
@@ -22,15 +27,15 @@ class NumberField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12.5,
+          style: theme.textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w600,
-            color: muted,
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 6),
@@ -40,41 +45,15 @@ class NumberField extends StatelessWidget {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [DecimalTextInputFormatter()],
           onChanged: onChanged,
-          style: const TextStyle(
-            fontSize: 16,
+          style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
-            color: ink,
           ),
           decoration: InputDecoration(
             hintText: hint ?? '0',
-            hintStyle: const TextStyle(color: Color(0xffc3c9d4)),
             suffixText: suffix,
-            suffixStyle: const TextStyle(
-              color: muted,
+            suffixStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 13,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: accent, width: 1.4),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
             ),
           ),
         ),
@@ -99,16 +78,17 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff1b2735).withValues(alpha: 0.045),
-            blurRadius: 18,
+            color: theme.shadowColor.withValues(alpha: 0.05),
+            blurRadius: 16,
             offset: const Offset(0, 8),
           ),
         ],
@@ -122,10 +102,8 @@ class SectionCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title!,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: ink,
                     ),
                   ),
                 ),
@@ -148,6 +126,8 @@ class ResultRow {
   final String value;
 }
 
+/// Dark "result panel" used at the bottom of every calculator. It keeps the
+/// same deep navy in both themes so the numbers stay the visual anchor.
 class ResultCard extends StatelessWidget {
   const ResultCard({
     super.key,
@@ -166,8 +146,8 @@ class ResultCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: ink,
-        borderRadius: BorderRadius.circular(20),
+        color: resultFill,
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +166,7 @@ class ResultCard extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  color: Colors.white70,
+                  color: Color(0xb3ffffff),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -213,7 +193,7 @@ class ResultCard extends StatelessWidget {
                         Text(
                           row.label,
                           style: const TextStyle(
-                            color: Colors.white54,
+                            color: Color(0x8cffffff),
                             fontSize: 12,
                           ),
                         ),
@@ -226,7 +206,7 @@ class ResultCard extends StatelessWidget {
                                 ? const Color(0xffff8a80)
                                 : positive
                                     ? const Color(0xff7dd87d)
-                                    : Colors.white,
+                                    : resultOn,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                           ),
@@ -250,7 +230,7 @@ class TableCard extends StatelessWidget {
     required this.title,
     required this.columns,
     required this.rows,
-    this.accent = const Color(0xff7657e8),
+    this.accent = defaultAccent,
   });
 
   final String title;
@@ -260,37 +240,38 @@ class TableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SectionCard(
       title: title,
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
       children: [
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
             headingRowColor: WidgetStatePropertyAll(
-              accent.withValues(alpha: 0.08),
+              accent.withValues(alpha: 0.10),
             ),
-            headingTextStyle: const TextStyle(
-              color: ink,
+            headingTextStyle: TextStyle(
+              color: theme.colorScheme.onSurface,
               fontSize: 12.5,
               fontWeight: FontWeight.w800,
             ),
-            dataTextStyle: const TextStyle(
-              color: Color(0xff3a4453),
+            dataTextStyle: theme.textTheme.bodySmall?.copyWith(
               fontSize: 12.5,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
             dataRowMinHeight: 42,
             dataRowMaxHeight: 52,
-            horizontalMargin: 14,
+            horizontalMargin: 12,
+            columnSpacing: 26,
             columns: [
-              for (final c in columns)
-                DataColumn(label: Text(c)),
+              for (final c in columns) DataColumn(label: Text(c)),
             ],
             rows: [
               for (final row in rows)
                 DataRow(
                   cells: [
-                    for (final cell in row)
-                      DataCell(Text(cell)),
+                    for (final cell in row) DataCell(Text(cell)),
                   ],
                 ),
             ],
@@ -321,7 +302,7 @@ class QuickChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -342,12 +323,16 @@ class DisclaimerFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(8, 22, 8, 8),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 22, 8, 8),
       child: Center(
         child: Text(
-          'This tool is for demonstration only and does not constitute investment advice.',
-          style: TextStyle(color: muted, fontSize: 11.5),
+          'For reference only — not investment advice.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 11.5,
+          ),
         ),
       ),
     );
@@ -366,23 +351,19 @@ class LabeledSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12.5,
+          style: theme.textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w600,
-            color: muted,
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: children,
-        ),
+        Wrap(spacing: 8, runSpacing: 8, children: children),
       ],
     );
   }

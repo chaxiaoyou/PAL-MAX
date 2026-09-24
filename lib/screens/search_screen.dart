@@ -204,7 +204,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_searchError != null && _results.isEmpty) {
-      return Center(child: Text(_searchError!, style: const TextStyle(color: muted)));
+      return Center(
+        child: Text(
+          _searchError!,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+      );
     }
     if (_results.isEmpty && !_searching) {
       return const Center(child: Text('No symbols found'));

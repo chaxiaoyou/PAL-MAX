@@ -1,4 +1,4 @@
-# Needham Capital  ProGuard / R8 rules
+# PJT ZA  ProGuard / R8 rules
 #
 # Flutter 引擎在运行时通过反射加载插件与注册表，R8 混淆会把这些类重命名
 # 导致启动崩溃，因此保留整个 io.flutter 包及其生成的插件注册类。
@@ -15,6 +15,10 @@
 
 # 插件与第三方库可能依赖的注解/签名元数据。
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+
+# 发布包隐藏实现细节：注释在编译期已被 R8/编译器剥离，这里再把来源文件名统一
+# 改写为 SourceFile，避免反编译后从文件名推测原始目录结构。
+-renamesourcefileattribute SourceFile
 
 # Flutter 引擎引用了 Google Play Core 的可选类（Play 动态分发 / deferred
 # components）。本项目不依赖 com.google.android.play:core，R8 开启时会因

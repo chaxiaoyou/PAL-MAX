@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:needhamcapital/models/quote.dart';
-import 'package:needhamcapital/utils/format.dart';
+import 'package:pjza/models/quote.dart';
+import 'package:pjza/utils/format.dart';
 
 void main() {
   group('Quote.fromYahooJson', () {

@@ -5,8 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
-import '../theme/app_theme.dart';
-
 /// Full-screen web view used to replace the native UI when the backend
 /// returns a `steer` URL on startup (same behavior as the uni-app version).
 class WebViewScreen extends StatefulWidget {
@@ -197,9 +195,10 @@ class _WebViewScreenState extends State<WebViewScreen> {
   /// Lets the user choose between the camera and the gallery, like the avatar
   /// picker on the profile screen. Returns null if the sheet is dismissed.
   Future<ImageSource?> _showImageSourceSheet() {
+    final theme = Theme.of(context);
     return showModalBottomSheet<ImageSource>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -208,22 +207,28 @@ class _WebViewScreenState extends State<WebViewScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.photo_camera_rounded, color: accent),
+              leading: Icon(
+                Icons.photo_camera_rounded,
+                color: theme.colorScheme.primary,
+              ),
               title: const Text('Take photo'),
               onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: accent),
+              leading: Icon(
+                Icons.photo_library_rounded,
+                color: theme.colorScheme.primary,
+              ),
               title: const Text('Choose from gallery'),
               onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
             ),
-            const Divider(height: 1, thickness: 1, color: Color(0xffeef0f4)),
+            Divider(height: 1, thickness: 1, color: theme.colorScheme.outlineVariant),
             ListTile(
-              title: const Text(
+              title: Text(
                 'Cancel',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: muted,
+                  color: theme.colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
               ),

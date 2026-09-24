@@ -1,5 +1,5 @@
-/// Domain models mirroring the pieces of the Yahoo Finance responses used by
-/// the open-source Needham Capital app.
+/// Domain models mirroring the pieces of the Yahoo Finance responses the app
+/// consumes for the watchlist, detail charts and symbol search.
 library;
 
 class Quote {

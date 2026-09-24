@@ -7,9 +7,10 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // Channel shared with lib/services/widget_sync.dart.
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            "NeedhamCapital/stocks_widget",
+            "PJZA/stocks_widget",
         ).setMethodCallHandler { call, result ->
             if (call.method == "update") {
                 val payload = call.arguments as? String

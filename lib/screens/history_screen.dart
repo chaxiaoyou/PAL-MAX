@@ -6,40 +6,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/tools.dart';
 import '../models/saved_record.dart';
 import '../providers/providers.dart';
-import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/common.dart';
 import 'calc_scaffold.dart';
 
+/// Every calculator result the user saved, newest first. Records can be
+/// re-opened inside their calculator (values prefilled) or deleted.
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final records = ref.watch(savedRecordsProvider);
     return Scaffold(
-      backgroundColor: paper,
-      appBar: AppBar(
-        title: const Text('Saved Records'),
-      ),
+      appBar: AppBar(title: const Text('Saved results')),
       body: records.isEmpty
           ? ListView(
-              children: const [
-                SizedBox(height: 140),
-                Icon(Icons.bookmark_border_rounded,
-                    size: 56, color: Color(0xffc3c9d4)),
-                SizedBox(height: 14),
+              children: [
+                const SizedBox(height: 120),
+                Icon(
+                  Icons.bookmark_border_rounded,
+                  size: 56,
+                  color: theme.colorScheme.outline,
+                ),
+                const SizedBox(height: 14),
                 Center(
                   child: Text(
-                    'No saved records yet',
-                    style: TextStyle(color: muted, fontSize: 14),
+                    'No saved results yet',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
-                DisclaimerFooter(),
+                const SizedBox(height: 6),
+                Center(
+                  child: Text(
+                    'Save any calculation to keep it here.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                const DisclaimerFooter(),
               ],
             )
           : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               itemCount: records.length + 1,
               itemBuilder: (context, index) {
                 if (index == records.length) {
@@ -62,23 +75,15 @@ class _RecordCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final tool = toolById(record.toolId);
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: ink.withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+    return Card(
+      clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         shape: const Border(),
+        collapsedShape: const Border(),
         leading: Container(
           width: 40,
           height: 40,
@@ -92,17 +97,17 @@ class _RecordCard extends ConsumerWidget {
           record.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 15,
+          style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w800,
-            color: ink,
           ),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             '${record.toolName} · ${fmtDateTime(record.createdAt)}',
-            style: const TextStyle(fontSize: 12, color: muted),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         children: [
@@ -113,9 +118,8 @@ class _RecordCard extends ConsumerWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Note: ${record.note}',
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    color: Color(0xff5c6673),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -146,7 +150,7 @@ class _RecordCard extends ConsumerWidget {
                 child: TextButton.icon(
                   onPressed: () => _confirmDelete(context, ref),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xffed6a5a),
+                    foregroundColor: theme.colorScheme.error,
                   ),
                   icon: const Icon(Icons.delete_outline_rounded, size: 17),
                   label: const Text('Delete'),
@@ -162,19 +166,20 @@ class _RecordCard extends ConsumerWidget {
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Record'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete result'),
         content: Text('Delete "${record.title}"? This cannot be undone.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Cancel'),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xffed6a5a),
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.onError,
             ),
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogContext, true),
             child: const Text('Delete'),
           ),
         ],
@@ -194,6 +199,7 @@ class _JsonSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     Map<String, dynamic> data;
     try {
       data = jsonDecode(json) as Map<String, dynamic>;
@@ -204,7 +210,7 @@ class _JsonSection extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xfff7f8fb),
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -212,10 +218,10 @@ class _JsonSection extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 12,
+            style: theme.textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.w800,
-              color: muted,
+              color: theme.colorScheme.onSurfaceVariant,
+              letterSpacing: 0.4,
             ),
           ),
           const SizedBox(height: 8),
@@ -226,12 +232,11 @@ class _JsonSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 108,
+                    width: 112,
                     child: Text(
                       entry.key,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: muted,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -239,10 +244,8 @@ class _JsonSection extends StatelessWidget {
                     child: Text(
                       entry.value.toString(),
                       textAlign: TextAlign.right,
-                      style: const TextStyle(
-                        fontSize: 12.5,
+                      style: theme.textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: ink,
                       ),
                     ),
                   ),

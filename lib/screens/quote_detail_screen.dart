@@ -291,7 +291,12 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(_chartError!, style: const TextStyle(color: muted)),
+                        Text(
+                          _chartError!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                         TextButton(
                           onPressed: _loadChart,
                           child: const Text('Retry'),
@@ -419,10 +424,15 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                   ),
                 )
               else if (_news.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 18),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   child: Center(
-                    child: Text('No news available', style: TextStyle(color: muted)),
+                    child: Text(
+                      'No news available',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                 )
               else

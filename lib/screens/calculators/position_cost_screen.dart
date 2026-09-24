@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/tools.dart';
 import '../../models/saved_record.dart';
 import '../../models/tool_definition.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
 import '../../widgets/common.dart';
@@ -161,7 +160,10 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
           title: 'Add / Reduce Records',
           trailing: Text(
             '${_rows.length} records',
-            style: const TextStyle(color: muted, fontSize: 12.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12.5,
+            ),
           ),
           children: [
             for (var i = 0; i < _rows.length; i++) ...[
@@ -204,12 +206,14 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
   }
 
   Widget _buildRow(ToolDefinition tool, _PositionRow row) {
+    final theme = Theme.of(context);
+    final danger = theme.colorScheme.error;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xfffbfbfd),
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: ink.withValues(alpha: 0.07)),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,8 +247,11 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
                         })
                     : null,
                 visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.delete_outline_rounded,
-                    size: 19, color: Color(0xffb3bac6)),
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 19,
+                  color: theme.colorScheme.outline,
+                ),
               ),
             ],
           ),
@@ -259,7 +266,7 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
                 labelStyle: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: row.isBuy ? tool.color : muted,
+                  color: row.isBuy ? tool.color : theme.colorScheme.onSurfaceVariant,
                 ),
                 onSelected: (_) => setState(() => row.isBuy = true),
               ),
@@ -269,11 +276,11 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
                 selected: !row.isBuy,
                 showCheckmark: false,
                 visualDensity: VisualDensity.compact,
-                selectedColor: const Color(0xffed6a5a).withValues(alpha: 0.15),
+                selectedColor: danger.withValues(alpha: 0.15),
                 labelStyle: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: !row.isBuy ? const Color(0xffed6a5a) : muted,
+                  color: !row.isBuy ? danger : theme.colorScheme.onSurfaceVariant,
                 ),
                 onSelected: (_) => setState(() => row.isBuy = false),
               ),

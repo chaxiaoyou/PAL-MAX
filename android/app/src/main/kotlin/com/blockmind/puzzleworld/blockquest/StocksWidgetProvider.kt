@@ -13,7 +13,7 @@ import java.util.Locale
 
 /**
  * Home-screen widget that mirrors the in-app watchlist grid. The Flutter side
- * pushes the latest quote snapshot through `NeedhamCapital/stocks_widget`
+ * pushes the latest quote snapshot through the `PJZA/stocks_widget` channel
  * whenever a
  * refresh succeeds; this provider renders that snapshot with RemoteViews so the
  * widget itself does not need its own network/authentication stack.
