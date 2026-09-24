@@ -167,15 +167,44 @@ flutter test
 
 ## 发布打包
 
-保留仓库内的安全打包脚本（混淆 + 符号表）：
+**一律用脚本出包**，不要用 IDE 或手敲 `flutter build`：漏掉 `--obfuscate` 就会把
+Dart 类名、方法名原样留在 `libapp.so` 里（曾经发生过一次）。
 
 ```bash
 ./tool/build_release.sh        # APK + AAB
 ./tool/build_release.sh apk
+./tool/build_release.sh aab
+./tool/build_release.sh ipa    # iOS（macOS + Xcode 签名）
 ```
 
-注意：当前 release 仍使用 debug 签名，正式上架前请在
-`android/app/build.gradle.kts` 配置自己的签名。
+脚本做的事：
+
+- Dart 层：`--obfuscate --split-debug-info=build/symbols`，混淆变量/类/方法名。
+- Android 原生层：R8 压缩与重命名（`android/app/build.gradle.kts` + `proguard-rules.pro`）。
+- **构建后自检**：扫描产物里的 `libapp.so`，只要还能搜到 `PortfolioScreen`、
+  `_fetchOnce` 这类只在代码里作为符号存在的名字，就直接判定失败——混淆没生效的包出不去。
+
+关于"去掉注释"：
+
+- release 的 AOT 快照里**本来就没有注释和源码文本**，无需额外处理。
+- **debug 包例外**：它会把整个 Dart 源码文本打进 `assets/flutter_assets/kernel_blob.bin`，
+  连注释一起可以原文搜到。所以 debug 包不要外发；要给测试同学装包用 `--profile` 或
+  上面的 release 包。
+- `--obfuscate` **不隐藏字符串字面量**：接口地址、Yahoo/GitHub 链接在 `libapp.so`
+  里仍是明文。要藏这些值只能改成由后端下发或构建期注入。
+
+两个需要留意的残留信息：
+
+- `libapp.so` 里会带构建机的绝对路径（例如 `file:///Users/<你的用户名>/.../dart_plugin_registrant.dart`），
+  这是 Flutter 工具链写进去的，混淆去不掉。介意的话在 CI 或中性目录里出包，
+  不要用本机个人目录。
+- 构建日志里的 `unobfuscated DWARF debugging information` 警告针对的是中间产物；
+  打进 APK 的 `libapp.so` 已经不带 `.debug_*` 段（AGP 打包时会 strip）。
+
+签名：存在 `android/key.properties` 时走其中的 release keystore，否则回落到 debug 签名。
+
+**崩溃还原**靠两份文件，务必随版本备份：`build/symbols/`（Dart）与
+`build/app/outputs/mapping/release/mapping.txt`（Android/R8）。
 
 ## 项目结构
 

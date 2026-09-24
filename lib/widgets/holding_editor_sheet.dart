@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -134,7 +135,9 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
         }
       });
     } catch (error, stackTrace) {
-      debugPrint('holding quote lookup failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('holding quote lookup failed: $error\n$stackTrace');
+      }
       if (!mounted) return;
       setState(() => _resolvingQuote = false);
     }
@@ -165,7 +168,9 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
         _searching = false;
       });
     } catch (error, stackTrace) {
-      debugPrint('holding symbol search failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('holding symbol search failed: $error\n$stackTrace');
+      }
       if (!mounted) return;
       setState(() {
         _results = const [];

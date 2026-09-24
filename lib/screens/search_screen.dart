@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/quote.dart';
@@ -63,7 +64,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         _trendingLoading = false;
       });
     } catch (error, stackTrace) {
-      debugPrint('trending fetch failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('trending fetch failed: $error\n$stackTrace');
+      }
       if (!mounted) return;
       setState(() => _trendingLoading = false);
     }
@@ -99,7 +102,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         _searching = false;
       });
     } catch (error, stackTrace) {
-      debugPrint('search failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('search failed: $error\n$stackTrace');
+      }
       if (!mounted) return;
       setState(() {
         _searchError = 'Search failed. Please try again.';

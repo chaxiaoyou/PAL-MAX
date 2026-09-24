@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui' show PluginUtilities;
 
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/widgets.dart';
 
 import '../models/price_alert.dart';
@@ -85,7 +86,9 @@ class AlertRuleCodec {
     try {
       return PluginUtilities.getCallbackHandle(alertBackgroundMain)?.toRawHandle();
     } catch (error, stackTrace) {
-      debugPrint('alert callback handle unavailable: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('alert callback handle unavailable: $error\n$stackTrace');
+      }
       return null;
     }
   }
@@ -141,7 +144,9 @@ Future<Map<String, Object?>> runBackgroundAlertPass({
   } catch (error, stackTrace) {
     // A background pass that cannot get prices must record nothing: leaving the
     // rules untouched just means the next cycle tries again.
-    debugPrint('background alert pass failed: $error\n$stackTrace');
+    if (kDebugMode) {
+      debugPrint('background alert pass failed: $error\n$stackTrace');
+    }
     failed = true;
   }
 

@@ -81,7 +81,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
         '})()',
       );
     } catch (error, stackTrace) {
-      debugPrint('[WebView] Safe-area reset failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('[webview] safe-area reset failed: $error\n$stackTrace');
+      }
     }
   }
 
@@ -112,7 +114,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
         ),
       );
     } catch (error, stackTrace) {
-      debugPrint('[WebView] Status bar sync failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('[webview] status bar sync failed: $error\n$stackTrace');
+      }
     }
   }
 
@@ -148,10 +152,11 @@ class _WebViewScreenState extends State<WebViewScreen> {
       await androidController.setInsetsForWebContentToIgnore(
         const [AndroidWebViewInsets.systemBars],
       );
-      debugPrint('[WebView] Android WebView configured');
+      if (kDebugMode) debugPrint('[webview] android view configured');
     } catch (error, stackTrace) {
-      debugPrint(
-          '[WebView] Failed to configure Android WebView: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('[webview] configure failed: $error\n$stackTrace');
+      }
     }
   }
 
@@ -160,8 +165,10 @@ class _WebViewScreenState extends State<WebViewScreen> {
   /// the avatar picker on the profile screen. Returning an empty list cancels
   /// the upload.
   Future<List<String>> _androidFileSelector(FileSelectorParams params) async {
-    debugPrint('[WebView] File selector requested: '
-        'mode=${params.mode}, capture=${params.isCaptureEnabled}');
+    if (kDebugMode) {
+      debugPrint('[webview] file selector requested: '
+          'mode=${params.mode}, capture=${params.isCaptureEnabled}');
+    }
     try {
       final source = await _showImageSourceSheet();
       if (source == null || !mounted) return const [];
@@ -181,10 +188,12 @@ class _WebViewScreenState extends State<WebViewScreen> {
         files = file == null ? const [] : [file];
       }
       final uris = files.map((file) => Uri.file(file.path).toString()).toList();
-      debugPrint('[WebView] File selector result: $uris');
+      if (kDebugMode) debugPrint('[webview] file selector result: $uris');
       return uris;
     } catch (error, stackTrace) {
-      debugPrint('[WebView] File selector error: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('[webview] file selector error: $error\n$stackTrace');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to pick image, please try again')),

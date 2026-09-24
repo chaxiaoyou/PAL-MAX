@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
 import 'alerts_screen.dart';
-import 'webview_screen.dart';
 
 const _refreshChoices = <int>[2, 5, 15, 30, 60];
 
@@ -92,17 +91,6 @@ class SettingsScreen extends ConsumerWidget {
           Card(
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.code_rounded),
-                  title: const Text('Open-source project'),
-                  subtitle: const Text('github.com/premnirmal/stockticker'),
-                  trailing: const Icon(Icons.open_in_new_rounded, size: 18),
-                  onTap: () => _openUrl(
-                    context,
-                    'https://github.com/premnirmal/stockticker',
-                  ),
-                ),
-                const Divider(),
                 ListTile(
                   leading: const Icon(Icons.info_outline_rounded),
                   title: const Text('Data source'),
@@ -201,9 +189,4 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
-  void _openUrl(BuildContext context, String url) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => WebViewScreen(url: url)),
-    );
-  }
 }

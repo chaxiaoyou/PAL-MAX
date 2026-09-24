@@ -154,7 +154,9 @@ class QuoteBoard extends StateNotifier<QuoteBoardState> {
         lastFetch: DateTime.now(),
       );
     } catch (error, stackTrace) {
-      debugPrint('quote fetch failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('quote fetch failed: $error\n$stackTrace');
+      }
       // Keep the last successful quotes. They are not passed off as live: the
       // fetch time is on screen and the error is reported. Blanking every
       // value on a dropped connection would be worse for no gain in honesty.
@@ -655,7 +657,9 @@ class DividendNotifier extends StateNotifier<DividendState> {
         payments[symbol] =
             await _ref.read(yahooApiProvider).fetchDividends(symbol);
       } catch (error, stackTrace) {
-        debugPrint('dividend fetch failed for $symbol: $error\n$stackTrace');
+        if (kDebugMode) {
+          debugPrint('dividend fetch failed for $symbol: $error\n$stackTrace');
+        }
         failed.add(symbol);
       }
       if (!mounted) return;
@@ -766,7 +770,9 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
         {'handle': handle},
       );
     } catch (error, stackTrace) {
-      debugPrint('alert background registration failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('alert background registration failed: $error\n$stackTrace');
+      }
     }
   }
 
@@ -778,7 +784,9 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
         await AlertRuleCodec.channel().invokeMethod<String>('readRules'),
       );
     } catch (error, stackTrace) {
-      debugPrint('alert state read failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('alert state read failed: $error\n$stackTrace');
+      }
       return;
     }
     if (native.isEmpty) return;
@@ -816,7 +824,9 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
           }) ??
           false;
     } catch (error, stackTrace) {
-      debugPrint('alert sync failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('alert sync failed: $error\n$stackTrace');
+      }
     }
     if (!mounted) return;
     state = AlertsState(

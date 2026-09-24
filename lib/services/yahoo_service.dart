@@ -82,8 +82,10 @@ class YahooFinanceApi {
         return const [];
       }
       if (response.statusCode == 401) {
-        debugPrint('[yahoo] quote 401 (attempt ${attempt + 1}): '
-            '${_preview(response.body)}');
+        if (kDebugMode) {
+          debugPrint('[yahoo] quote 401 (attempt ${attempt + 1}): '
+              '${_preview(response.body)}');
+        }
         _crumb = null;
         await _bootstrap();
         continue;
@@ -281,9 +283,11 @@ class YahooFinanceApi {
     final csrf = _extractCsrf(html, finalUrl);
     final consent =
         finalUrl.host.contains(_consentHost) || html.contains('csrfToken');
-    debugPrint('[yahoo] bootstrap home: HTTP ${home.statusCode} '
-        'final=${finalUrl.host}${finalUrl.path} '
-        'csrf=${csrf != null} cookies=${_cookies.keys.join(',')}');
+    if (kDebugMode) {
+      debugPrint('[yahoo] bootstrap home: HTTP ${home.statusCode} '
+          'final=${finalUrl.host}${finalUrl.path} '
+          'csrf=${csrf != null} cookies=${_cookies.keys.join(',')}');
+    }
     if (consent) {
       final uri = finalUrl;
       final sessionId = uri.queryParameters['sessionId'] ??
@@ -298,15 +302,21 @@ class YahooFinanceApi {
             '&namespace=yahoo'
             '&agree=agree';
         final consentResponse = await _post(uri, body: body);
-        debugPrint('[yahoo] consent POST: HTTP ${consentResponse.statusCode}');
+        if (kDebugMode) {
+          debugPrint('[yahoo] consent POST: HTTP ${consentResponse.statusCode}');
+        }
         // Some Yahoo regions only copy the session cookies after an explicit
         // copyConsent round-trip; harmless when unnecessary.
         final copyUri = Uri.parse('https://guce.yahoo.com/copyConsent')
             .replace(queryParameters: {'sessionId': sessionId});
         final copyResponse = await _get(copyUri);
-        debugPrint('[yahoo] copyConsent: HTTP ${copyResponse.statusCode}');
+        if (kDebugMode) {
+          debugPrint('[yahoo] copyConsent: HTTP ${copyResponse.statusCode}');
+        }
       } else {
-        debugPrint('[yahoo] consent page without csrf/sessionId, skipping');
+        if (kDebugMode) {
+          debugPrint('[yahoo] consent page without csrf/sessionId, skipping');
+        }
       }
     }
     for (final host in const [
@@ -316,8 +326,10 @@ class YahooFinanceApi {
       final crumbResponse =
           await _get(Uri.parse('https://$host/v1/test/getcrumb'));
       final crumbBody = crumbResponse.body.trim();
-      debugPrint('[yahoo] getcrumb($host): HTTP ${crumbResponse.statusCode} '
-          'len=${crumbBody.length} body=${_preview(crumbBody)}');
+      if (kDebugMode) {
+        debugPrint('[yahoo] getcrumb($host): HTTP ${crumbResponse.statusCode} '
+            'len=${crumbBody.length} body=${_preview(crumbBody)}');
+      }
       if (crumbResponse.statusCode == 200 && _looksLikeCrumb(crumbBody)) {
         _crumb = crumbBody;
         return;
@@ -367,7 +379,9 @@ class YahooFinanceApi {
   Future<_HttpResult> _getWithAuthRetry(Uri uri) async {
     var response = await _get(uri);
     if (response.statusCode == 401 && _crumb != null) {
-      debugPrint('[yahoo] 401 ${uri.path}: ${_preview(response.body)}');
+      if (kDebugMode) {
+        debugPrint('[yahoo] 401 ${uri.path}: ${_preview(response.body)}');
+      }
       _crumb = null;
       try {
         await _bootstrap();
@@ -376,8 +390,10 @@ class YahooFinanceApi {
       }
       response = await _get(uri);
       if (response.statusCode == 401) {
-        debugPrint('[yahoo] retry still 401 ${uri.path}: '
-            '${_preview(response.body)}');
+        if (kDebugMode) {
+          debugPrint('[yahoo] retry still 401 ${uri.path}: '
+              '${_preview(response.body)}');
+        }
       }
     }
     return response;

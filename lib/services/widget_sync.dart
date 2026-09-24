@@ -42,7 +42,9 @@ class WidgetSync {
     try {
       await _channel.invokeMethod<void>('update', payload);
     } catch (error, stackTrace) {
-      debugPrint('widget snapshot failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('widget snapshot failed: $error\n$stackTrace');
+      }
     }
   }
 }

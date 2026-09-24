@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -69,7 +70,9 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
         _chartLoading = false;
       });
     } catch (error, stackTrace) {
-      debugPrint('chart fetch failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('chart fetch failed: $error\n$stackTrace');
+      }
       if (!mounted) return;
       setState(() {
         _chartError = 'Unable to load chart data.';
@@ -87,7 +90,9 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
         _newsLoading = false;
       });
     } catch (error, stackTrace) {
-      debugPrint('news fetch failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('news fetch failed: $error\n$stackTrace');
+      }
       if (!mounted) return;
       setState(() => _newsLoading = false);
     }
@@ -102,7 +107,9 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
         setState(() => _quote = quotes.first);
       }
     } catch (error, stackTrace) {
-      debugPrint('quote refresh failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('quote refresh failed: $error\n$stackTrace');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()

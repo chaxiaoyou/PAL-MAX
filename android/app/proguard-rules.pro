@@ -1,13 +1,15 @@
 # Needham Capital  ProGuard / R8 rules
 #
-# Flutter 引擎在运行时通过反射加载插件与注册表，R8 混淆会把这些类重命名
-# 导致启动崩溃，因此保留整个 io.flutter 包及其生成的插件注册类。
+# 引擎自身按名字加载的那几个包必须保留；注册表类也被引擎按名字查找。
+# 注意不要写成 `-keep class io.flutter.** { *; }`：那条会把所有插件类一起
+# 钉住，反编译 dex 就能直接看到 io.flutter.plugins.webviewflutter.* 这种名字。
+# Flutter 自带的 flutter_proguard_rules.pro 对插件实现类给的是
+# `-keep,allowobfuscation class <1>`，即官方允许把插件类重命名。
 -keep class io.flutter.app.** { *; }
+-keep class io.flutter.embedding.** { *; }
 -keep class io.flutter.plugin.** { *; }
 -keep class io.flutter.util.** { *; }
 -keep class io.flutter.view.** { *; }
--keep class io.flutter.** { *; }
--keep class io.flutter.plugins.** { *; }
 -keep class io.flutter.plugins.GeneratedPluginRegistrant { *; }
 
 # 主 Activity（清单中引用，R8 默认保留，这里显式声明更稳妥）。

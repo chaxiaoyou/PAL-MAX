@@ -40,7 +40,9 @@ class PlatformAlertNotifier implements AlertNotifier {
       final granted = await _channel.invokeMethod<bool>('allowed');
       return granted ?? false;
     } catch (error, stackTrace) {
-      debugPrint('alert permission check failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('alert permission check failed: $error\n$stackTrace');
+      }
       return false;
     }
   }
@@ -52,7 +54,9 @@ class PlatformAlertNotifier implements AlertNotifier {
       final granted = await _channel.invokeMethod<bool>('request');
       return granted ?? false;
     } catch (error, stackTrace) {
-      debugPrint('alert permission request failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('alert permission request failed: $error\n$stackTrace');
+      }
       return false;
     }
   }
@@ -71,7 +75,9 @@ class PlatformAlertNotifier implements AlertNotifier {
         'body': body,
       });
     } catch (error, stackTrace) {
-      debugPrint('alert notification failed: $error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint('alert notification failed: $error\n$stackTrace');
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 import '../services/app_conf_service.dart';
 import '../theme/app_theme.dart';
@@ -94,7 +95,9 @@ class _SplashScreenState extends State<SplashScreen> {
         _route(destinationFor(steer), steer);
         return;
       } catch (error, stackTrace) {
-        debugPrint('fetchAppConf failed: $error\n$stackTrace');
+        if (kDebugMode) {
+          debugPrint('fetchAppConf failed: $error\n$stackTrace');
+        }
         if (!mounted) return;
         setState(() => _failedAttempts++);
         final wait = Completer<void>();
