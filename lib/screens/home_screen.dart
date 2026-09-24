@@ -95,7 +95,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildTopBar(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 8, 0),
+      padding: const EdgeInsets.fromLTRB(Space.gutter, Space.md, Space.sm, 0),
       child: Row(
         children: [
           Expanded(
@@ -105,7 +105,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Text(
                   kAppName,
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -136,7 +135,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? null
         : last.add(Duration(minutes: prefs.refreshMinutes));
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 2, 20, 6),
+      padding: const EdgeInsets.fromLTRB(
+        Space.gutter,
+        Space.xs,
+        Space.gutter,
+        Space.sm,
+      ),
       child: Row(
         children: [
           Icon(
@@ -144,7 +148,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             size: 20,
             color: theme.colorScheme.primary,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: Space.sm),
           Expanded(
             child: Text(
               'Last fetch: ${last == null ? '--' : hhMm(last)}'
@@ -156,7 +160,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           if (board.fetching && board.quotes.isEmpty)
             const Padding(
-              padding: EdgeInsets.only(right: 12),
+              padding: EdgeInsets.only(right: Space.md),
               child: SizedBox(
                 width: 16,
                 height: 16,
@@ -183,19 +187,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
     if (watchlist.symbols.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.add_chart_rounded, size: 56, color: muted),
-            const SizedBox(height: 12),
-            const Text('Your watchlist is empty'),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _openSearch,
-              icon: const Icon(Icons.search_rounded),
-              label: const Text('Add stocks'),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(Space.xxxl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.add_chart_rounded, size: 56, color: muted),
+              const SizedBox(height: Space.lg),
+              Text(
+                'Your watchlist is empty',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: Space.xl),
+              FilledButton.icon(
+                onPressed: _openSearch,
+                icon: const Icon(Icons.search_rounded),
+                label: const Text('Add stocks'),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -210,18 +220,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (quotes.isEmpty && board.error != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(Space.xxl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.cloud_off_rounded, size: 48, color: muted),
-              const SizedBox(height: 10),
-              Text(
-                board.error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: muted),
+              const SizedBox(height: Space.md),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
+                child: Text(
+                  board.error!,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: Space.lg),
               FilledButton.icon(
                 onPressed: () => _refresh(manual: true),
                 icon: const Icon(Icons.refresh_rounded),
@@ -246,12 +261,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                padding: const EdgeInsets.fromLTRB(
+                  Space.gutter,
+                  Space.xs,
+                  Space.gutter,
+                  Space.xxl,
+                ),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: columns,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
+                    crossAxisSpacing: Space.md,
+                    mainAxisSpacing: Space.md,
                     childAspectRatio: 1.45,
                   ),
                   delegate: SliverChildBuilderDelegate(

@@ -25,7 +25,8 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
   }
 
   Future<void> _add(PortfolioSymbol? symbol) async {
-    final picked = symbol ?? await showModalBottomSheet<PortfolioSymbol>(
+    final picked = symbol ??
+        await showModalBottomSheet<PortfolioSymbol>(
           context: context,
           isScrollControlled: true,
           useSafeArea: true,
@@ -53,7 +54,12 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       body: state.loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+              padding: const EdgeInsets.fromLTRB(
+                Space.gutter,
+                Space.xs,
+                Space.gutter,
+                Space.fabInset,
+              ),
               children: [
                 if (!state.notificationsAllowed)
                   _PermissionBanner(
@@ -65,7 +71,11 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                 else ...[
                   for (var index = 0; index < state.alerts.length; index++) ...[
                     if (index > 0)
-                      const Divider(height: 1, indent: 20, endIndent: 20),
+                      const Divider(
+                        height: 1,
+                        indent: Space.gutter,
+                        endIndent: Space.gutter,
+                      ),
                     _AlertRow(
                       alert: state.alerts[index],
                       price: quotes[state.alerts[index].symbol]?.lastPrice,
@@ -84,16 +94,13 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 18),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      _scheduleNote(state),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: state.backgroundReady
-                            ? theme.colorScheme.onSurfaceVariant
-                            : theme.colorScheme.error,
-                      ),
+                  const SizedBox(height: Space.xl),
+                  Text(
+                    _scheduleNote(state),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: state.backgroundReady
+                          ? theme.colorScheme.onSurfaceVariant
+                          : theme.colorScheme.error,
                     ),
                   ),
                 ],
@@ -163,7 +170,12 @@ class _AlertRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+        padding: const EdgeInsets.fromLTRB(
+          Space.gutter,
+          Space.md,
+          Space.md,
+          Space.md,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -176,18 +188,16 @@ class _AlertRow extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Space.xs),
                   Text(
                     '${alert.name.isEmpty ? '' : '${alert.name} · '}'
                     '${alert.side.phrase} '
                     '${moneyText(alert.threshold, alert.currency, roundTwoDp: roundTwoDp)}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: Space.xs),
                   Text(
                     [
                       if (price != null)
@@ -197,18 +207,12 @@ class _AlertRow extends StatelessWidget {
                             '${two(triggered.toLocal().month)}-'
                             '${two(triggered.toLocal().day)}',
                     ].join('  ·  '),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontFeatures: tabularFigures,
-                    ),
+                    style: theme.textTheme.labelSmall,
                   ),
                 ],
               ),
             ),
-            Switch(
-              value: alert.enabled,
-              onChanged: onToggle,
-            ),
+            Switch(value: alert.enabled, onChanged: onToggle),
           ],
         ),
       ),
@@ -225,32 +229,33 @@ class _PermissionBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.notifications_off_outlined,
-              size: 18,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Notifications are blocked, so alerts stay silent. Allow them '
-                'in system settings.',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+      padding: const EdgeInsets.only(bottom: Space.md),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            Space.md,
+            Space.sm,
+            Space.xs,
+            Space.sm,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.notifications_off_outlined,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: Space.sm),
+              Expanded(
+                child: Text(
+                  'Notifications are blocked, so alerts stay silent. Allow '
+                  'them in system settings.',
+                  style: theme.textTheme.bodySmall,
                 ),
               ),
-            ),
-            TextButton(onPressed: onAllow, child: const Text('Allow')),
-          ],
+              TextButton(onPressed: onAllow, child: const Text('Allow')),
+            ],
+          ),
         ),
       ),
     );
@@ -266,7 +271,12 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 40, 16, 0),
+      padding: const EdgeInsets.fromLTRB(
+        Space.gutter,
+        Space.xxxl,
+        Space.gutter,
+        0,
+      ),
       child: Column(
         children: [
           Icon(
@@ -274,23 +284,19 @@ class _EmptyState extends StatelessWidget {
             size: 56,
             color: theme.colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: 14),
-          Text(
-            'No alerts yet',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
+          const SizedBox(height: Space.md),
+          Text('No alerts yet', style: theme.textTheme.titleMedium),
+          const SizedBox(height: Space.sm),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 320),
+            child: Text(
+              'Pick a price level and the app tells you when the price crosses '
+              'it — not while it merely sits there.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            'Pick a price level and the app tells you when the price crosses '
-            'it — not while it merely sits there.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: Space.xl),
           FilledButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add_rounded),
@@ -350,28 +356,31 @@ class _SymbolPickerSheet extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            padding: const EdgeInsets.fromLTRB(
+              Space.gutter,
+              Space.lg,
+              Space.gutter,
+              Space.sm,
+            ),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                'Watch a price',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              child: Text('Watch a price', style: theme.textTheme.titleLarge),
             ),
           ),
           Flexible(
             child: ListView.separated(
               shrinkWrap: true,
               itemCount: symbols.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
+              separatorBuilder: (_, _) =>
+                  const Divider(height: 1, indent: Space.gutter),
               itemBuilder: (context, index) {
                 final entry = symbols[index];
                 return ListTile(
                   title: Text(
                     entry.symbol,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   subtitle: Text(
                     entry.name,
@@ -380,8 +389,13 @@ class _SymbolPickerSheet extends ConsumerWidget {
                   ),
                   trailing: entry.price == null
                       ? null
-                      : Text(moneyText(entry.price!, entry.currency,
-                          roundTwoDp: round2)),
+                      : Text(
+                          moneyText(
+                            entry.price!,
+                            entry.currency,
+                            roundTwoDp: round2,
+                          ),
+                        ),
                   onTap: () => Navigator.of(context).pop(entry),
                 );
               },

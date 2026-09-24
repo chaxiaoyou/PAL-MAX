@@ -323,6 +323,13 @@ void main() {
   testWidgets(
     'keeps the last known quotes when a refresh fails',
     (tester) async {
+      // The default test surface is wide and short, which parks the holding row
+      // below the fold once the error banner appears. Use a phone instead,
+      // where the row and the hero total are both on screen.
+      tester.view.physicalSize = const Size(1080, 2340);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+
       final store = await openStoreInWidgetTest(tester, 'portfolio_stale', holdings: [
         _holding(
           symbol: 'AAPL',

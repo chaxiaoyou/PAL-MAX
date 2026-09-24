@@ -142,14 +142,12 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Text(
               kAppName,
-              style: TextStyle(
+              style: theme.textTheme.headlineSmall?.copyWith(
                 color: colorScheme.primary,
-                fontWeight: FontWeight.w800,
                 letterSpacing: 1.5,
-                fontSize: 24,
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: Space.xxl),
             SizedBox(
               width: 24,
               height: 24,
@@ -158,21 +156,19 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: colorScheme.primary,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: Space.xl),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.symmetric(horizontal: Space.xxxl),
               child: Text(
                 retrying
                     ? 'Still connecting…'
                     : 'Checking for updates…',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodySmall,
               ),
             ),
             if (retrying) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: Space.xs),
               TextButton(
                 onPressed: _retryNow,
                 child: const Text('Retry now'),

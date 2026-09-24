@@ -227,16 +227,18 @@ class StocksWidgetProvider : AppWidgetProvider() {
             return String.format(Locale.getDefault(), "%tR", date)
         }
 
-        private val LIGHT_BG = Color.rgb(0xFC, 0xFD, 0xF6)
-        private val LIGHT_CARD = Color.rgb(0xFF, 0xFF, 0xFF)
-        private val LIGHT_TEXT = Color.rgb(0x1A, 0x1C, 0x18)
-        private val LIGHT_MUTED = Color.rgb(0x6E, 0x6E, 0x6E)
+        // White sheet, tinted cells: the widget cannot draw a hairline the way
+        // the app's cards do, so the cells stay a step apart from the page.
+        private val LIGHT_BG = Color.rgb(0xFF, 0xFF, 0xFF)
+        private val LIGHT_CARD = Color.rgb(0xF4, 0xF7, 0xFB)
+        private val LIGHT_TEXT = Color.rgb(0x10, 0x18, 0x28)
+        private val LIGHT_MUTED = Color.rgb(0x66, 0x70, 0x85)
         private val LIGHT_UP = Color.rgb(0x00, 0x99, 0x00)
         private val LIGHT_DOWN = Color.rgb(0xE5, 0x5B, 0x5B)
-        private val DARK_BG = Color.rgb(0x1A, 0x1C, 0x18)
-        private val DARK_CARD = Color.rgb(0x1D, 0x1D, 0x1D)
-        private val DARK_TEXT = Color.rgb(0xE2, 0xE3, 0xDD)
-        private val DARK_MUTED = Color.rgb(0x8F, 0x96, 0x8C)
+        private val DARK_BG = Color.rgb(0x0F, 0x15, 0x24)
+        private val DARK_CARD = Color.rgb(0x17, 0x20, 0x2F)
+        private val DARK_TEXT = Color.rgb(0xE4, 0xE9, 0xF2)
+        private val DARK_MUTED = Color.rgb(0x98, 0xA2, 0xB3)
         private val DARK_UP = Color.rgb(0xCC, 0xFF, 0x66)
         private val DARK_DOWN = Color.rgb(0xFF, 0x66, 0x66)
     }

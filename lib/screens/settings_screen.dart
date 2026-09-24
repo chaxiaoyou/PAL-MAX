@@ -19,9 +19,14 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+        padding: const EdgeInsets.fromLTRB(
+          Space.gutter,
+          Space.xs,
+          Space.gutter,
+          Space.xxl,
+        ),
         children: [
-          _sectionTitle(context, 'Appearance'),
+          _sectionTitle(context, 'APPEARANCE'),
           Card(
             child: Column(
               children: [
@@ -42,8 +47,8 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 18),
-          _sectionTitle(context, 'Quotes'),
+          const SizedBox(height: Space.xl),
+          _sectionTitle(context, 'QUOTES'),
           Card(
             child: Column(
               children: [
@@ -63,8 +68,8 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 18),
-          _sectionTitle(context, 'Alerts'),
+          const SizedBox(height: Space.xl),
+          _sectionTitle(context, 'ALERTS'),
           Card(
             child: ListTile(
               leading: const Icon(Icons.notifications_none_rounded),
@@ -82,8 +87,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 18),
-          _sectionTitle(context, 'About'),
+          const SizedBox(height: Space.xl),
+          _sectionTitle(context, 'ABOUT'),
           Card(
             child: Column(
               children: [
@@ -106,13 +111,11 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: Space.xl),
           Center(
             child: Text(
               '$kAppName · Flutter replica',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall,
             ),
           ),
         ],
@@ -122,13 +125,10 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _sectionTitle(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+      padding: const EdgeInsets.only(bottom: Space.sm),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
-            ),
+        style: Theme.of(context).textTheme.labelSmall,
       ),
     );
   }

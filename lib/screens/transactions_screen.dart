@@ -47,7 +47,12 @@ class TransactionsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(symbol)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+        padding: const EdgeInsets.fromLTRB(
+          Space.gutter,
+          Space.xs,
+          Space.gutter,
+          Space.fabInset,
+        ),
         children: [
           _PositionCard(
             name: name,
@@ -79,19 +84,15 @@ class TransactionsScreen extends ConsumerWidget {
                 : () => openHoldingEditor(context, existing: holding),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(4, 22, 4, 6),
+            padding: const EdgeInsets.fromLTRB(0, Space.xl, 0, Space.sm),
             child: Text(
               hasLedger ? 'TRANSACTIONS · ${rows.length}' : 'TRANSACTIONS',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
-                  ),
+              style: Theme.of(context).textTheme.labelSmall,
             ),
           ),
           if (!hasLedger)
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
+              padding: const EdgeInsets.only(top: Space.xs),
               child: Text(
                 'Nothing recorded yet.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -101,7 +102,12 @@ class TransactionsScreen extends ConsumerWidget {
             )
           else
             for (var index = 0; index < rows.length; index++) ...[
-              if (index > 0) const Divider(height: 1, indent: 20, endIndent: 20),
+              if (index > 0)
+                const Divider(
+                  height: 1,
+                  indent: Space.gutter,
+                  endIndent: Space.gutter,
+                ),
               _TransactionRow(
                 transaction: rows[index],
                 currency: currency,
@@ -188,11 +194,7 @@ class _PositionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final labelStyle = theme.textTheme.labelSmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0.6,
-    );
+    final labelStyle = theme.textTheme.labelSmall;
     final realized = ledger?.realizedProfit ?? 0;
     final realizedColor = changeColor(
       context,
@@ -205,14 +207,14 @@ class _PositionCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+        padding: Space.cardContent,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(name.isEmpty ? '—' : name, style: theme.textTheme.bodySmall),
-            const SizedBox(height: 10),
+            const SizedBox(height: Space.md),
             Text('POSITION', style: labelStyle),
-            const SizedBox(height: 4),
+            const SizedBox(height: Space.xs),
             Wrap(
               spacing: 10,
               runSpacing: 2,
@@ -220,25 +222,19 @@ class _PositionCard extends StatelessWidget {
               children: [
                 Text(
                   shares > 0 ? '${sharesText(shares)} shares' : 'No shares',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontFeatures: tabularFigures,
-                  ),
+                  style: theme.textTheme.headlineSmall,
                 ),
                 if (shares > 0)
                   Text(
                     'avg ${moneyText(averageCost, currency, roundTwoDp: roundTwoDp)}'
                     '  ·  cost basis '
                     '${moneyText(costBasis, currency, roundTwoDp: roundTwoDp)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontFeatures: tabularFigures,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
               ],
             ),
             if (ledger != null && ledger!.hasRealized) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: Space.sm),
               Wrap(
                 spacing: 8,
                 runSpacing: 2,
@@ -256,15 +252,13 @@ class _PositionCard extends StatelessWidget {
                     ledger!.sales.length == 1
                         ? 'from 1 sale'
                         : 'from ${ledger!.sales.length} sales',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
             ],
             if (ledger != null && ledger!.unmatchedShares > 0) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: Space.sm),
               Text(
                 '${sharesText(ledger!.unmatchedShares)} shares were sold that '
                 'this ledger has no record of buying, so they are not counted.',
@@ -274,7 +268,7 @@ class _PositionCard extends StatelessWidget {
               ),
             ],
             if (!hasLedger) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: Space.md),
               Text(
                 'This position was entered by hand. Track buys and sells '
                 'instead and the shares and average cost above become the '
@@ -283,7 +277,7 @@ class _PositionCard extends StatelessWidget {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Space.md),
               FilledButton.icon(
                 onPressed: onEditManually,
                 icon: const Icon(Icons.edit_rounded, size: 18),
@@ -330,7 +324,12 @@ class _TransactionRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 16, 12),
+        padding: const EdgeInsets.fromLTRB(
+          Space.gutter,
+          Space.md,
+          Space.sm,
+          Space.md,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -344,31 +343,26 @@ class _TransactionRow extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Space.xs),
                   Text(
                     '${sharesText(transaction.shares)} @ '
                     '${moneyText(transaction.pricePerShare, currency, roundTwoDp: roundTwoDp)}'
                     '${transaction.fee == 0 ? '' : '  ·  fee ${moneyText(transaction.fee, currency, roundTwoDp: roundTwoDp)}'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontFeatures: tabularFigures,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
                   if (transaction.note.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: Space.xs),
                     Text(
                       transaction.note,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.labelSmall,
                     ),
                   ],
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: Space.md),
             Text(
               moneyText(cash, currency, roundTwoDp: roundTwoDp),
               style: theme.textTheme.titleSmall?.copyWith(

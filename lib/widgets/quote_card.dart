@@ -35,81 +35,86 @@ class QuoteCard extends StatelessWidget {
               : QuoteDirection.flat,
     );
     final symbol = currencySymbol(quote.currency);
+    final showMenu = showMore && onRemove != null;
 
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        // The menu sits on top of the card rather than in its first row: a
+        // tap target worth having is taller than the symbol line, and letting
+        // it set the row's height squeezes the numbers on a narrow grid.
+        child: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                Space.md,
+                Space.md,
+                showMenu ? 44 : Space.md,
+                Space.md,
+              ),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      quote.symbol,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface,
-                      ),
+                  Text(
+                    quote.symbol,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (showMore && onRemove != null)
-                    _MoreButton(onRemove: onRemove!),
-                ],
-              ),
-              const SizedBox(height: 3),
-              Text(
-                quote.name.isEmpty ? '—' : quote.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '$symbol${priceText(quote.lastPrice, roundTwoDp: roundTwoDp)}',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                  const SizedBox(height: Space.xs),
+                  Text(
+                    quote.name.isEmpty ? '—' : quote.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall,
                   ),
-                  Column(
+                  const Spacer(),
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        percentText(quote.changePercent),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: color,
-                          fontWeight: FontWeight.w700,
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '$symbol${priceText(quote.lastPrice, roundTwoDp: roundTwoDp)}',
+                            style: theme.textTheme.titleMedium,
+                          ),
                         ),
                       ),
-                      Text(
-                        signedAmount(quote.change, roundTwoDp: roundTwoDp),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: color,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            percentText(quote.changePercent),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: color,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            signedAmount(quote.change, roundTwoDp: roundTwoDp),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: color,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            if (showMenu)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: _MoreButton(onRemove: onRemove!),
+              ),
+          ],
         ),
       ),
     );
@@ -123,15 +128,16 @@ class _MoreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mark stays small; the target around it keeps the 48dp a thumb needs.
     return SizedBox(
-      width: 28,
-      height: 24,
+      width: 48,
+      height: 48,
       child: PopupMenuButton<String>(
         padding: EdgeInsets.zero,
         tooltip: '',
+        iconSize: 20,
         icon: Icon(
           Icons.more_vert_rounded,
-          size: 18,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         onSelected: (value) {

@@ -39,8 +39,7 @@ class HoldingEditorSheet extends ConsumerStatefulWidget {
   final Holding? existing;
 
   @override
-  ConsumerState<HoldingEditorSheet> createState() =>
-      _HoldingEditorSheetState();
+  ConsumerState<HoldingEditorSheet> createState() => _HoldingEditorSheetState();
 }
 
 class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
@@ -99,8 +98,10 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
       _currency = existing.currency;
       _searchController.text = existing.symbol;
       _sharesController.text = sharesText(existing.shares);
-      _costController.text =
-          priceText(existing.costPerShare, roundTwoDp: false);
+      _costController.text = priceText(
+        existing.costPerShare,
+        roundTwoDp: false,
+      );
       _resolveQuote(existing.symbol);
     }
   }
@@ -211,10 +212,12 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
     final cost = _parseNumber(_costController.text);
     setState(() {
       _symbolError = _symbol.isEmpty ? 'Pick a symbol first' : null;
-      _sharesError =
-          (shares == null || shares <= 0) ? 'Enter how many shares you hold' : null;
-      _costError =
-          (cost == null || cost < 0) ? 'Enter the average cost per share' : null;
+      _sharesError = (shares == null || shares <= 0)
+          ? 'Enter how many shares you hold'
+          : null;
+      _costError = (cost == null || cost < 0)
+          ? 'Enter the average cost per share'
+          : null;
     });
     if (_symbolError != null || _sharesError != null || _costError != null) {
       return;
@@ -231,9 +234,9 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
           ),
         );
     if (!mounted) return;
-    Navigator.of(context).pop(
-      _isEditing ? '$_symbol updated' : '$_symbol added to your portfolio',
-    );
+    Navigator.of(
+      context,
+    ).pop(_isEditing ? '$_symbol updated' : '$_symbol added to your portfolio');
   }
 
   Future<void> _confirmDelete() async {
@@ -275,36 +278,40 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
           maxHeight: media.size.height * 0.9 - media.viewInsets.bottom,
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          padding: const EdgeInsets.fromLTRB(
+            Space.gutter,
+            Space.md,
+            Space.gutter,
+            Space.xl,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 _isEditing ? 'Edit holding' : 'Add holding',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: theme.textTheme.titleLarge,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: Space.xs),
               Text(
                 _isEditing
                     ? 'Update the share count or your average cost.'
                     : 'Your cost basis stays on this device.',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodySmall,
               ),
-              const SizedBox(height: 18),
-              if (_isEditing) _buildLockedSymbol(theme) else _buildSymbolField(theme),
-              const SizedBox(height: 16),
+              const SizedBox(height: Space.xl),
+              if (_isEditing)
+                _buildLockedSymbol(theme)
+              else
+                _buildSymbolField(theme),
+              const SizedBox(height: Space.lg),
               _buildSharesField(),
-              const SizedBox(height: 16),
+              const SizedBox(height: Space.lg),
               _buildCostField(theme),
               if (_needsCurrency) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: Space.lg),
                 _buildCurrencyField(),
               ],
-              const SizedBox(height: 22),
+              const SizedBox(height: Space.xxl),
               FilledButton(
                 onPressed: _saving ? null : _save,
                 child: _saving
@@ -316,7 +323,7 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
                     : Text(_isEditing ? 'Save changes' : 'Add to portfolio'),
               ),
               if (_isEditing) ...[
-                const SizedBox(height: 6),
+                const SizedBox(height: Space.sm),
                 TextButton(
                   onPressed: _saving ? null : _confirmDelete,
                   style: TextButton.styleFrom(
@@ -334,7 +341,6 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
 
   Widget _buildLockedSymbol(ThemeData theme) {
     return _field(
-      theme: theme,
       label: 'Symbol',
       child: Row(
         children: [
@@ -349,10 +355,7 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
           if (_lastPrice != null)
             Text(
               priceText(_lastPrice!, roundTwoDp: false),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontFeatures: tabularFigures,
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
         ],
       ),
@@ -372,55 +375,58 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
             hintText: 'Search symbol or company (e.g. AAPL)',
             errorText: _symbolError,
             prefixIcon: const Icon(Icons.search_rounded),
-            filled: true,
-            fillColor: theme.colorScheme.surfaceContainerLowest,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
           ),
         ),
         if (_resolvingQuote)
           const Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: Space.md),
             child: LinearProgressIndicator(minHeight: 2),
           ),
         if (_symbol.isNotEmpty && !_resolvingQuote) _buildResolvedRow(theme),
         if (_searching)
           const Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: Space.md),
             child: LinearProgressIndicator(minHeight: 2),
           ),
         if (_results.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: Space.sm),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 220),
               child: Material(
-                color: theme.colorScheme.surfaceContainerLow,
+                color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(14),
                 clipBehavior: Clip.antiAlias,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  itemCount: _results.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final result = _results[index];
-                    return ListTile(
-                      dense: true,
-                      title: Text(
-                        result.symbol,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      subtitle: Text(
-                        result.name.isEmpty ? result.exchange : result.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      onTap: () => _pick(result),
-                    );
-                  },
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
+                  ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    itemCount: _results.length,
+                    separatorBuilder: (_, _) =>
+                        const Divider(height: 1, indent: Space.gutter),
+                    itemBuilder: (context, index) {
+                      final result = _results[index];
+                      return ListTile(
+                        dense: true,
+                        title: Text(
+                          result.symbol,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        subtitle: Text(
+                          result.name.isEmpty ? result.exchange : result.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () => _pick(result),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -443,7 +449,7 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
 
   Widget _buildResolvedRow(ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.only(top: Space.sm),
       child: Row(
         children: [
           Icon(
@@ -451,24 +457,19 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
             size: 16,
             color: theme.colorScheme.primary,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: Space.sm),
           Expanded(
             child: Text(
               _name.isEmpty ? _symbol : '$_name · $_currency',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall,
             ),
           ),
           if (_lastPrice != null)
             Text(
               'Current ${priceText(_lastPrice!, roundTwoDp: false)}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontFeatures: tabularFigures,
-              ),
+              style: theme.textTheme.bodySmall,
             ),
         ],
       ),
@@ -476,15 +477,11 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
   }
 
   Widget _buildSharesField() {
-    final theme = Theme.of(context);
     return TextField(
       controller: _sharesController,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
       decoration: _inputDecoration(
-        theme: theme,
         label: 'Shares',
         hint: '10',
         error: _sharesError,
@@ -496,11 +493,8 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
     return TextField(
       controller: _costController,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
       decoration: _inputDecoration(
-        theme: theme,
         label: 'Average cost per share',
         hint: '0.00',
         error: _costError,
@@ -518,7 +512,6 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
           key: ValueKey(_currency),
           initialValue: _currency,
           decoration: _inputDecoration(
-            theme: theme,
             label: 'Currency',
             hint: '',
             error: null,
@@ -534,20 +527,17 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
             if (value != null) setState(() => _currency = value);
           },
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: Space.sm),
         Text(
           'No live quote for this symbol yet, so the currency cannot be '
           'confirmed automatically.',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          style: theme.textTheme.bodySmall,
         ),
       ],
     );
   }
 
   InputDecoration _inputDecoration({
-    required ThemeData theme,
     required String label,
     required String hint,
     required String? error,
@@ -558,30 +548,12 @@ class _HoldingEditorSheetState extends ConsumerState<HoldingEditorSheet> {
       hintText: hint,
       errorText: error,
       prefixText: prefix,
-      filled: true,
-      fillColor: theme.colorScheme.surfaceContainerLowest,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
-      ),
     );
   }
 
-  Widget _field({
-    required ThemeData theme,
-    required String label,
-    required Widget child,
-  }) {
+  Widget _field({required String label, required Widget child}) {
     return InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: theme.colorScheme.surfaceContainerLowest,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-      ),
+      decoration: InputDecoration(labelText: label),
       child: child,
     );
   }

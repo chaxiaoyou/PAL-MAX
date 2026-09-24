@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/transaction.dart';
 import '../providers/providers.dart';
+import '../theme/app_theme.dart';
 import '../utils/format.dart';
 
 /// Records one buy or sell. Pops with a status message for the caller, or `null`
@@ -51,8 +52,10 @@ class _TransactionEditorSheetState
     final existing = widget.existing;
     if (existing != null) {
       _sharesController.text = sharesText(existing.shares);
-      _priceController.text =
-          priceText(existing.pricePerShare, roundTwoDp: false);
+      _priceController.text = priceText(
+        existing.pricePerShare,
+        roundTwoDp: false,
+      );
       if (existing.fee != 0) {
         _feeController.text = priceText(existing.fee, roundTwoDp: false);
       }
@@ -121,9 +124,9 @@ class _TransactionEditorSheetState
           existing: widget.existing,
         );
     if (!mounted) return;
-    Navigator.of(context).pop(
-      '${_kind.label} of ${sharesText(shares)} ${widget.symbol} saved',
-    );
+    Navigator.of(
+      context,
+    ).pop('${_kind.label} of ${sharesText(shares)} ${widget.symbol} saved');
   }
 
   Future<void> _confirmDelete() async {
@@ -155,11 +158,7 @@ class _TransactionEditorSheetState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final labelStyle = theme.textTheme.labelSmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0.6,
-    );
+    final labelStyle = theme.textTheme.labelSmall;
     // A scroll-controlled sheet is not height-limited by the framework, so
     // without this the form simply grows past the bottom of a short screen and
     // the save button becomes unreachable.
@@ -171,132 +170,136 @@ class _TransactionEditorSheetState
           maxHeight: media.size.height * 0.9 - media.viewInsets.bottom,
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          padding: const EdgeInsets.fromLTRB(
+            Space.gutter,
+            Space.md,
+            Space.gutter,
+            Space.xl,
+          ),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              _isEditing ? 'Edit transaction' : 'Add transaction',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                _isEditing ? 'Edit transaction' : 'Add transaction',
+                style: theme.textTheme.titleLarge,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              widget.symbol,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              const SizedBox(height: Space.xs),
+              Text(widget.symbol, style: theme.textTheme.bodySmall),
+              const SizedBox(height: Space.xl),
+              SegmentedButton<TransactionKind>(
+                segments: [
+                  for (final kind in TransactionKind.values)
+                    ButtonSegment<TransactionKind>(
+                      value: kind,
+                      label: Text(kind.label),
+                    ),
+                ],
+                selected: {_kind},
+                showSelectedIcon: false,
+                onSelectionChanged: (selection) {
+                  setState(() => _kind = selection.first);
+                },
               ),
-            ),
-            const SizedBox(height: 18),
-            SegmentedButton<TransactionKind>(
-              segments: [
-                for (final kind in TransactionKind.values)
-                  ButtonSegment<TransactionKind>(
-                    value: kind,
-                    label: Text(kind.label),
-                  ),
-              ],
-              selected: {_kind},
-              showSelectedIcon: false,
-              onSelectionChanged: (selection) {
-                setState(() => _kind = selection.first);
-              },
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _sharesController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-              ],
-              onChanged: (_) => setState(() {}),
-              decoration: _decoration(
-                theme,
-                label: 'Shares',
-                hint: '10',
-                error: _sharesError,
+              const SizedBox(height: Space.lg),
+              TextField(
+                controller: _sharesController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
+                onChanged: (_) => setState(() {}),
+                decoration: _decoration(
+                  label: 'Shares',
+                  hint: '10',
+                  error: _sharesError,
+                ),
               ),
-            ),
-            if (_oversold > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  'You hold ${sharesText(widget.heldShares)} shares. '
-                  'The extra ${sharesText(_oversold)} will not be counted.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.error,
+              if (_oversold > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: Space.sm),
+                  child: Text(
+                    'You hold ${sharesText(widget.heldShares)} shares. '
+                    'The extra ${sharesText(_oversold)} will not be counted.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
                   ),
                 ),
-              ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _priceController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-              ],
-              decoration: _decoration(
-                theme,
-                label: 'Price per share',
-                hint: '0.00',
-                error: _priceError,
-                prefix: currencySymbol(widget.currency),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _feeController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-              ],
-              decoration: _decoration(
-                theme,
-                label: 'Fees (optional)',
-                hint: '0.00',
-                error: null,
-                prefix: currencySymbol(widget.currency),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Text('TRADE DATE', style: labelStyle),
-            const SizedBox(height: 6),
-            OutlinedButton.icon(
-              onPressed: _pickDate,
-              icon: const Icon(Icons.event_rounded, size: 18),
-              label: Text(_formatDate(_tradedAt)),
-              style: OutlinedButton.styleFrom(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+              const SizedBox(height: Space.lg),
+              TextField(
+                controller: _priceController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
+                decoration: _decoration(
+                  label: 'Price per share',
+                  hint: '0.00',
+                  error: _priceError,
+                  prefix: currencySymbol(widget.currency),
                 ),
               ),
-            ),
-            const SizedBox(height: 22),
-            FilledButton(
-              onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_isEditing ? 'Save changes' : 'Add transaction'),
-            ),
-            if (_isEditing) ...[
-              const SizedBox(height: 6),
-              TextButton(
-                onPressed: _saving ? null : _confirmDelete,
-                style: TextButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
+              const SizedBox(height: Space.lg),
+              TextField(
+                controller: _feeController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-                child: const Text('Delete transaction'),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
+                decoration: _decoration(
+                  label: 'Fees (optional)',
+                  hint: '0.00',
+                  error: null,
+                  prefix: currencySymbol(widget.currency),
+                ),
               ),
+              const SizedBox(height: Space.xl),
+              Text('TRADE DATE', style: labelStyle),
+              const SizedBox(height: Space.sm),
+              OutlinedButton.icon(
+                onPressed: _pickDate,
+                icon: const Icon(Icons.event_rounded, size: 18),
+                label: Text(_formatDate(_tradedAt)),
+                style: OutlinedButton.styleFrom(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Space.lg,
+                    vertical: Space.lg,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
+              const SizedBox(height: Space.xxl),
+              FilledButton(
+                onPressed: _saving ? null : _save,
+                child: _saving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(_isEditing ? 'Save changes' : 'Add transaction'),
+              ),
+              if (_isEditing) ...[
+                const SizedBox(height: Space.sm),
+                TextButton(
+                  onPressed: _saving ? null : _confirmDelete,
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.error,
+                  ),
+                  child: const Text('Delete transaction'),
+                ),
+              ],
             ],
-          ],
-        ),
+          ),
         ),
       ),
     );
@@ -307,8 +310,7 @@ class _TransactionEditorSheetState
     return '${local.year}-${two(local.month)}-${two(local.day)}';
   }
 
-  InputDecoration _decoration(
-    ThemeData theme, {
+  InputDecoration _decoration({
     required String label,
     required String hint,
     required String? error,
@@ -319,12 +321,6 @@ class _TransactionEditorSheetState
       hintText: hint,
       errorText: error,
       prefixText: prefix,
-      filled: true,
-      fillColor: theme.colorScheme.surfaceContainerLowest,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
-      ),
     );
   }
 }

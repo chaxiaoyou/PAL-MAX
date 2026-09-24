@@ -184,7 +184,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                   )
                 : const Icon(Icons.refresh_rounded),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: Space.xs),
         ],
       ),
       body: RefreshIndicator(
@@ -196,7 +196,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
             SliverToBoxAdapter(child: _buildChartCard(context)),
             SliverToBoxAdapter(child: _buildStatsCard(context)),
             SliverToBoxAdapter(child: _buildNewsCard(context)),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: SizedBox(height: Space.xxl)),
           ],
         ),
       ),
@@ -216,7 +216,12 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
     final round2 = ref.watch(appPrefsProvider).roundTwoDp;
     final symbol = currencySymbol(_quote.currency);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+      padding: const EdgeInsets.fromLTRB(
+        Space.gutter,
+        Space.xs,
+        Space.gutter,
+        Space.md,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -226,15 +231,12 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: Space.xs),
           Text(
             '$symbol${priceText(_quote.lastPrice, roundTwoDp: round2)}',
-            style: theme.textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.2,
-            ),
+            style: theme.textTheme.displaySmall,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: Space.sm),
           Row(
             children: [
               Text(
@@ -245,12 +247,10 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: Space.sm),
               Text(
                 _marketStateLabel(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodySmall,
               ),
             ],
           ),
@@ -269,10 +269,20 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
 
   Widget _buildChartCard(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(
+        Space.gutter,
+        0,
+        Space.gutter,
+        Space.md,
+      ),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 14, 12, 10),
+          padding: const EdgeInsets.fromLTRB(
+            Space.md,
+            Space.lg,
+            Space.md,
+            Space.md,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -281,7 +291,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _ChartRange.values.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 6),
+                  separatorBuilder: (_, _) => const SizedBox(width: Space.sm),
                   itemBuilder: (context, index) {
                     final range = _ChartRange.values[index];
                     final selected = range == _range;
@@ -299,7 +309,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: Space.sm),
               if (_chartLoading)
                 const SizedBox(
                   height: 200,
@@ -312,7 +322,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(_chartError!, style: const TextStyle(color: muted)),
+                        Text(_chartError!, style: Theme.of(context).textTheme.bodySmall),
                         TextButton(
                           onPressed: _loadChart,
                           child: const Text('Retry'),
@@ -350,10 +360,15 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
     final stats = _buildStats();
     if (stats.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(
+        Space.gutter,
+        0,
+        Space.gutter,
+        Space.md,
+      ),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          padding: Space.cardContent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -363,13 +378,13 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: Space.md),
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 childAspectRatio: 2.6,
-                mainAxisSpacing: 4,
+                mainAxisSpacing: Space.xs,
                 children: [
                   for (final stat in stats)
                     _StatCell(label: stat.label, value: stat.value),
@@ -414,10 +429,20 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
   Widget _buildNewsCard(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(
+        Space.gutter,
+        0,
+        Space.gutter,
+        Space.md,
+      ),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+          padding: const EdgeInsets.fromLTRB(
+            Space.card,
+            Space.lg,
+            Space.card,
+            Space.sm,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -427,10 +452,10 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: Space.sm),
               if (_newsLoading)
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 18),
+                  padding: EdgeInsets.symmetric(vertical: Space.xl),
                   child: Center(
                     child: SizedBox(
                       width: 20,
@@ -441,9 +466,9 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                 )
               else if (_news.isEmpty)
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 18),
+                  padding: EdgeInsets.symmetric(vertical: Space.xl),
                   child: Center(
-                    child: Text('No news available', style: TextStyle(color: muted)),
+                    child: Text('No news available'),
                   ),
                 )
               else
@@ -473,11 +498,9 @@ class _StatCell extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          style: theme.textTheme.bodySmall,
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: Space.xs),
         Text(
           value,
           maxLines: 1,
@@ -509,7 +532,7 @@ class _NewsTile extends StatelessWidget {
       },
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: Space.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -519,15 +542,12 @@ class _NewsTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                height: 1.25,
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: Space.xs),
             Text(
               _dateLabel(item.pubDate),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall,
             ),
           ],
         ),

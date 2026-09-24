@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/price_alert.dart';
 import '../providers/providers.dart';
+import '../theme/app_theme.dart';
 import '../utils/format.dart';
 
 /// Opens the alert editor and reports what happened.
@@ -71,12 +72,16 @@ class _AlertEditorSheetState extends ConsumerState<AlertEditorSheet> {
     super.initState();
     final existing = widget.existing;
     if (existing != null) {
-      _thresholdController.text =
-          priceText(existing.threshold, roundTwoDp: false);
+      _thresholdController.text = priceText(
+        existing.threshold,
+        roundTwoDp: false,
+      );
     } else if (widget.currentPrice != null) {
       // Level alerts are almost always set just off the current price.
-      _thresholdController.text =
-          priceText(widget.currentPrice!, roundTwoDp: false);
+      _thresholdController.text = priceText(
+        widget.currentPrice!,
+        roundTwoDp: false,
+      );
     }
   }
 
@@ -87,7 +92,10 @@ class _AlertEditorSheetState extends ConsumerState<AlertEditorSheet> {
   }
 
   Future<void> _save() async {
-    final cleaned = _thresholdController.text.replaceAll(RegExp(r'[^0-9.]'), '');
+    final cleaned = _thresholdController.text.replaceAll(
+      RegExp(r'[^0-9.]'),
+      '',
+    );
     final threshold = double.tryParse(cleaned);
     setState(() {
       _thresholdError =
@@ -154,26 +162,27 @@ class _AlertEditorSheetState extends ConsumerState<AlertEditorSheet> {
           maxHeight: media.size.height * 0.9 - media.viewInsets.bottom,
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          padding: const EdgeInsets.fromLTRB(
+            Space.gutter,
+            Space.md,
+            Space.gutter,
+            Space.xl,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 _isEditing ? 'Edit alert' : 'New price alert',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: theme.textTheme.titleLarge,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: Space.xs),
               Text(
                 widget.name.isEmpty
                     ? widget.symbol
                     : '${widget.symbol} · ${widget.name}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodySmall,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: Space.xl),
               SegmentedButton<AlertDirection>(
                 segments: [
                   for (final direction in AlertDirection.values)
@@ -188,11 +197,12 @@ class _AlertEditorSheetState extends ConsumerState<AlertEditorSheet> {
                   setState(() => _direction = selection.first);
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: Space.lg),
               TextField(
                 controller: _thresholdController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                 ],
@@ -204,15 +214,9 @@ class _AlertEditorSheetState extends ConsumerState<AlertEditorSheet> {
                       ? 'Alerts fire when the price crosses this level.'
                       : 'Now ${moneyText(price, widget.currency)} · alerts fire '
                           'when the price crosses this level.',
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerLowest,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: Space.xxl),
               FilledButton(
                 onPressed: _saving ? null : _save,
                 child: _saving
@@ -224,7 +228,7 @@ class _AlertEditorSheetState extends ConsumerState<AlertEditorSheet> {
                     : Text(_isEditing ? 'Save changes' : 'Create alert'),
               ),
               if (_isEditing) ...[
-                const SizedBox(height: 6),
+                const SizedBox(height: Space.sm),
                 TextButton(
                   onPressed: _saving ? null : _confirmDelete,
                   style: TextButton.styleFrom(

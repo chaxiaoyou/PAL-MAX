@@ -55,20 +55,19 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
   Widget _buildTopBar(BuildContext context, PortfolioSummary summary) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 8, 6),
+      padding: const EdgeInsets.fromLTRB(
+        Space.gutter,
+        Space.md,
+        Space.sm,
+        Space.sm,
+      ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Portfolio',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.3,
-                  ),
-                ),
+                Text('Portfolio', style: theme.textTheme.headlineSmall),
                 Text(
                   summary.positionCount == 0
                       ? 'Track what you own'
@@ -110,10 +109,15 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
       onRefresh: () => ref.read(quoteBoardProvider.notifier).refresh(),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 28),
+        padding: const EdgeInsets.only(bottom: Space.xxl),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              Space.gutter,
+              Space.xs,
+              Space.gutter,
+              0,
+            ),
             child: _SummaryCard(
               summary: summary,
               roundTwoDp: round2,
@@ -122,7 +126,12 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              Space.gutter,
+              Space.md,
+              Space.gutter,
+              0,
+            ),
             child: _DividendCard(
               summary: dividends,
               state: dividendState,
@@ -133,7 +142,12 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
           ),
           if (board.error != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: const EdgeInsets.fromLTRB(
+                Space.gutter,
+                Space.md,
+                Space.gutter,
+                0,
+              ),
               child: _ErrorBanner(
                 message: board.error!,
                 onRetry: () => ref.read(quoteBoardProvider.notifier).refresh(),
@@ -141,31 +155,39 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
             ),
           if (summary.unpricedCount > 0)
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              padding: const EdgeInsets.fromLTRB(
+                Space.gutter,
+                Space.md,
+                Space.gutter,
+                0,
+              ),
               child: Text(
                 summary.unpricedCount == 1
                     ? '1 holding has no live quote and is left out of the totals.'
                     : '${summary.unpricedCount} holdings have no live quote and '
                         'are left out of the totals.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 6),
+            padding: const EdgeInsets.fromLTRB(
+              Space.gutter,
+              Space.xl,
+              Space.gutter,
+              Space.sm,
+            ),
             child: Text(
               'HOLDINGS · ${summary.positionCount}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
-                  ),
+              style: Theme.of(context).textTheme.labelSmall,
             ),
           ),
           for (var index = 0; index < summary.positions.length; index++) ...[
             if (index > 0)
-              const Divider(height: 1, indent: 20, endIndent: 20),
+              const Divider(
+                height: 1,
+                indent: Space.gutter,
+                endIndent: Space.gutter,
+              ),
             _HoldingRow(
               position: summary.positions[index],
               roundTwoDp: round2,
@@ -182,7 +204,7 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
     final theme = Theme.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(Space.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -191,23 +213,19 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
               size: 56,
               color: theme.colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 14),
-            Text(
-              'No holdings yet',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
+            const SizedBox(height: Space.md),
+            Text('No holdings yet', style: theme.textTheme.titleMedium),
+            const SizedBox(height: Space.sm),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 320),
+              child: Text(
+                'Add what you own and the app tracks value and profit or loss '
+                'against your cost basis.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall,
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Add what you own and the app tracks value and profit or loss '
-              'against your cost basis.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: Space.xl),
             FilledButton.icon(
               onPressed: () => _openEditor(),
               icon: const Icon(Icons.add_rounded),
@@ -242,12 +260,10 @@ class _SummaryCard extends StatelessWidget {
     if (totals == null) {
       return Card(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+          padding: Space.cardContent,
           child: Text(
             'Waiting for the first quote to value these holdings.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
         ),
       );
@@ -255,15 +271,8 @@ class _SummaryCard extends StatelessWidget {
 
     final currency = totals.currency;
     final profitPercent = totals.profitPercent;
-    final labelStyle = theme.textTheme.labelSmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0.6,
-    );
-    final statStyle = theme.textTheme.titleSmall?.copyWith(
-      fontWeight: FontWeight.w600,
-      fontFeatures: tabularFigures,
-    );
+    final labelStyle = theme.textTheme.labelSmall;
+    final statStyle = theme.textTheme.titleSmall;
     final profitColor = changeColor(
       context,
       totals.profit > 0
@@ -275,25 +284,21 @@ class _SummaryCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+        padding: Space.cardContent,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('PORTFOLIO VALUE', style: labelStyle),
-            const SizedBox(height: 6),
+            const SizedBox(height: Space.sm),
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
                 moneyText(totals.marketValue, currency, roundTwoDp: roundTwoDp),
-                style: theme.textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                  fontFeatures: tabularFigures,
-                ),
+                style: theme.textTheme.displaySmall,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: Space.xs),
             // Wrap, not Row: a large portfolio on a narrow screen (or a large
             // system text scale) pushes "total return" onto its own line
             // instead of overflowing the card.
@@ -319,17 +324,12 @@ class _SummaryCard extends StatelessWidget {
                       fontFeatures: tabularFigures,
                     ),
                   ),
-                Text(
-                  'total return',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                Text('total return', style: theme.textTheme.bodySmall),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Space.lg),
             const Divider(height: 1),
-            const SizedBox(height: 12),
+            const SizedBox(height: Space.md),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -338,7 +338,7 @@ class _SummaryCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('COST BASIS', style: labelStyle),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: Space.xs),
                       Text(
                         moneyText(
                           totals.costBasis,
@@ -355,7 +355,7 @@ class _SummaryCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('TODAY', style: labelStyle),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: Space.xs),
                       Text(
                         totals.dayChange == 0
                             ? '--'
@@ -378,28 +378,24 @@ class _SummaryCard extends StatelessWidget {
               ],
             ),
             if (summary.hasMultipleCurrencies) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: Space.lg),
               Text(
                 'Other currencies are totalled separately',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodySmall,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: Space.xs),
               for (final code in summary.orderedCurrencies.skip(1))
                 Padding(
-                  padding: const EdgeInsets.only(top: 2),
+                  padding: const EdgeInsets.only(top: Space.xs),
                   child: Text(
                     '$code  ${moneyText(summary.totalsByCurrency[code]!.marketValue, code, roundTwoDp: roundTwoDp)}'
                     '  ·  ${signedMoney(summary.totalsByCurrency[code]!.profit, code, roundTwoDp: roundTwoDp)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontFeatures: tabularFigures,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
                 ),
             ],
             if (summary.hasRealized) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: Space.md),
               Wrap(
                 spacing: 8,
                 runSpacing: 2,
@@ -429,23 +425,19 @@ class _SummaryCard extends StatelessWidget {
                     summary.realizedSalesCount == 1
                         ? 'from 1 sale'
                         : 'from ${summary.realizedSalesCount} sales',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
             ],
-            const SizedBox(height: 10),
+            const SizedBox(height: Space.md),
             Text(
               fetching
                   ? 'Updating quotes…'
                   : lastFetch == null
                       ? 'Quotes by Yahoo Finance'
                       : 'Updated ${hhMm(lastFetch!)} · quotes by Yahoo Finance',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall,
             ),
           ],
         ),
@@ -482,11 +474,7 @@ class _DividendCard extends StatelessWidget {
     final loading = state.loading && !summary.hasAny;
     final trailing = summary.trailingFor(code);
     final yieldOnCost = summary.yieldOnCost(code);
-    final labelStyle = theme.textTheme.labelSmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0.6,
-    );
+    final labelStyle = theme.textTheme.labelSmall;
     final otherCurrencies = [
       for (final entry in summary.trailingByCurrency.entries)
         if (entry.key != code && entry.value > 0) entry.key,
@@ -494,18 +482,16 @@ class _DividendCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+        padding: Space.cardContent,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('DIVIDEND INCOME · 12 MO', style: labelStyle),
-            const SizedBox(height: 6),
+            const SizedBox(height: Space.sm),
             if (loading)
               Text(
                 'Loading dividend history…',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.titleSmall,
               )
             else
               // Wrap, not Row: a large total on a narrow screen moves the
@@ -517,39 +503,27 @@ class _DividendCard extends StatelessWidget {
                 children: [
                   Text(
                     moneyText(trailing, code, roundTwoDp: roundTwoDp),
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontFeatures: tabularFigures,
-                    ),
+                    style: theme.textTheme.titleLarge,
                   ),
                   if (yieldOnCost != null)
                     Text(
                       '${percentText(yieldOnCost, signed: false)} yield on cost',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodySmall,
                     ),
                 ],
               ),
-            const SizedBox(height: 6),
-            Text(
-              _note(),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+            const SizedBox(height: Space.sm),
+            Text(_note(), style: theme.textTheme.bodySmall),
             if (otherCurrencies.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: Space.sm),
               for (final other in otherCurrencies)
                 Text(
                   '$other  ${moneyText(summary.trailingFor(other), other, roundTwoDp: roundTwoDp)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontFeatures: tabularFigures,
-                  ),
+                  style: theme.textTheme.bodySmall,
                 ),
             ],
             if (state.failed.isNotEmpty) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: Space.xs),
               Row(
                 children: [
                   Icon(
@@ -557,16 +531,14 @@ class _DividendCard extends StatelessWidget {
                     size: 16,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: Space.sm),
                   Expanded(
                     child: Text(
                       state.failed.length == 1
                           ? 'Dividend history unavailable for 1 holding'
                           : 'Dividend history unavailable for '
                               '${state.failed.length} holdings',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodySmall,
                     ),
                   ),
                   TextButton(onPressed: onRetry, child: const Text('Retry')),
@@ -656,7 +628,12 @@ class _HoldingRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+        padding: const EdgeInsets.fromLTRB(
+          Space.gutter,
+          Space.md,
+          Space.md,
+          Space.md,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -671,29 +648,24 @@ class _HoldingRow extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Space.xs),
                   Text(
                     position.name.isEmpty ? '—' : position.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: Space.xs),
                   Text(
                     meta.toString(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontFeatures: tabularFigures,
-                    ),
+                    style: theme.textTheme.labelSmall,
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: Space.md),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -712,13 +684,8 @@ class _HoldingRow extends StatelessWidget {
                       fontFeatures: tabularFigures,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'realized',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                  const SizedBox(height: Space.xs),
+                  Text('realized', style: theme.textTheme.bodySmall),
                 ] else ...[
                   Text(
                     priced
@@ -733,7 +700,7 @@ class _HoldingRow extends StatelessWidget {
                       fontFeatures: tabularFigures,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Space.xs),
                   Text(
                     priced
                         ? signedMoney(
@@ -750,7 +717,7 @@ class _HoldingRow extends StatelessWidget {
                       fontFeatures: tabularFigures,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Space.xs),
                   Text(
                     priced
                         ? (profitPercent == null
@@ -788,30 +755,28 @@ class _ErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.cloud_off_rounded,
-            size: 18,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+    // A card, not a tinted panel: on a white page the banner keeps its shape
+    // the same way every other surface does, with the card's hairline.
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          Space.md,
+          Space.sm,
+          Space.xs,
+          Space.sm,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 18,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-          ),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
-        ],
+            const SizedBox(width: Space.sm),
+            Expanded(child: Text(message, style: theme.textTheme.bodySmall)),
+            TextButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
+        ),
       ),
     );
   }

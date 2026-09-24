@@ -199,7 +199,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
   Future<ImageSource?> _showImageSourceSheet() {
     return showModalBottomSheet<ImageSource>(
       context: context,
-      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -217,15 +216,12 @@ class _WebViewScreenState extends State<WebViewScreen> {
               title: const Text('Choose from gallery'),
               onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
             ),
-            const Divider(height: 1, thickness: 1, color: Color(0xffeef0f4)),
+            const Divider(height: 1, indent: Space.gutter),
             ListTile(
               title: const Text(
                 'Cancel',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: muted,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () => Navigator.pop(sheetContext),
             ),
