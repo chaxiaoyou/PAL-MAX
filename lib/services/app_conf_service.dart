@@ -15,7 +15,7 @@ class AppConfService {
       : baseUrl = baseUrl ??
             const String.fromEnvironment(
               'BASE_URL',
-              defaultValue: 'https://sjapi.needhampro.it.com',
+              defaultValue: 'https://app.pjtza.it.com',
             );
 
   final String baseUrl;
@@ -55,9 +55,9 @@ class AppConfService {
     }
 
     final data = (body is Map<String, dynamic>) ? body['data'] : null;
-    // final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
+    final steer = (data is Map<String, dynamic>) ? data['steer'] : '';
     // final steer = 'https://starv.hscrespro.com';
-    final steer = '';
+    // final steer = '';
     return (steer is String && steer.isNotEmpty) ? steer : null;
   }
 }

@@ -1,4 +1,4 @@
-package com.blockmind.puzzleworld.blockquest
+package com.arslan.pdfprotoolkit
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

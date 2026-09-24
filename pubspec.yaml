@@ -3,7 +3,7 @@ description: >-
   PJT ZA: live watchlist quotes, charts, symbol search and a full suite of
   trade & investment calculators for Android and iOS.
 publish_to: 'none'
-version: 2.0.0+10
+version: 3.0.0+300
 
 environment:
   sdk: '>=3.9.0 <4.0.0'

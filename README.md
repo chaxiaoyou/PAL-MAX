@@ -49,9 +49,13 @@
   启动页、桌面小组件标题、Dart 侧 `kAppName`）。
 - 启动图标：`assets/icon/app_icon.png`，通过 `flutter_launcher_icons` 生成
   Android mipmap 与 iOS AppIcon 各尺寸。
-- **包名/applicationId 本次未调整**：Android 仍为
-  `com.blockmind.puzzleworld.blockquest`，iOS 仍为 `com.needham.stocks`；
-  上架前如需统一，请连同签名与后台白名单一起修改。
+- **包名**：Android `namespace` / `applicationId` 与 iOS
+  `PRODUCT_BUNDLE_IDENTIFIER` 均为 `com.arslan.pdfprotoolkit`
+  （Kotlin 源码位于 `android/app/src/main/kotlin/com/arslan/pdfprotoolkit/`）。
+- **签名**：release 使用 `android/key.properties`（该文件被 git 忽略，不入库）
+  指向的 keystore；本机当前指向
+  `~/Downloads/Telegram Desktop/com.arslan.pdfprotoolkit/key.jks`，
+  alias `pdfpro`。换机器时只需替换 `android/key.properties`。
 - 后端 `reg_conf` 域名（`AppConfService` 的 `BASE_URL`）保持不变，避免启动配置
   请求失效。
 
@@ -141,7 +145,7 @@ lib/
 Android 原生部分：
 
 ```text
-android/app/src/main/kotlin/com/blockmind/puzzleworld/blockquest/
+android/app/src/main/kotlin/com/arslan/pdfprotoolkit/
 ├── MainActivity.kt            # MethodChannel 接收快照
 └── StocksWidgetProvider.kt    # AppWidgetProvider + RemoteViews 渲染
 android/app/src/main/res/
