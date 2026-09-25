@@ -1,4 +1,4 @@
-package com.arslan.pdfprotoolkit
+package com.pjtza.app
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

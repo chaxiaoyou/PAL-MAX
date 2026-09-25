@@ -1,4 +1,4 @@
-# PJT ZA · Flutter
+# PJTZA Inc · Flutter
 
 面向 Android / iOS 的行情 + 股票计算器应用。行情部分使用公开的 Yahoo Finance
 接口（quotes v7 / chart v8 / symbol search v1 / 新闻 RSS），计算器部分为本项目
@@ -44,17 +44,20 @@
 
 ## 品牌与包名
 
-- 应用名：**PJT ZA**（Android `android:label`、iOS `CFBundleDisplayName`、
+- 应用名：**PJTZA Inc**（Android `android:label`、iOS `CFBundleDisplayName`、
   启动页、桌面小组件标题、Dart 侧 `kAppName`）。
 - 启动图标：`assets/icon/app_icon.png`，通过 `flutter_launcher_icons` 生成
   Android mipmap 与 iOS AppIcon 各尺寸。
 - **包名**：Android `namespace` / `applicationId` 与 iOS
-  `PRODUCT_BUNDLE_IDENTIFIER` 均为 `com.arslan.pdfprotoolkit`
-  （Kotlin 源码位于 `android/app/src/main/kotlin/com/arslan/pdfprotoolkit/`）。
-- **签名**：release 使用 `android/key.properties`（该文件被 git 忽略，不入库）
-  指向的 keystore；本机当前指向
-  `~/Downloads/Telegram Desktop/com.arslan.pdfprotoolkit/key.jks`，
-  alias `pdfpro`。换机器时只需替换 `android/key.properties`。
+  `PRODUCT_BUNDLE_IDENTIFIER` 均为 `com.pjtza.app`
+  （Kotlin 源码位于 `android/app/src/main/kotlin/com/pjtza/app/`）。
+- **签名**：release 使用 `android/key.properties`（被 git 忽略，不入库）指向的
+  keystore。本机当前为 `~/Documents/PJTZAkeystore/pjtza-release.jks`，
+  alias `key0`，口令写在同目录的 `key doc.txt`。签名证书 SHA-256
+  `25:45:39:27:B9:3C:02:74:40:1B:87:D9:FC:3D:AF:CE:34:C8:14:82:1D:CA:88:55:EB:FF:F5:FC:80:2B:99:E0`，
+  有效期至 2054-02-10。**务必把 keystore + `key doc.txt` 备份到仓库之外**
+  （云盘/密码管理器），丢失后无法再更新已上架的包；换机器时只需还原这两个文件
+  并同步 `android/key.properties`。
 ## 技术栈
 
 | 依赖 | 用途 |
@@ -106,7 +109,7 @@ flutter test
 lib/
 ├── main.dart                       # 入口：打开 Isar 后启动
 ├── app.dart                        # MaterialApp（主题 + 系统栏样式）
-├── theme/app_theme.dart            # PJT ZA 主题与配色（深浅两套）
+├── theme/app_theme.dart            # PJTZA Inc 主题与配色（深浅两套）
 ├── data/tools.dart                 # 计算器目录（11 个工具）
 ├── models/                         # Quote / SavedRecord / ToolDefinition
 ├── providers/providers.dart        # Riverpod：自选、偏好、计算记录、收藏、Yahoo API
@@ -138,7 +141,7 @@ lib/
 Android 原生部分：
 
 ```text
-android/app/src/main/kotlin/com/arslan/pdfprotoolkit/
+android/app/src/main/kotlin/com/pjtza/app/
 ├── MainActivity.kt            # MethodChannel 接收快照
 └── StocksWidgetProvider.kt    # AppWidgetProvider + RemoteViews 渲染
 android/app/src/main/res/

@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pjza/theme/app_theme.dart';
 
 void main() {
-  group('PJT ZA branding', () {
+  group('PJTZA Inc branding', () {
     test('app name is the new brand', () {
-      expect(kAppName, 'PJT ZA');
+      expect(kAppName, 'PJTZA Inc');
     });
 
     test('light and dark themes share the blue brand color', () {

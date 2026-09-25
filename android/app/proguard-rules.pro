@@ -1,4 +1,4 @@
-# PJT ZA  ProGuard / R8 rules
+# PJTZA Inc  ProGuard / R8 rules
 #
 # Flutter 引擎在运行时通过反射加载插件与注册表，R8 混淆会把这些类重命名
 # 导致启动崩溃，因此保留整个 io.flutter 包及其生成的插件注册类。
@@ -11,7 +11,7 @@
 -keep class io.flutter.plugins.GeneratedPluginRegistrant { *; }
 
 # 主 Activity（清单中引用，R8 默认保留，这里显式声明更稳妥）。
--keep class com.arslan.pdfprotoolkit.MainActivity { *; }
+-keep class com.pjtza.app.MainActivity { *; }
 
 # 插件与第三方库可能依赖的注解/签名元数据。
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod

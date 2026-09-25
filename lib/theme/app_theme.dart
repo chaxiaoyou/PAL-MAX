@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// PJT ZA brand palette, tuned to the launcher icon (deep royal blue).
+/// PJTZA Inc brand palette, tuned to the launcher icon (deep royal blue).
 ///
 /// The tone is deliberately cool: every neutral carries a little of the brand
 /// hue, so the canvas, dividers and text read as one navy system instead of
@@ -12,7 +12,7 @@ const muted = Color(0xff55617a); // secondary text (light)
 const paper = Color(0xffeef1f8); // light canvas
 const card = Color(0xffffffff); // light card surface
 const divider = Color(0xffe0e5f0); // hairline (light)
-const accent = Color(0xff002ec2); // brand blue (light primary)
+const accent = Color(0xff003cd8); // brand blue (light primary)
 const accentBright = Color(0xff8aa8ff); // brand blue (dark primary)
 
 /// Surfaces used by the calculator result panel, identical in both themes so
@@ -75,7 +75,7 @@ Color changeColor(BuildContext context, QuoteDirection direction) {
   }
 }
 
-const String kAppName = 'PJT ZA';
+const String kAppName = 'PJTZA Inc';
 const String kAppTagline = 'Invest & trade, with confidence.';
 
 ThemeData buildLightTheme() {
@@ -108,7 +108,7 @@ ThemeData buildDarkTheme() {
   const scheme = ColorScheme.dark(
     primary: accentBright,
     onPrimary: Color(0xff001a5e),
-    primaryContainer: Color(0xff002ec2),
+    primaryContainer: Color(0xff003cd8),
     onPrimaryContainer: Color(0xffdbe4ff),
     secondary: Color(0xffb6c2e6),
     onSecondary: Color(0xff1d2b52),
