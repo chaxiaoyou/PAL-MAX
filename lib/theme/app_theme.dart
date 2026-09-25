@@ -2,30 +2,54 @@ import 'package:flutter/material.dart';
 
 /// PJT ZA brand palette, tuned to the launcher icon (deep royal blue).
 ///
-/// The palette stays deliberately small: a blue brand color, a soft neutral
-/// canvas and one accent per quote direction, so watchlist cards and the
-/// calculator tools keep the same visual rhythm.
-const ink = Color(0xff101828); // onSurface (light)
-const muted = Color(0xff667085); // secondary text (light)
-const paper = Color(0xfff4f6fb); // light canvas
+/// The tone is deliberately cool: every neutral carries a little of the brand
+/// hue, so the canvas, dividers and text read as one navy system instead of
+/// generic grey. The palette stays small — one brand color, one canvas and one
+/// accent per quote direction — so watchlist cards and calculator tools keep
+/// the same rhythm.
+const ink = Color(0xff0d1627); // onSurface (light)
+const muted = Color(0xff55617a); // secondary text (light)
+const paper = Color(0xffeef1f8); // light canvas
 const card = Color(0xffffffff); // light card surface
-const divider = Color(0xffe5e8f0); // hairline (light)
-const accent = Color(0xff0737bf); // brand blue (light primary)
-const accentBright = Color(0xff8fb0ff); // brand blue (dark primary)
+const divider = Color(0xffe0e5f0); // hairline (light)
+const accent = Color(0xff002ec2); // brand blue (light primary)
+const accentBright = Color(0xff8aa8ff); // brand blue (dark primary)
 
 /// Surfaces used by the calculator result panel, identical in both themes so
 /// the panel keeps its "printed" look on a light or dark canvas.
-const resultFill = Color(0xff0b1c47); // deep navy panel
+const resultFill = Color(0xff0c1c46); // deep navy panel
 const resultOn = Color(0xffffffff);
 
 /// Fallback accent for widgets that accept an optional accent color.
 const defaultAccent = accent;
 
-/// Up/down colors for quote changes.
-const lightPositive = Color(0xff0e9f6e);
-const lightNegative = Color(0xffe5484d);
+/// Up/down colors for quote changes. The light variants are deliberately deep:
+/// change text is small and bold on white, so it has to clear 4.5:1 on its own
+/// tinted badge rather than only look vivid.
+const lightPositive = Color(0xff0a7a52);
+const lightNegative = Color(0xffc62b31);
 const darkPositive = Color(0xff4ade80);
 const darkNegative = Color(0xffff7a7a);
+
+/// Spacing scale (4pt base). Screens compose from these instead of ad-hoc
+/// numbers so gaps between sections stay on the same rhythm.
+const double kSpace1 = 4;
+const double kSpace2 = 8;
+const double kSpace3 = 12;
+const double kSpace4 = 16;
+const double kSpace5 = 20;
+const double kSpace6 = 24;
+
+/// Screen gutter and the inset used by every list / card surface.
+const double kGutter = kSpace4;
+
+/// Corner radii: cards are softer than controls.
+const double kRadiusCard = 18;
+const double kRadiusControl = 14;
+
+/// Tabular figures keep prices, percentages and statistics on a fixed grid so
+/// digits line up column-wise in the watchlist and the stats card.
+const List<FontFeature> kTabular = [FontFeature.tabularFigures()];
 
 /// Resolves the up/down color for the current brightness.
 Color positiveColor(BuildContext context) =>
@@ -54,30 +78,27 @@ Color changeColor(BuildContext context, QuoteDirection direction) {
 const String kAppName = 'PJT ZA';
 const String kAppTagline = 'Invest & trade, with confidence.';
 
-const _radiusCard = 18.0;
-const _radiusControl = 14.0;
-
 ThemeData buildLightTheme() {
   const scheme = ColorScheme.light(
     primary: accent,
     onPrimary: Colors.white,
     primaryContainer: Color(0xffdbe4ff),
-    onPrimaryContainer: Color(0xff001551),
-    secondary: Color(0xff4a5b8c),
+    onPrimaryContainer: Color(0xff001449),
+    secondary: Color(0xff46557f),
     onSecondary: Colors.white,
-    secondaryContainer: Color(0xffdde3f7),
-    onSecondaryContainer: Color(0xff0b1c47),
+    secondaryContainer: Color(0xffdde4f8),
+    onSecondaryContainer: Color(0xff0a1738),
     surface: card,
     onSurface: ink,
     surfaceContainerLowest: Colors.white,
-    surfaceContainerLow: Color(0xfff8f9fd),
-    surfaceContainer: Color(0xffeff2f9),
-    surfaceContainerHigh: Color(0xffe9edf6),
-    surfaceContainerHighest: Color(0xffe2e7f2),
-    onSurfaceVariant: Color(0xff4a5568),
-    outline: Color(0xff98a2b3),
+    surfaceContainerLow: Color(0xfff7f9fd),
+    surfaceContainer: Color(0xffeaeff8),
+    surfaceContainerHigh: Color(0xffe3e9f5),
+    surfaceContainerHighest: Color(0xffdbe2f0),
+    onSurfaceVariant: muted,
+    outline: Color(0xff7c879e),
     outlineVariant: divider,
-    error: Color(0xffd92d20),
+    error: Color(0xffd02f28),
     onError: Colors.white,
   );
   return _baseTheme(scheme: scheme, canvas: paper, onCanvas: ink);
@@ -86,30 +107,30 @@ ThemeData buildLightTheme() {
 ThemeData buildDarkTheme() {
   const scheme = ColorScheme.dark(
     primary: accentBright,
-    onPrimary: Color(0xff00246e),
-    primaryContainer: Color(0xff0737bf),
+    onPrimary: Color(0xff001a5e),
+    primaryContainer: Color(0xff002ec2),
     onPrimaryContainer: Color(0xffdbe4ff),
-    secondary: Color(0xffb8c4e8),
-    onSecondary: Color(0xff22315c),
-    secondaryContainer: Color(0xff2a3a68),
-    onSecondaryContainer: Color(0xffdde3f7),
-    surface: Color(0xff141b2b),
-    onSurface: Color(0xffe6eaf2),
-    surfaceContainerLowest: Color(0xff0b1220),
-    surfaceContainerLow: Color(0xff111828),
-    surfaceContainer: Color(0xff1a2233),
-    surfaceContainerHigh: Color(0xff20293c),
-    surfaceContainerHighest: Color(0xff283248),
-    onSurfaceVariant: Color(0xffa7b0c4),
-    outline: Color(0xff5b657a),
-    outlineVariant: Color(0xff2c3547),
+    secondary: Color(0xffb6c2e6),
+    onSecondary: Color(0xff1d2b52),
+    secondaryContainer: Color(0xff26355f),
+    onSecondaryContainer: Color(0xffdde4f8),
+    surface: Color(0xff101a2b),
+    onSurface: Color(0xffe7ebf5),
+    surfaceContainerLowest: Color(0xff080f1c),
+    surfaceContainerLow: Color(0xff0c1421),
+    surfaceContainer: Color(0xff141e30),
+    surfaceContainerHigh: Color(0xff1b2639),
+    surfaceContainerHighest: Color(0xff232f45),
+    onSurfaceVariant: Color(0xff9ba6bf),
+    outline: Color(0xff5a657d),
+    outlineVariant: Color(0xff26314a),
     error: Color(0xffffb4ab),
     onError: Color(0xff690005),
   );
   return _baseTheme(
     scheme: scheme,
-    canvas: const Color(0xff0b1220),
-    onCanvas: const Color(0xffe6eaf2),
+    canvas: const Color(0xff070c16),
+    onCanvas: const Color(0xffe7ebf5),
   );
 }
 
@@ -140,10 +161,39 @@ ThemeData _baseTheme({
       color: scheme.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(_radiusCard)),
+      // A hairline instead of a shadow: cards stay crisp on the tinted canvas
+      // and dark mode never ends up with muddy grey halos.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kRadiusCard),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
       margin: EdgeInsets.zero,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: scheme.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      titleTextStyle: TextStyle(
+        color: scheme.onSurface,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
+      contentTextStyle: TextStyle(
+        color: scheme.onSurfaceVariant,
+        fontSize: 14,
+        height: 1.45,
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: scheme.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
     ),
     dividerTheme: DividerThemeData(
       color: scheme.outlineVariant,
@@ -196,7 +246,7 @@ ThemeData _baseTheme({
         foregroundColor: scheme.onPrimary,
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_radiusControl),
+          borderRadius: BorderRadius.circular(kRadiusControl),
         ),
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
@@ -207,7 +257,7 @@ ThemeData _baseTheme({
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         side: BorderSide(color: scheme.primary.withValues(alpha: 0.4)),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_radiusControl),
+          borderRadius: BorderRadius.circular(kRadiusControl),
         ),
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
@@ -227,19 +277,19 @@ ThemeData _baseTheme({
       ),
       hintStyle: TextStyle(color: scheme.onSurfaceVariant),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(_radiusControl),
+        borderRadius: BorderRadius.circular(kRadiusControl),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(_radiusControl),
+        borderRadius: BorderRadius.circular(kRadiusControl),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(_radiusControl),
+        borderRadius: BorderRadius.circular(kRadiusControl),
         borderSide: BorderSide(color: scheme.primary, width: 1.5),
       ),
       disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(_radiusControl),
+        borderRadius: BorderRadius.circular(kRadiusControl),
         borderSide: BorderSide.none,
       ),
     ),

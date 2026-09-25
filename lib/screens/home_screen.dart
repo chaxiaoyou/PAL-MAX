@@ -199,7 +199,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildHeader(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 8, 4),
+      padding: const EdgeInsets.fromLTRB(20, kSpace3, kSpace2, kSpace1),
       child: Row(
         children: [
           Expanded(
@@ -277,7 +277,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           if (hero.isNotEmpty) ...[
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+                padding: const EdgeInsets.fromLTRB(20, kSpace3, 20, kSpace2),
                 child: Row(
                   children: [
                     Expanded(
@@ -331,12 +331,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildHeroStrip(BuildContext context, List<Quote> hero) {
     final round2 = ref.watch(appPrefsProvider).roundTwoDp;
     return SizedBox(
-      height: 136,
+      height: 132,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+        padding: const EdgeInsets.fromLTRB(kGutter, 0, kGutter, kSpace1),
         itemCount: hero.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: kSpace2),
         itemBuilder: (context, index) => _HeroQuoteCard(
           quote: hero[index],
           roundTwoDp: round2,
@@ -346,46 +346,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  /// Title row plus a scrollable filter rail.
+  ///
+  /// The chips used to share one line with the title, which overflowed as soon
+  /// as the labels grew (large text scales, longer locales). Giving them their
+  /// own row keeps the heading stable and the controls reachable.
   Widget _buildListHeader(BuildContext context, int count) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-      child: Row(
-        children: [
-          Text(
-            'Watchlist',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '$count',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const Spacer(),
-          for (final filter in _ListFilter.values)
-            Padding(
-              padding: const EdgeInsets.only(left: 6),
-              child: ChoiceChip(
-                label: Text(filter.label),
-                selected: _filter == filter,
-                showCheckmark: false,
-                visualDensity: VisualDensity.compact,
-                labelStyle: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: _filter == filter
-                      ? theme.colorScheme.onPrimary
-                      : theme.colorScheme.onSurfaceVariant,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, kSpace4, 20, kSpace2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                'Watchlist',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
                 ),
-                onSelected: (_) => setState(() => _filter = filter),
               ),
-            ),
-        ],
-      ),
+              const SizedBox(width: kSpace2),
+              Text(
+                '$count',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontFeatures: kTabular,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              for (final filter in _ListFilter.values)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: ChoiceChip(
+                    label: Text(filter.label),
+                    selected: _filter == filter,
+                    showCheckmark: false,
+                    visualDensity: VisualDensity.compact,
+                    labelStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: _filter == filter
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                    onSelected: (_) => setState(() => _filter = filter),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -430,7 +450,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(kRadiusCard),
           border: Border.all(color: theme.colorScheme.outlineVariant),
         ),
         child: Column(
@@ -596,66 +616,75 @@ class _HeroQuoteCard extends StatelessWidget {
       width: 168,
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(kRadiusCard),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(kRadiusCard),
           child: Ink(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color.withValues(alpha: 0.16),
-                  theme.colorScheme.surface,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(18),
+              // Flat surface plus a direction rule, echoing the bar used by the
+              // watchlist rows below. The gradient this replaced only muddied
+              // the card against the tinted canvas.
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(kRadiusCard),
               border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  quote.symbol,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Text(
-                  quote.name.isEmpty ? '—' : quote.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const Spacer(),
-                SizedBox(
-                  height: 30,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '${currencySymbol(quote.currency)}'
-                      '${priceText(quote.lastPrice, roundTwoDp: roundTwoDp)}',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(kRadiusCard),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(height: 3, color: color),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(kSpace3),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            quote.symbol,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                          Text(
+                            quote.name.isEmpty ? '—' : quote.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const Spacer(),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '${currencySymbol(quote.currency)}'
+                              '${priceText(quote.lastPrice, roundTwoDp: roundTwoDp)}',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                fontFeatures: kTabular,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: kSpace1),
+                          Text(
+                            '${percentText(quote.changePercent)}  '
+                            '${signedAmount(quote.change, roundTwoDp: roundTwoDp)}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: color,
+                              fontWeight: FontWeight.w700,
+                              fontFeatures: kTabular,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${percentText(quote.changePercent)}  '
-                  '${signedAmount(quote.change, roundTwoDp: roundTwoDp)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -700,7 +729,7 @@ class _WatchRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: theme.colorScheme.error,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(kRadiusCard),
         ),
         child: Icon(
           Icons.delete_outline_rounded,
@@ -709,12 +738,15 @@ class _WatchRow extends StatelessWidget {
       ),
       child: Material(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusCard),
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(kRadiusCard),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+            padding: const EdgeInsets.fromLTRB(kSpace3, 10, kSpace1, 10),
             child: Row(
               children: [
                 Container(
@@ -725,7 +757,7 @@ class _WatchRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: kSpace3),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -759,9 +791,10 @@ class _WatchRow extends StatelessWidget {
                       '${priceText(quote.lastPrice, roundTwoDp: roundTwoDp)}',
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
+                        fontFeatures: kTabular,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: kSpace1),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -777,6 +810,7 @@ class _WatchRow extends StatelessWidget {
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: color,
                           fontWeight: FontWeight.w800,
+                          fontFeatures: kTabular,
                         ),
                       ),
                     ),

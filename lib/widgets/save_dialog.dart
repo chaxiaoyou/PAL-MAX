@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 class SaveRecordDraft {
   const SaveRecordDraft({required this.title, required this.note});
 
@@ -36,7 +38,7 @@ Future<SaveRecordDraft?> showSaveRecordDialog(
                     hintText: 'e.g. 2026 plan',
                     errorText: errorText,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(kRadiusControl),
                     ),
                   ),
                 ),
@@ -47,7 +49,7 @@ Future<SaveRecordDraft?> showSaveRecordDialog(
                   decoration: InputDecoration(
                     labelText: 'Note (optional)',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(kRadiusControl),
                     ),
                   ),
                 ),

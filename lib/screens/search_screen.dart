@@ -157,7 +157,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 filled: true,
                 fillColor: theme.colorScheme.surfaceContainerLowest,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(kRadiusControl),
                   borderSide: BorderSide.none,
                 ),
               ),

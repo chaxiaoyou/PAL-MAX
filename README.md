@@ -35,13 +35,12 @@
   （GDPR consent → getcrumb → 带 crumb 请求）。
 - **添加股票**：Yahoo symbol search 搜索建议，附 Trending 列表一键加入/移除。
 - **行情详情**：大字号报价头 + 1D / 2W / 1M / 3M / 1Y / 5Y / Max 图表
-  （自绘平滑面积图，无第三方图表库）+ 关键统计 + 相关新闻 RSS。
+  （自绘平滑面积图，无第三方图表库）+ 关键统计 + 相关新闻 RSS（点击用系统浏览器打开）。
 - **Android 桌面小组件**：2×4 网格展示自选快照（RemoteViews，无第三方插件）。
   Flutter 每次刷新成功后通过 `PJZA/stocks_widget` 通道把快照同步到原生层并立即
   刷新小组件；点击小组件打开 App，支持浅色/深色快照。
 - **设置**：跟随系统/浅色/深色主题、自动排序、两位小数开关、刷新间隔、数据来源。
-- **配置请求保留**：启动时请求后端 `reg_conf`（`AppConfService`），返回 `steer`
-  时整体替换为 WebView 页面；本地偏好与计算记录走 Isar。
+- **纯原生**：界面全部由 Flutter 原生绘制，不加载任何网页内容；本地偏好与计算记录走 Isar。
 
 ## 品牌与包名
 
@@ -56,9 +55,6 @@
   指向的 keystore；本机当前指向
   `~/Downloads/Telegram Desktop/com.arslan.pdfprotoolkit/key.jks`，
   alias `pdfpro`。换机器时只需替换 `android/key.properties`。
-- 后端 `reg_conf` 域名（`AppConfService` 的 `BASE_URL`）保持不变，避免启动配置
-  请求失效。
-
 ## 技术栈
 
 | 依赖 | 用途 |
@@ -67,8 +63,7 @@
 | flutter_riverpod 2.x | 状态管理 |
 | isar_community 3.3.2 | 自选/偏好/计算记录本地持久化 |
 | intl | 数字/日期格式化 |
-| webview_flutter | app.conf steer 与详情页新闻打开 |
-| image_picker | WebView 内文件上传 |
+| url_launcher | 详情页新闻用系统浏览器打开 |
 
 ## 运行
 
@@ -110,13 +105,12 @@ flutter test
 ```text
 lib/
 ├── main.dart                       # 入口：打开 Isar 后启动
-├── app.dart                        # MaterialApp + reg_conf steer 门卫
+├── app.dart                        # MaterialApp（主题 + 系统栏样式）
 ├── theme/app_theme.dart            # PJT ZA 主题与配色（深浅两套）
 ├── data/tools.dart                 # 计算器目录（11 个工具）
 ├── models/                         # Quote / SavedRecord / ToolDefinition
 ├── providers/providers.dart        # Riverpod：自选、偏好、计算记录、收藏、Yahoo API
 ├── services/
-│   ├── app_conf_service.dart       # 后端 reg_conf（保留）
 │   ├── database_service.dart       # Isar 初始化
 │   ├── yahoo_service.dart          # Yahoo quotes/chart/search/news + crumb
 │   └── widget_sync.dart            # 行情快照 → Android 桌面小组件
@@ -129,8 +123,7 @@ lib/
 │   ├── history_screen.dart         # 已保存的计算记录
 │   ├── search_screen.dart          # 搜索 / Trending
 │   ├── quote_detail_screen.dart    # 报价详情 + 图表 + 统计 + 新闻
-│   ├── settings_screen.dart        # 设置
-│   └── webview_screen.dart         # steer / 外链 WebView
+│   └── settings_screen.dart        # 设置
 ├── widgets/
 │   ├── common.dart                 # 计算器共用控件（输入框/卡片/结果面板/表格）
 │   ├── save_dialog.dart            # 保存计算记录弹窗

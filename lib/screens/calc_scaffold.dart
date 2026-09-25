@@ -7,6 +7,7 @@ import '../data/tools.dart';
 import '../models/saved_record.dart';
 import '../models/tool_definition.dart';
 import '../providers/providers.dart';
+import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import '../widgets/save_dialog.dart';
 
@@ -58,7 +59,7 @@ class CalculatorScaffold extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: tool.color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(kRadiusControl),
                 ),
                 child: Row(
                   children: [

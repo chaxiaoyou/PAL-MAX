@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/quote.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/price_chart.dart';
-import 'webview_screen.dart';
 
 enum _ChartRange {
   oneDay('1D', '1d', '1h'),
@@ -195,7 +195,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
     final round2 = ref.watch(appPrefsProvider).roundTwoDp;
     final symbol = currencySymbol(_quote.currency);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, kSpace1, 20, kSpace3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -205,26 +205,32 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: kSpace1),
           Text(
             '$symbol${priceText(_quote.lastPrice, roundTwoDp: round2)}',
             style: theme.textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w700,
-              letterSpacing: 0.2,
+              letterSpacing: -0.5,
+              fontFeatures: kTabular,
             ),
           ),
-          const SizedBox(height: 6),
-          Row(
+          const SizedBox(height: kSpace2),
+          // Wrap instead of Row: a long change string plus the market-state
+          // label used to overflow the header line on narrow screens.
+          Wrap(
+            spacing: kSpace3,
+            runSpacing: kSpace1,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(
                 '${percentText(_quote.changePercent)}  '
                 '${signedAmount(_quote.change, roundTwoDp: round2)}',
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: color,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: kTabular,
                 ),
               ),
-              const SizedBox(width: 10),
               Text(
                 _marketStateLabel(),
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -248,10 +254,10 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
 
   Widget _buildChartCard(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(kGutter, 0, kGutter, kSpace3),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 14, 12, 10),
+          padding: const EdgeInsets.fromLTRB(kSpace3, kSpace3, kSpace3, kSpace2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -334,10 +340,10 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
     final stats = _buildStats();
     if (stats.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(kGutter, 0, kGutter, kSpace3),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          padding: const EdgeInsets.all(kSpace4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -352,8 +358,9 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                 crossAxisCount: 2,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 2.6,
-                mainAxisSpacing: 4,
+                childAspectRatio: 2.5,
+                mainAxisSpacing: kSpace1,
+                crossAxisSpacing: kSpace3,
                 children: [
                   for (final stat in stats)
                     _StatCell(label: stat.label, value: stat.value),
@@ -398,10 +405,10 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
   Widget _buildNewsCard(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(kGutter, 0, kGutter, kSpace3),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+          padding: const EdgeInsets.fromLTRB(kSpace4, kSpace4, kSpace4, kSpace2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -473,6 +480,7 @@ class _StatCell extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w600,
+            fontFeatures: kTabular,
           ),
         ),
       ],
@@ -489,38 +497,64 @@ class _NewsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => WebViewScreen(url: item.link),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(10),
+      onTap: () => _openArticle(context),
+      borderRadius: BorderRadius.circular(kRadiusControl),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
+        padding: const EdgeInsets.symmetric(vertical: kSpace2, horizontal: kSpace1),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              item.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                height: 1.25,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: kSpace1),
+                  Text(
+                    _dateLabel(item.pubDate),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontFeatures: kTabular,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 3),
-            Text(
-              _dateLabel(item.pubDate),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+            const SizedBox(width: kSpace2),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.open_in_new_rounded,
+                size: 15,
+                color: theme.colorScheme.outline,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  /// Opens the article in the device browser.
+  Future<void> _openArticle(BuildContext context) async {
+    final uri = Uri.tryParse(item.link.trim());
+    if (uri == null || !uri.hasScheme) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
+    } catch (error) {
+      debugPrint('Failed to open news link: $error');
+    }
+    messenger.showSnackBar(
+      const SnackBar(content: Text('Unable to open the article')),
     );
   }
 

@@ -84,7 +84,7 @@ class SectionCard extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(kRadiusCard),
         boxShadow: [
           BoxShadow(
             color: theme.shadowColor.withValues(alpha: 0.05),
@@ -147,7 +147,7 @@ class ResultCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: resultFill,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(kRadiusCard),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,12 +298,12 @@ class QuickChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(kRadiusControl),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kRadiusControl),
         ),
         child: Text(
           label,

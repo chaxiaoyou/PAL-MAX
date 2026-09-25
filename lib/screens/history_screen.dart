@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/tools.dart';
 import '../models/saved_record.dart';
 import '../providers/providers.dart';
+import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/common.dart';
 import 'calc_scaffold.dart';
@@ -89,7 +90,7 @@ class _RecordCard extends ConsumerWidget {
           height: 40,
           decoration: BoxDecoration(
             color: tool.color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(kRadiusControl),
           ),
           child: Icon(tool.icon, color: tool.color, size: 21),
         ),
@@ -211,7 +212,7 @@ class _JsonSection extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kRadiusControl),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

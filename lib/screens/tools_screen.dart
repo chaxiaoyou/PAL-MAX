@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/tools.dart';
 import '../models/tool_definition.dart';
 import '../providers/providers.dart';
+import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'calc_scaffold.dart';
 import 'history_screen.dart';
@@ -268,20 +269,18 @@ class _SummaryBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+      padding: const EdgeInsets.fromLTRB(kGutter, kSpace1, kGutter, 6),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        padding: const EdgeInsets.all(kSpace4),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              theme.colorScheme.primary.withValues(alpha: 0.12),
-              theme.colorScheme.surface,
-            ],
+          // Flat brand wash: same emphasis as the old gradient without the
+          // muddy two-stop blend against the canvas.
+          color: Color.alphaBlend(
+            theme.colorScheme.primary.withValues(alpha: 0.07),
+            theme.colorScheme.surface,
           ),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(kRadiusCard),
           border: Border.all(color: theme.colorScheme.outlineVariant),
         ),
         child: Row(
@@ -291,7 +290,7 @@ class _SummaryBanner extends StatelessWidget {
               color: theme.colorScheme.primary,
               size: 26,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: kSpace3),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,13 +411,13 @@ class _PinTile extends StatelessWidget {
       width: 112,
       child: Material(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kRadiusCard),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(kRadiusCard),
           child: Ink(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(kRadiusCard),
               border: Border.all(color: tool.color.withValues(alpha: 0.28)),
             ),
             padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
@@ -488,10 +487,10 @@ class _ToolRow extends StatelessWidget {
     final theme = Theme.of(context);
     return Material(
       color: theme.colorScheme.surface,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(kRadiusCard),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kRadiusCard),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
           child: Row(
