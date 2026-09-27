@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/alert.dart';
@@ -95,9 +96,15 @@ class TransactionsNotifier extends StateNotifier<List<Transaction>> {
   final PortfolioStore _store;
 
   Future<void> _load() async {
-    final transactions = await _store.loadTransactions();
-    if (!mounted) return;
-    state = transactions;
+    try {
+      final transactions = await _store.loadTransactions();
+      if (!mounted) return;
+      state = transactions;
+    } catch (error, stackTrace) {
+      // A broken read must not take the app down with it: the portfolio simply
+      // shows as empty, and the error stays in the log.
+      debugPrint('portfolio load failed: $error\n$stackTrace');
+    }
   }
 
   Future<void> add(Transaction transaction) async {
@@ -126,9 +133,13 @@ class AlertsNotifier extends StateNotifier<List<Alert>> {
   final PortfolioStore _store;
 
   Future<void> _load() async {
-    final alerts = await _store.loadAlerts();
-    if (!mounted) return;
-    state = alerts;
+    try {
+      final alerts = await _store.loadAlerts();
+      if (!mounted) return;
+      state = alerts;
+    } catch (error, stackTrace) {
+      debugPrint('alert load failed: $error\n$stackTrace');
+    }
   }
 
   Future<void> _replace(Alert alert) async {

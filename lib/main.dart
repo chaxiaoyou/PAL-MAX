@@ -27,7 +27,13 @@ Future<void> main() async {
   final isar = await openDatabase();
   final portfolioStore = IsarPortfolioStore(isar);
   if (kSeedDemoPortfolio) {
-    await seedDemoPortfolioIfEmpty(portfolioStore);
+    // Seeding is a convenience, never a prerequisite: if it fails the app must
+    // still start rather than sit on a splash screen with only a log line.
+    try {
+      await seedDemoPortfolioIfEmpty(portfolioStore);
+    } catch (error, stackTrace) {
+      debugPrint('demo portfolio seed failed: $error\n$stackTrace');
+    }
   }
   runApp(
     ProviderScope(
