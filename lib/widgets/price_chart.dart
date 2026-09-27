@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/quote.dart';
 
 /// Smooth area/line chart for a symbol's closing price, rendered with a custom
@@ -17,10 +18,10 @@ class PriceChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (points.length < 2) {
-      return const SizedBox(
+      return SizedBox(
         height: 200,
         child: Center(
-          child: Text('Not enough chart data'),
+          child: Text(context.l10n.chartNotEnoughData),
         ),
       );
     }

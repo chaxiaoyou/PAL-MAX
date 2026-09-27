@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -61,12 +62,13 @@ class _DividendScreenState extends ConsumerState<DividendScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Dividend Yield': fmtPct(r.yieldPct),
-      'Total Dividend': fmtAmount(r.totalDividend),
-      'Reinvest Shares': fmtNum(r.extraShares),
-      'Total Shares After': fmtNum(r.totalShares),
+      l10n.resultDividendYield: fmtPct(r.yieldPct),
+      l10n.resultTotalDividend: fmtAmount(r.totalDividend),
+      l10n.resultReinvestShares: fmtNum(r.extraShares),
+      l10n.resultTotalSharesAfter: fmtNum(r.totalShares),
     };
   }
 
@@ -83,13 +85,20 @@ class _DividendScreenState extends ConsumerState<DividendScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('dividend');
     final result = _result;
     return CalculatorScaffold(
@@ -99,23 +108,23 @@ class _DividendScreenState extends ConsumerState<DividendScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Inputs',
+          title: l10n.historyInputs,
           children: [
             NumberField(
-              label: 'Asset Price',
+              label: l10n.fieldAssetPrice,
               controller: _priceCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Dividend per Share',
+              label: l10n.fieldDividendPerShare,
               controller: _dividendCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Shares Held',
-              suffix: 'shares',
+              label: l10n.fieldSharesHeld,
+              suffix: l10n.suffixShares,
               controller: _sharesCtrl,
               onChanged: (_) => setState(() {}),
             ),
@@ -125,10 +134,13 @@ class _DividendScreenState extends ConsumerState<DividendScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Dividend Yield', fmtPct(result.yieldPct)),
-            ResultRow('Total Dividend', fmtAmount(result.totalDividend)),
-            ResultRow('Reinvest Shares', fmtNum(result.extraShares)),
-            ResultRow('Total Shares After', fmtNum(result.totalShares)),
+            ResultRow(l10n.resultDividendYield, fmtPct(result.yieldPct)),
+            ResultRow(l10n.resultTotalDividend, fmtAmount(result.totalDividend)),
+            ResultRow(l10n.resultReinvestShares, fmtNum(result.extraShares)),
+            ResultRow(
+              l10n.resultTotalSharesAfter,
+              fmtNum(result.totalShares),
+            ),
           ],
         ),
       ],

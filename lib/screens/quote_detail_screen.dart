@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/l10n.dart';
 import '../models/quote.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
@@ -16,13 +17,17 @@ enum _ChartRange {
   threeMonths('3M', '3mo', '1d'),
   oneYear('1Y', '1y', '1d'),
   fiveYears('5Y', '5y', '1d'),
-  max('Max', 'max', '1d');
+  max('', 'max', '1d');
 
-  const _ChartRange(this.label, this.range, this.interval);
+  const _ChartRange(this.fixedLabel, this.range, this.interval);
 
-  final String label;
+  final String fixedLabel;
   final String range;
   final String interval;
+
+  /// Range chips stay numeric (a chart axis convention) except for "Max".
+  String label(AppLocalizations l10n) =>
+      this == _ChartRange.max ? l10n.chartRangeMax : fixedLabel;
 }
 
 class QuoteDetailScreen extends ConsumerStatefulWidget {
@@ -71,7 +76,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
       debugPrint('chart fetch failed: $error\n$stackTrace');
       if (!mounted) return;
       setState(() {
-        _chartError = 'Unable to load chart data.';
+        _chartError = context.l10n.detailChartFailed;
         _chartLoading = false;
       });
     }
@@ -105,7 +110,9 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(const SnackBar(content: Text('Unable to refresh quote')));
+          ..showSnackBar(
+            SnackBar(content: Text(context.l10n.detailRefreshFailed)),
+          );
       }
     } finally {
       if (mounted) setState(() => _refreshingQuote = false);
@@ -113,6 +120,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
   }
 
   Future<void> _toggleWatchlist() async {
+    final l10n = context.l10n;
     final notifier = ref.read(watchlistProvider.notifier);
     final contains = ref.read(watchlistProvider).contains(_quote.symbol);
     if (contains) {
@@ -127,8 +135,8 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
           SnackBar(
             content: Text(
               contains
-                  ? '${_quote.symbol} removed from watchlist'
-                  : '${_quote.symbol} added to watchlist',
+                  ? l10n.detailRemovedFromWatchlist(_quote.symbol)
+                  : l10n.detailAddedToWatchlist(_quote.symbol),
             ),
           ),
         );
@@ -137,6 +145,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final inWatchlist = ref.watch(
       watchlistProvider.select((symbols) => symbols.contains(_quote.symbol)),
     );
@@ -145,7 +154,9 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
         title: Text(_quote.symbol),
         actions: [
           IconButton(
-            tooltip: inWatchlist ? 'Remove from watchlist' : 'Add to watchlist',
+            tooltip: inWatchlist
+                ? l10n.detailRemoveFromWatchlist
+                : l10n.detailAddToWatchlist,
             onPressed: _toggleWatchlist,
             icon: Icon(
               inWatchlist ? Icons.star_rounded : Icons.add_rounded,
@@ -153,7 +164,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'Refresh quote',
+            tooltip: l10n.detailRefreshQuote,
             onPressed: _refreshingQuote ? null : _refreshQuote,
             icon: _refreshingQuote
                 ? const SizedBox(
@@ -245,11 +256,12 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
   }
 
   String _marketStateLabel() {
+    final l10n = context.l10n;
     final state = _quote.marketState.toUpperCase();
-    if (state == 'REGULAR') return 'Market open';
-    if (state == 'PRE') return 'Pre-market';
-    if (state == 'POST') return 'After hours';
-    return 'Market closed';
+    if (state == 'REGULAR') return l10n.marketOpen;
+    if (state == 'PRE') return l10n.marketPreMarket;
+    if (state == 'POST') return l10n.marketAfterHours;
+    return l10n.marketClosed;
   }
 
   Widget _buildChartCard(BuildContext context) {
@@ -271,7 +283,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                     final range = _ChartRange.values[index];
                     final selected = range == _range;
                     return ChoiceChip(
-                      label: Text(range.label),
+                      label: Text(range.label(context.l10n)),
                       selected: selected,
                       showCheckmark: false,
                       visualDensity: VisualDensity.compact,
@@ -305,7 +317,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                         ),
                         TextButton(
                           onPressed: _loadChart,
-                          child: const Text('Retry'),
+                          child: Text(context.l10n.actionRetry),
                         ),
                       ],
                     ),
@@ -348,7 +360,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Key statistics',
+                context.l10n.detailKeyStatistics,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -375,6 +387,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
 
   List<({String label, String value})> _buildStats() {
     final q = _quote;
+    final l10n = context.l10n;
     final round2 = ref.read(appPrefsProvider).roundTwoDp;
     String money(double? v, {bool two = true}) =>
         v == null ? '—' : priceText(v, roundTwoDp: round2 && two);
@@ -383,22 +396,25 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
     final stats = <({String label, String value})>[];
     void add(String label, String value) =>
         stats.add((label: label, value: value));
-    add('Open', money(q.open));
-    add('Previous close', money(q.previousClose));
+    add(l10n.statOpen, money(q.open));
+    add(l10n.statPreviousClose, money(q.previousClose));
     if (q.dayLow != null && q.dayHigh != null) {
-      add('Day range', '${money(q.dayLow)} – ${money(q.dayHigh)}');
+      add(l10n.statDayRange, '${money(q.dayLow)} – ${money(q.dayHigh)}');
     }
-    add('Volume', compact(q.volume));
-    add('Market cap', compact(q.marketCap));
-    add('P/E ratio', q.trailingPE == null ? '—' : money(q.trailingPE, two: false));
+    add(l10n.statVolume, compact(q.volume));
+    add(l10n.statMarketCap, compact(q.marketCap));
+    add(
+      l10n.statPeRatio,
+      q.trailingPE == null ? '—' : money(q.trailingPE, two: false),
+    );
     if (q.fiftyTwoWeekLow != null && q.fiftyTwoWeekHigh != null) {
       add(
-        '52-week range',
+        l10n.stat52WeekRange,
         '${money(q.fiftyTwoWeekLow)} – ${money(q.fiftyTwoWeekHigh)}',
       );
     }
-    add('50-day avg.', money(q.fiftyDayAverage));
-    add('200-day avg.', money(q.twoHundredDayAverage));
+    add(l10n.stat50DayAvg, money(q.fiftyDayAverage));
+    add(l10n.stat200DayAvg, money(q.twoHundredDayAverage));
     return stats;
   }
 
@@ -413,7 +429,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Related news',
+                context.l10n.detailRelatedNews,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -435,7 +451,7 @@ class _QuoteDetailScreenState extends ConsumerState<QuoteDetailScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   child: Center(
                     child: Text(
-                      'No news available',
+                      context.l10n.detailNoNews,
                       style: TextStyle(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -519,7 +535,7 @@ class _NewsTile extends StatelessWidget {
                   ),
                   const SizedBox(height: kSpace1),
                   Text(
-                    _dateLabel(item.pubDate),
+                    _dateLabel(context, item.pubDate),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       fontFeatures: kTabular,
@@ -548,22 +564,25 @@ class _NewsTile extends StatelessWidget {
     final uri = Uri.tryParse(item.link.trim());
     if (uri == null || !uri.hasScheme) return;
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
     } catch (error) {
       debugPrint('Failed to open news link: $error');
     }
     messenger.showSnackBar(
-      const SnackBar(content: Text('Unable to open the article')),
+      SnackBar(content: Text(l10n.detailOpenArticleFailed)),
     );
   }
 
-  String _dateLabel(DateTime date) {
+  String _dateLabel(BuildContext context, DateTime date) {
     final local = date.toLocal();
     final now = DateTime.now();
     final sameDay =
         local.year == now.year && local.month == now.month && local.day == now.day;
-    final formatter = DateFormat(sameDay ? 'HH:mm' : 'MMM d, yyyy');
+    final formatter = sameDay
+        ? DateFormat.Hm()
+        : DateFormat.yMMMd(Localizations.localeOf(context).toString());
     return formatter.format(local);
   }
 }

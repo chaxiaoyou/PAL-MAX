@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -102,13 +103,16 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Risk / Reward': '${fmtNum(r.ratio)} : 1',
-      'Target Profit': fmtAmount(r.targetProfit),
-      'Expected Loss': fmtAmount(r.expectedLoss),
-      if (r.marginRequired != null) 'Margin Required': fmtAmount(r.marginRequired!),
-      if (r.returnOnMargin != null) 'Return on Margin': fmtPct(r.returnOnMargin!),
+      l10n.resultRiskReward: '${fmtNum(r.ratio)} : 1',
+      l10n.resultTargetProfit: fmtAmount(r.targetProfit),
+      l10n.resultExpectedLoss: fmtAmount(r.expectedLoss),
+      if (r.marginRequired != null)
+        l10n.resultMarginRequired: fmtAmount(r.marginRequired!),
+      if (r.returnOnMargin != null)
+        l10n.resultReturnOnMargin: fmtPct(r.returnOnMargin!),
     };
   }
 
@@ -125,13 +129,20 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('risk');
     final result = _result;
     return CalculatorScaffold(
@@ -141,15 +152,21 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Trade Setup',
+          title: l10n.sectionTradeSetup,
           children: [
             Row(
               children: [
                 Expanded(
                   child: SegmentedButton<bool>(
-                    segments: const [
-                      ButtonSegment(value: true, label: Text('Long')),
-                      ButtonSegment(value: false, label: Text('Short')),
+                    segments: [
+                      ButtonSegment(
+                        value: true,
+                        label: Text(l10n.segmentLong),
+                      ),
+                      ButtonSegment(
+                        value: false,
+                        label: Text(l10n.segmentShort),
+                      ),
                     ],
                     selected: {_isLong},
                     showSelectedIcon: false,
@@ -160,9 +177,15 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: SegmentedButton<bool>(
-                    segments: const [
-                      ButtonSegment(value: false, label: Text('Spot')),
-                      ButtonSegment(value: true, label: Text('Futures')),
+                    segments: [
+                      ButtonSegment(
+                        value: false,
+                        label: Text(l10n.segmentSpot),
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        label: Text(l10n.segmentFutures),
+                      ),
                     ],
                     selected: {_futures},
                     showSelectedIcon: false,
@@ -174,40 +197,40 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
             ),
             const SizedBox(height: 16),
             NumberField(
-              label: 'Entry Price',
+              label: l10n.fieldEntryPrice,
               controller: _entryCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Stop Price',
+              label: l10n.fieldStopPrice,
               controller: _stopCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Target Price',
+              label: l10n.fieldTargetPrice,
               controller: _targetCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Quantity',
-              suffix: 'units',
+              label: l10n.fieldQuantity,
+              suffix: l10n.suffixUnits,
               controller: _qtyCtrl,
               onChanged: (_) => setState(() {}),
             ),
             if (_futures) ...[
               const SizedBox(height: 14),
               NumberField(
-                label: 'Contract Multiplier',
-                suffix: '/ point',
+                label: l10n.fieldContractMultiplier,
+                suffix: l10n.suffixPerPoint,
                 controller: _multiplierCtrl,
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 14),
               NumberField(
-                label: 'Margin',
+                label: l10n.fieldMargin,
                 suffix: '%',
                 controller: _marginCtrl,
                 onChanged: (_) => setState(() {}),
@@ -215,13 +238,13 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
             ],
             const SizedBox(height: 16),
             LabeledSwitch(
-              label: 'Quick Stop %',
+              label: l10n.fieldQuickStop,
               children: [
                 for (final pct in [3, 5, 10])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: QuickChip(
-                      label: 'Stop $pct%',
+                      label: l10n.labelStopPct('$pct'),
                       color: tool.color,
                       onTap: () => _setStopByPct(pct.toDouble()),
                     ),
@@ -230,13 +253,13 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
             ),
             const SizedBox(height: 8),
             LabeledSwitch(
-              label: 'Quick R/R',
+              label: l10n.fieldQuickRr,
               children: [
                 for (final ratio in [1, 2, 3])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: QuickChip(
-                      label: 'R/R 1:$ratio',
+                      label: l10n.labelRrRatio('$ratio'),
                       color: tool.color,
                       onTap: () => _setTargetByRatio(ratio.toDouble()),
                     ),
@@ -249,13 +272,21 @@ class _RiskRewardScreenState extends ConsumerState<RiskRewardScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Risk / Reward', '${fmtNum(result.ratio)} : 1'),
-            ResultRow('Target Profit', fmtAmount(result.targetProfit)),
-            ResultRow('Expected Loss', fmtAmount(result.expectedLoss)),
+            ResultRow(l10n.resultRiskReward, '${fmtNum(result.ratio)} : 1'),
+            ResultRow(l10n.resultTargetProfit, fmtAmount(result.targetProfit),
+                tone: ResultTone.gain),
+            ResultRow(l10n.resultExpectedLoss, fmtAmount(result.expectedLoss)),
             if (result.marginRequired != null)
-              ResultRow('Margin Required', fmtAmount(result.marginRequired!)),
+              ResultRow(
+                l10n.resultMarginRequired,
+                fmtAmount(result.marginRequired!),
+              ),
             if (result.returnOnMargin != null)
-              ResultRow('Return on Margin', fmtPct(result.returnOnMargin!)),
+              ResultRow(
+                l10n.resultReturnOnMargin,
+                fmtPct(result.returnOnMargin!),
+                tone: ResultTone.gain,
+              ),
           ],
         ),
       ],

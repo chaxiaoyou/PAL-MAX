@@ -1,97 +1,130 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/tool_definition.dart';
+
+/// Category ids used by the calculator catalogue.
+const kCategoryTrading = 'trading';
+const kCategoryInvestment = 'investment';
 
 const appTools = <ToolDefinition>[
   ToolDefinition(
     id: 'compound',
-    title: 'Compound Interest',
-    subtitle: 'See the power of compounding over time',
     icon: Icons.auto_graph_rounded,
     color: Color(0xff7657e8),
-    category: 'Investment',
+    categoryId: kCategoryInvestment,
   ),
   ToolDefinition(
     id: 'risk',
-    title: 'Risk / Reward',
-    subtitle: 'Quickly judge whether a trade is worth it',
     icon: Icons.balance_rounded,
     color: Color(0xffed6a5a),
-    category: 'Trading',
+    categoryId: kCategoryTrading,
   ),
   ToolDefinition(
     id: 'position',
-    title: 'Position Cost',
-    subtitle: 'Track average cost across multiple entries',
     icon: Icons.layers_rounded,
     color: Color(0xff3984e8),
-    category: 'Trading',
+    categoryId: kCategoryTrading,
   ),
   ToolDefinition(
     id: 'size',
-    title: 'Position Size',
-    subtitle: 'Derive position size from your max loss',
     icon: Icons.calculate_rounded,
     color: Color(0xff26a269),
-    category: 'Trading',
+    categoryId: kCategoryTrading,
   ),
   ToolDefinition(
     id: 'dividend',
-    title: 'Dividend Reinvest',
-    subtitle: 'Put cash dividends back to work',
     icon: Icons.savings_rounded,
     color: Color(0xffe49a32),
-    category: 'Investment',
+    categoryId: kCategoryInvestment,
   ),
   ToolDefinition(
     id: 'allocation',
-    title: 'Asset Allocation',
-    subtitle: 'Build an allocation that fits you',
     icon: Icons.pie_chart_rounded,
     color: Color(0xff3a9d9a),
-    category: 'Investment',
+    categoryId: kCategoryInvestment,
   ),
   ToolDefinition(
     id: 'profit',
-    title: 'Profit & Loss',
-    subtitle: 'See at a glance how much you made',
     icon: Icons.trending_up_rounded,
     color: Color(0xffef6b89),
-    category: 'Trading',
+    categoryId: kCategoryTrading,
   ),
   ToolDefinition(
     id: 'target',
-    title: 'Target Price',
-    subtitle: 'Work backward from a return target',
     icon: Icons.flag_rounded,
     color: Color(0xff5d73d8),
-    category: 'Trading',
+    categoryId: kCategoryTrading,
   ),
   ToolDefinition(
     id: 'rate',
-    title: 'Annual Return',
-    subtitle: 'Reverse-engineer the annualized return',
     icon: Icons.percent_rounded,
     color: Color(0xff9169d8),
-    category: 'Investment',
+    categoryId: kCategoryInvestment,
   ),
   ToolDefinition(
     id: 'time',
-    title: 'Time to Target',
-    subtitle: 'How long until you reach your goal',
     icon: Icons.hourglass_bottom_rounded,
     color: Color(0xff2d9cdb),
-    category: 'Investment',
+    categoryId: kCategoryInvestment,
   ),
   ToolDefinition(
     id: 'roi',
-    title: 'ROI Calculator',
-    subtitle: 'Measure the real return on your investment',
     icon: Icons.insights_rounded,
     color: Color(0xffe15d35),
-    category: 'Investment',
+    categoryId: kCategoryInvestment,
   ),
 ];
 
-ToolDefinition toolById(String id) =>
-    appTools.firstWhere((tool) => tool.id == id);
+ToolDefinition toolById(String id) {
+  for (final tool in appTools) {
+    if (tool.id == id) return tool;
+  }
+  return appTools.first;
+}
+
+/// Localized name of a calculator. Falls back to the raw id so an unknown tool
+/// (for example a record saved by a newer build) still renders something.
+String toolTitle(AppLocalizations l10n, String id) => switch (id) {
+      'compound' => l10n.toolCompoundTitle,
+      'risk' => l10n.toolRiskTitle,
+      'position' => l10n.toolPositionTitle,
+      'size' => l10n.toolSizeTitle,
+      'dividend' => l10n.toolDividendTitle,
+      'allocation' => l10n.toolAllocationTitle,
+      'profit' => l10n.toolProfitTitle,
+      'target' => l10n.toolTargetTitle,
+      'rate' => l10n.toolRateTitle,
+      'time' => l10n.toolTimeTitle,
+      'roi' => l10n.toolRoiTitle,
+      _ => id,
+    };
+
+String toolSubtitle(AppLocalizations l10n, String id) => switch (id) {
+      'compound' => l10n.toolCompoundSubtitle,
+      'risk' => l10n.toolRiskSubtitle,
+      'position' => l10n.toolPositionSubtitle,
+      'size' => l10n.toolSizeSubtitle,
+      'dividend' => l10n.toolDividendSubtitle,
+      'allocation' => l10n.toolAllocationSubtitle,
+      'profit' => l10n.toolProfitSubtitle,
+      'target' => l10n.toolTargetSubtitle,
+      'rate' => l10n.toolRateSubtitle,
+      'time' => l10n.toolTimeSubtitle,
+      'roi' => l10n.toolRoiSubtitle,
+      _ => '',
+    };
+
+String categoryTitle(AppLocalizations l10n, String categoryId) =>
+    switch (categoryId) {
+      kCategoryTrading => l10n.categoryTrading,
+      kCategoryInvestment => l10n.categoryInvestment,
+      _ => categoryId,
+    };
+
+String categoryHint(AppLocalizations l10n, String categoryId) =>
+    switch (categoryId) {
+      kCategoryTrading => l10n.categoryTradingHint,
+      kCategoryInvestment => l10n.categoryInvestmentHint,
+      _ => '',
+    };

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n/l10n.dart';
 import '../models/quote.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
@@ -103,7 +104,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       debugPrint('search failed: $error\n$stackTrace');
       if (!mounted) return;
       setState(() {
-        _searchError = 'Search failed. Please try again.';
+        _searchError = context.l10n.searchFailed;
         _searching = false;
       });
     }
@@ -114,21 +115,26 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (alreadyAdded) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('$symbol is already in your watchlist')));
+        ..showSnackBar(
+          SnackBar(content: Text(context.l10n.searchAlreadyInWatchlist(symbol))),
+        );
       return;
     }
     await ref.read(watchlistProvider.notifier).add(symbol);
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$symbol added to watchlist')));
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.searchAddedToWatchlist(symbol))),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Add symbols')),
+      appBar: AppBar(title: Text(l10n.searchTitle)),
       body: Column(
         children: [
           Padding(
@@ -143,7 +149,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 if (trimmed.isNotEmpty) _search(trimmed);
               },
               decoration: InputDecoration(
-                hintText: 'Search symbol or company (e.g. AAPL)',
+                hintText: l10n.searchHint,
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: _controller.text.isEmpty
                     ? null
@@ -183,7 +189,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
           child: Text(
-            'Trending',
+            context.l10n.searchTrending,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -191,9 +197,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ),
         for (final quote in _trending) _TrendingTile(quote: quote, onAdd: _add),
         if (_trending.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(28),
-            child: Center(child: Text('Unable to load trending symbols')),
+          Padding(
+            padding: const EdgeInsets.all(28),
+            child: Center(child: Text(context.l10n.searchTrendingFailed)),
           ),
       ],
     );
@@ -212,7 +218,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       );
     }
     if (_results.isEmpty && !_searching) {
-      return const Center(child: Text('No symbols found'));
+      return Center(child: Text(context.l10n.searchNoResults));
     }
     return ListView.separated(
       padding: const EdgeInsets.only(bottom: 24),
@@ -273,7 +279,8 @@ class _TrendingTile extends ConsumerWidget {
           ),
           const SizedBox(width: 6),
           IconButton(
-            tooltip: added ? 'Added' : 'Add',
+            tooltip:
+                added ? context.l10n.actionAdded : context.l10n.actionAdd,
             onPressed: added ? null : () => onAdd(quote.symbol),
             icon: Icon(
               added ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
@@ -315,7 +322,7 @@ class _SearchResultTile extends ConsumerWidget {
         overflow: TextOverflow.ellipsis,
       ),
       trailing: IconButton(
-        tooltip: added ? 'Added' : 'Add',
+        tooltip: added ? context.l10n.actionAdded : context.l10n.actionAdd,
         onPressed: added ? null : () => onAdd(result.symbol),
         icon: Icon(
           added ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,

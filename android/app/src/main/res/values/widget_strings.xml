@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="widget_title">MS Brokerage Account</string>
     <string name="widget_description">Your watchlist at a glance. Refreshes whenever the app updates quotes.</string>
+    <string name="widget_empty_hint">Open %1$s and refresh to show quotes</string>
+    <string name="widget_last_fetch">Last fetch: %1$s</string>
 </resources>

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/tools.dart';
+import '../l10n/l10n.dart';
 import '../models/saved_record.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
@@ -19,9 +20,10 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final records = ref.watch(savedRecordsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Saved results')),
+      appBar: AppBar(title: Text(l10n.historyTitle)),
       body: records.isEmpty
           ? ListView(
               children: [
@@ -34,7 +36,7 @@ class HistoryScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
                 Center(
                   child: Text(
-                    'No saved results yet',
+                    l10n.historyEmptyTitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -43,7 +45,7 @@ class HistoryScreen extends ConsumerWidget {
                 const SizedBox(height: 6),
                 Center(
                   child: Text(
-                    'Save any calculation to keep it here.',
+                    l10n.historyEmptyBody,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -77,6 +79,7 @@ class _RecordCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final tool = toolById(record.toolId);
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -105,7 +108,8 @@ class _RecordCard extends ConsumerWidget {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 3),
           child: Text(
-            '${record.toolName} · ${fmtDateTime(record.createdAt)}',
+            '${toolTitle(l10n, record.toolId)} · '
+            '${fmtDateTime(record.createdAt)}',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -118,16 +122,16 @@ class _RecordCard extends ConsumerWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Note: ${record.note}',
+                  l10n.historyNote(record.note),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
             ),
-          _JsonSection(title: 'Inputs', json: record.inputsJson),
+          _JsonSection(title: l10n.historyInputs, json: record.inputsJson),
           const SizedBox(height: 10),
-          _JsonSection(title: 'Results', json: record.resultsJson),
+          _JsonSection(title: l10n.historyResults, json: record.resultsJson),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -143,7 +147,7 @@ class _RecordCard extends ConsumerWidget {
                     );
                   },
                   icon: const Icon(Icons.open_in_new_rounded, size: 17),
-                  label: const Text('Load'),
+                  label: Text(l10n.actionLoad),
                 ),
               ),
               const SizedBox(width: 10),
@@ -154,7 +158,7 @@ class _RecordCard extends ConsumerWidget {
                     foregroundColor: theme.colorScheme.error,
                   ),
                   icon: const Icon(Icons.delete_outline_rounded, size: 17),
-                  label: const Text('Delete'),
+                  label: Text(l10n.actionDelete),
                 ),
               ),
             ],
@@ -165,15 +169,16 @@ class _RecordCard extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete result'),
-        content: Text('Delete "${record.title}"? This cannot be undone.'),
+        title: Text(l10n.historyDeleteTitle),
+        content: Text(l10n.historyDeleteMessage(record.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -181,7 +186,7 @@ class _RecordCard extends ConsumerWidget {
               foregroundColor: Theme.of(dialogContext).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),

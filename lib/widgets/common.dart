@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/app_theme.dart';
 import '../utils/input_formatter.dart';
 
@@ -119,11 +120,16 @@ class SectionCard extends StatelessWidget {
   }
 }
 
+/// How a result value should be tinted. Kept explicit instead of sniffing the
+/// label text, which broke as soon as the UI was translated.
+enum ResultTone { neutral, gain }
+
 class ResultRow {
-  const ResultRow(this.label, this.value);
+  const ResultRow(this.label, this.value, {this.tone = ResultTone.neutral});
 
   final String label;
   final String value;
+  final ResultTone tone;
 }
 
 /// Dark "result panel" used at the bottom of every calculator. It keeps the
@@ -133,12 +139,12 @@ class ResultCard extends StatelessWidget {
     super.key,
     required this.accent,
     required this.rows,
-    this.title = 'Results',
+    this.title,
   });
 
   final Color accent;
   final List<ResultRow> rows;
-  final String title;
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +170,7 @@ class ResultCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                title,
+                title ?? context.l10n.resultPanelTitle,
                 style: const TextStyle(
                   color: Color(0xb3ffffff),
                   fontSize: 13,
@@ -184,7 +190,7 @@ class ResultCard extends StatelessWidget {
                   final negative = row.value.startsWith('-');
                   final positive = !negative &&
                       !row.value.startsWith('0') &&
-                      row.label.contains(RegExp('P&L|Profit|Return|ROI'));
+                      row.tone == ResultTone.gain;
                   return SizedBox(
                     width: itemWidth,
                     child: Column(
@@ -327,7 +333,7 @@ class DisclaimerFooter extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 22, 8, 8),
       child: Center(
         child: Text(
-          'For reference only — not investment advice.',
+          context.l10n.disclaimerFooter,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant,

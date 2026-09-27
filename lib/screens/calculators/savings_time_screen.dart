@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -62,10 +63,11 @@ class _SavingsTimeScreenState extends ConsumerState<SavingsTimeScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Years Needed': '${fmtNum(r.years)} years',
-      'Approx.': '${r.yearInt} years ${r.monthInt} months',
+      l10n.resultYearsNeeded: l10n.yearsCount(fmtNum(r.years)),
+      l10n.resultApprox: l10n.yearsMonthsCount(r.yearInt, r.monthInt),
     };
   }
 
@@ -82,13 +84,20 @@ class _SavingsTimeScreenState extends ConsumerState<SavingsTimeScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('time');
     final result = _result;
     return CalculatorScaffold(
@@ -98,22 +107,22 @@ class _SavingsTimeScreenState extends ConsumerState<SavingsTimeScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Inputs',
+          title: l10n.historyInputs,
           children: [
             NumberField(
-              label: 'Principal',
+              label: l10n.fieldPrincipal,
               controller: _principalCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Target Amount',
+              label: l10n.fieldTargetAmount,
               controller: _targetCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Annual Rate',
+              label: l10n.fieldAnnualRate,
               suffix: '%',
               controller: _rateCtrl,
               onChanged: (_) => setState(() {}),
@@ -124,10 +133,13 @@ class _SavingsTimeScreenState extends ConsumerState<SavingsTimeScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Years Needed', '${fmtNum(result.years)} years'),
             ResultRow(
-              'Approx.',
-              '${result.yearInt} years ${result.monthInt} months',
+              l10n.resultYearsNeeded,
+              l10n.yearsCount(fmtNum(result.years)),
+            ),
+            ResultRow(
+              l10n.resultApprox,
+              l10n.yearsMonthsCount(result.yearInt, result.monthInt),
             ),
           ],
         ),

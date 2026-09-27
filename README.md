@@ -39,8 +39,59 @@
 - **Android 桌面小组件**：2×4 网格展示自选快照（RemoteViews，无第三方插件）。
   Flutter 每次刷新成功后通过 `PJZA/stocks_widget` 通道把快照同步到原生层并立即
   刷新小组件；点击小组件打开 App，支持浅色/深色快照。
-- **设置**：跟随系统/浅色/深色主题、自动排序、两位小数开关、刷新间隔、数据来源。
+- **设置**：跟随系统/浅色/深色主题、语言（跟随系统 / English / Español）、自动排序、
+  两位小数开关、刷新间隔、数据来源、免责声明。
 - **纯原生**：界面全部由 Flutter 原生绘制，不加载任何网页内容；本地偏好与计算记录走 Isar。
+
+## 多语言（i18n）
+
+界面文案全部走 Flutter 官方 `gen-l10n`，当前提供 **英语 / 西班牙语 / 日语** 三套文案：
+
+- 设备语言命中 `es-*` → 西班牙语（墨西哥市场走这条）。
+- 设备语言命中 `en-*` → 英语。
+- **其它任何语言回退到日语**——日语是应用的默认语言，因此在 `app.dart` 的
+  `supportedLocales` 里排在第一位。设备语言不被支持时 Flutter 取列表首项。
+
+```text
+l10n.yaml                      # gen-l10n 配置（ARB 目录、输出类名、非空 getter）
+lib/l10n/app_en.arb            # 英语（模板，新增 key 先写这里）
+lib/l10n/app_es.arb            # 西班牙语
+lib/l10n/app_ja.arb            # 日语（默认/回退语言）
+lib/l10n/l10n.dart             # context.l10n 扩展
+lib/l10n/app_localizations*.dart  # 生成产物，跟随 ARB 重新生成
+```
+
+使用方式：
+
+```dart
+import '../l10n/l10n.dart';
+
+Text(context.l10n.navWatchlist);            // 无参数
+Text(l10n.minutesCount(prefs.refreshMinutes)); // 带占位符
+```
+
+约定：
+
+- 计算器目录（`lib/data/tools.dart`）只保留 id / 图标 / 颜色 / 分类 id，
+  标题与副标题由 `toolTitle(l10n, id)`、`toolSubtitle(l10n, id)` 按当前语言解析，
+  一套目录驱动所有语言；分类同理走 `categoryTitle` / `categoryHint`。
+- 结果面板的涨跌底色由 `ResultRow.tone`（`ResultTone.gain`）显式声明，
+  不再靠匹配标签里的英文关键字，换语言不会掉色。
+- 保存记录里的输入项仍用稳定 id（`principal`、`maxLoss`…），结果项用当前语言的标签；
+  历史页的工具名按 `toolId` 实时解析，切换语言后依然正确。
+- Android 桌面小组件的文案在 `res/values/widget_strings.xml` 与
+  `res/values-es/widget_strings.xml`，与 Dart 侧分开维护。
+
+新增语言：复制 `app_en.arb` 建成 `app_<locale>.arb`，翻译后
+执行 `flutter gen-l10n`，再在 `AppLanguage`（`lib/providers/providers.dart`）
+中加一项即可出现在设置页的语言列表里。
+
+> 想让**所有用户**无论设备语言都默认日语，就把 `AppPreferences` 的默认
+> `language` 从 `AppLanguage.system` 改成 `AppLanguage.japanese`。注意这会让
+> 墨西哥用户（设备 `es-MX`）也看到日语，与「上架墨西哥」冲突，默认没有这么做。
+
+> `test/localization_test.dart` 会校验两套 ARB 的 key 完全对齐、没有空文案，
+> 并在西班牙语环境下真实渲染计算器目录与设置页。
 
 ## 品牌与包名
 
@@ -67,6 +118,13 @@
 | isar_community 3.3.2 | 自选/偏好/计算记录本地持久化 |
 | intl | 数字/日期格式化 |
 | url_launcher | 详情页新闻用系统浏览器打开 |
+| flutter_local_notifications 22.x | 价格提醒的本地通知 |
+
+> `flutter_local_notifications` 在 Android 上强制要求 **core library desugaring**
+> （它用到 `java.time`，原生只有 API 26+ 才有）。`android/app/build.gradle.kts`
+> 已开 `isCoreLibraryDesugaringEnabled = true` 并加上
+> `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")`，
+> 缺任何一条构建都会在 AAR metadata 检查阶段直接失败。
 
 ## 运行
 

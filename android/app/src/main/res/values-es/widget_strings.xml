@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_title">MS Brokerage Account</string>
+    <string name="widget_description">Tu lista de seguimiento de un vistazo. Se actualiza cuando la app actualiza las cotizaciones.</string>
+    <string name="widget_empty_hint">Abre %1$s y actualiza para ver las cotizaciones</string>
+    <string name="widget_last_fetch">Última actualización: %1$s</string>
+</resources>

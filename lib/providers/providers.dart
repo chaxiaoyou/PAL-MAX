@@ -203,27 +203,51 @@ enum ThemePreference {
       };
 }
 
+/// UI language. `system` follows the device locale and falls back to English
+/// for locales the app does not ship yet.
+enum AppLanguage {
+  system('system'),
+  english('en'),
+  spanish('es'),
+  japanese('ja');
+
+  const AppLanguage(this.storageValue);
+
+  final String storageValue;
+
+  static AppLanguage fromStorage(String? value) => switch (value) {
+        'en' => AppLanguage.english,
+        'es' => AppLanguage.spanish,
+        'ja' => AppLanguage.japanese,
+        _ => AppLanguage.system,
+      };
+}
+
 class AppPrefs {
   const AppPrefs({
     this.theme = ThemePreference.system,
+    this.language = AppLanguage.system,
     this.refreshMinutes = 5,
     this.roundTwoDp = true,
     this.autoSort = false,
   });
 
   final ThemePreference theme;
+  final AppLanguage language;
   final int refreshMinutes;
   final bool roundTwoDp;
   final bool autoSort;
 
   AppPrefs copyWith({
     ThemePreference? theme,
+    AppLanguage? language,
     int? refreshMinutes,
     bool? roundTwoDp,
     bool? autoSort,
   }) {
     return AppPrefs(
       theme: theme ?? this.theme,
+      language: language ?? this.language,
       refreshMinutes: refreshMinutes ?? this.refreshMinutes,
       roundTwoDp: roundTwoDp ?? this.roundTwoDp,
       autoSort: autoSort ?? this.autoSort,
@@ -244,11 +268,15 @@ class AppPrefsNotifier extends StateNotifier<AppPrefs> {
     final theme = ThemePreference.fromStorage(
       await _readSetting(_db, 'theme'),
     );
+    final language = AppLanguage.fromStorage(
+      await _readSetting(_db, 'language'),
+    );
     final refreshRaw = await _readSetting(_db, 'refresh_minutes');
     final roundRaw = await _readSetting(_db, 'round_2dp');
     final autoRaw = await _readSetting(_db, 'auto_sort');
     state = AppPrefs(
       theme: theme,
+      language: language,
       refreshMinutes: int.tryParse(refreshRaw ?? '') ?? 5,
       roundTwoDp: roundRaw != '0',
       autoSort: autoRaw == '1',
@@ -258,6 +286,11 @@ class AppPrefsNotifier extends StateNotifier<AppPrefs> {
   Future<void> setTheme(ThemePreference value) async {
     state = state.copyWith(theme: value);
     await _writeSetting(_db, 'theme', value.storageValue);
+  }
+
+  Future<void> setLanguage(AppLanguage value) async {
+    state = state.copyWith(language: value);
+    await _writeSetting(_db, 'language', value.storageValue);
   }
 
   Future<void> setRefreshMinutes(int value) async {

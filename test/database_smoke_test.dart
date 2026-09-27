@@ -6,6 +6,8 @@ import 'package:isar_community/isar.dart';
 import 'package:isar_community/src/native/isar_core.dart';
 import 'package:pjza/models/app_setting.dart';
 import 'package:pjza/models/saved_record.dart';
+import 'package:pjza/models/stored_alert.dart';
+import 'package:pjza/models/stored_transaction.dart';
 
 void main() {
   // Host-only smoke test: locate the native library shipped with
@@ -21,7 +23,12 @@ void main() {
       final dir = Directory.systemTemp.createTempSync('pjza_test');
       await initializeCoreBinary(libraries: {Abi.current(): coreLib});
       final isar = await Isar.open(
-        [SavedRecordSchema, AppSettingSchema],
+        [
+          SavedRecordSchema,
+          AppSettingSchema,
+          StoredTransactionSchema,
+          StoredAlertSchema,
+        ],
         directory: dir.path,
         name: 'pjza_test',
       );

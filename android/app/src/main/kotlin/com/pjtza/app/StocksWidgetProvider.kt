@@ -64,6 +64,11 @@ class StocksWidgetProvider : AppWidgetProvider() {
             appWidgetId: Int,
         ) {
             val views = RemoteViews(context.packageName, R.layout.stocks_widget)
+            val brandName = context.getString(R.string.widget_title)
+            views.setTextViewText(
+                R.id.widget_empty,
+                context.getString(R.string.widget_empty_hint, brandName),
+            )
             val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             val raw = prefs.getString(DATA_KEY, null)
 
@@ -127,7 +132,10 @@ class StocksWidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(
                         R.id.widget_subtitle,
                         if (updatedAt > 0) {
-                            "Last fetch: ${formatTime(updatedAt)}"
+                            context.getString(
+                                R.string.widget_last_fetch,
+                                formatTime(updatedAt),
+                            )
                         } else {
                             ""
                         },

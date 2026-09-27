@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -69,11 +70,12 @@ class _PnlScreenState extends ConsumerState<PnlScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'P&L': fmtAmount(r.amount),
-      'Return': fmtPct(r.returnPct),
-      'Fees': fmtAmount(r.fee),
+      l10n.resultPnl: fmtAmount(r.amount),
+      l10n.resultReturn: fmtPct(r.returnPct),
+      l10n.resultFees: fmtAmount(r.fee),
     };
   }
 
@@ -90,13 +92,20 @@ class _PnlScreenState extends ConsumerState<PnlScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('profit');
     final result = _result;
     return CalculatorScaffold(
@@ -106,12 +115,12 @@ class _PnlScreenState extends ConsumerState<PnlScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Trade Parameters',
+          title: l10n.sectionTradeParameters,
           children: [
             SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: true, label: Text('Long')),
-                ButtonSegment(value: false, label: Text('Short')),
+              segments: [
+                ButtonSegment(value: true, label: Text(l10n.segmentLong)),
+                ButtonSegment(value: false, label: Text(l10n.segmentShort)),
               ],
               selected: {_isLong},
               showSelectedIcon: false,
@@ -120,26 +129,26 @@ class _PnlScreenState extends ConsumerState<PnlScreen> {
             ),
             const SizedBox(height: 16),
             NumberField(
-              label: 'Entry Price',
+              label: l10n.fieldEntryPrice,
               controller: _entryCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Exit Price',
+              label: l10n.fieldExitPrice,
               controller: _exitCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Quantity',
-              suffix: 'shares',
+              label: l10n.fieldQuantity,
+              suffix: l10n.suffixShares,
               controller: _qtyCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Fee Rate (optional)',
+              label: l10n.fieldFeeRate,
               suffix: '%',
               controller: _feeCtrl,
               onChanged: (_) => setState(() {}),
@@ -150,9 +159,11 @@ class _PnlScreenState extends ConsumerState<PnlScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('P&L', fmtAmount(result.amount)),
-            ResultRow('Return', fmtPct(result.returnPct)),
-            ResultRow('Fees', fmtAmount(result.fee)),
+            ResultRow(l10n.resultPnl, fmtAmount(result.amount),
+                tone: ResultTone.gain),
+            ResultRow(l10n.resultReturn, fmtPct(result.returnPct),
+                tone: ResultTone.gain),
+            ResultRow(l10n.resultFees, fmtAmount(result.fee)),
           ],
         ),
       ],

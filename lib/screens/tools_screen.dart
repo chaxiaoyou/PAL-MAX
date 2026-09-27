@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/tools.dart';
+import '../l10n/l10n.dart';
 import '../models/tool_definition.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
@@ -12,10 +13,7 @@ import 'history_screen.dart';
 /// Shown in the pin rail until the user picks their own favourites.
 const _starterPins = <String>['risk', 'size', 'compound', 'roi'];
 
-const _categories = <String, String>{
-  'Trading': 'Entries, exits and position sizing',
-  'Investment': 'Compounding, allocation and returns',
-};
+const _categoryIds = <String>[kCategoryTrading, kCategoryInvestment];
 
 /// Calculator catalogue.
 ///
@@ -42,12 +40,15 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
 
   String get _query => _queryCtrl.text.trim().toLowerCase();
 
-  List<ToolDefinition> get _results => appTools
-      .where((tool) =>
-          tool.title.toLowerCase().contains(_query) ||
-          tool.subtitle.toLowerCase().contains(_query) ||
-          tool.category.toLowerCase().contains(_query))
-      .toList();
+  List<ToolDefinition> get _results {
+    final l10n = context.l10n;
+    return appTools
+        .where((tool) =>
+            toolTitle(l10n, tool.id).toLowerCase().contains(_query) ||
+            toolSubtitle(l10n, tool.id).toLowerCase().contains(_query) ||
+            categoryTitle(l10n, tool.categoryId).toLowerCase().contains(_query))
+        .toList();
+  }
 
   void _openTool(ToolDefinition tool) {
     Navigator.of(context).push(
@@ -70,6 +71,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final favorites = ref.watch(favoritesProvider);
     final searching = _searchOpen || _query.isNotEmpty;
 
@@ -78,24 +80,24 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
         : appTools.where((tool) => favorites.contains(tool.id)).toList();
     final pinnedIds = pinned.map((tool) => tool.id).toSet();
     final grouped = {
-      for (final category in _categories.keys)
-        category: appTools
+      for (final categoryId in _categoryIds)
+        categoryId: appTools
             .where((tool) =>
-                tool.category == category && !pinnedIds.contains(tool.id))
+                tool.categoryId == categoryId && !pinnedIds.contains(tool.id))
             .toList(),
     };
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calculators'),
+        title: Text(l10n.toolsTitle),
         actions: [
           IconButton(
-            tooltip: 'Search calculators',
+            tooltip: l10n.tooltipSearchCalculators,
             onPressed: _toggleSearch,
             icon: Icon(_searchOpen ? Icons.close_rounded : Icons.search_rounded),
           ),
           IconButton(
-            tooltip: 'Saved results',
+            tooltip: l10n.tooltipSavedResults,
             onPressed: _openHistory,
             icon: const Icon(Icons.bookmark_border_rounded),
           ),
@@ -114,12 +116,12 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                   textInputAction: TextInputAction.search,
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
-                    hintText: 'Search by name or what you want to work out',
+                    hintText: l10n.searchHintCalculators,
                     prefixIcon: const Icon(Icons.search_rounded),
                     suffixIcon: _query.isEmpty
                         ? null
                         : IconButton(
-                            tooltip: 'Clear',
+                            tooltip: l10n.actionClear,
                             onPressed: () {
                               _queryCtrl.clear();
                               setState(() {});
@@ -143,10 +145,12 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             if (pinned.isNotEmpty) ...[
               SliverToBoxAdapter(
                 child: _SectionHeader(
-                  title: favorites.isEmpty ? 'Start here' : 'Pinned',
+                  title: favorites.isEmpty
+                      ? l10n.sectionStartHere
+                      : l10n.sectionPinned,
                   hint: favorites.isEmpty
-                      ? 'Star a tool to pin it'
-                      : 'Tap ★ to unpin',
+                      ? l10n.hintStarToPin
+                      : l10n.hintTapToUnpin,
                 ),
               ),
               SliverToBoxAdapter(
@@ -158,20 +162,20 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                 ),
               ),
             ],
-            for (final entry in _categories.entries) ...[
+            for (final categoryId in _categoryIds) ...[
               SliverToBoxAdapter(
                 child: _SectionHeader(
-                  title: entry.key,
-                  hint: entry.value,
+                  title: categoryTitle(l10n, categoryId),
+                  hint: categoryHint(l10n, categoryId),
                 ),
               ),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
                 sliver: SliverList.separated(
-                  itemCount: grouped[entry.key]!.length,
+                  itemCount: grouped[categoryId]!.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
-                    final tool = grouped[entry.key]![index];
+                    final tool = grouped[categoryId]![index];
                     return _ToolRow(
                       tool: tool,
                       pinned: favorites.contains(tool.id),
@@ -211,7 +215,8 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'No calculator matches "${_queryCtrl.text.trim()}"',
+                    context.l10n
+                        .noCalculatorMatches(_queryCtrl.text.trim()),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -226,8 +231,8 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     return [
       SliverToBoxAdapter(
         child: _SectionHeader(
-          title: 'Results',
-          hint: '${results.length} of ${appTools.length}',
+          title: context.l10n.sectionResults,
+          hint: context.l10n.resultsShownOfTotal(results.length, appTools.length),
         ),
       ),
       SliverPadding(
@@ -268,6 +273,7 @@ class _SummaryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(kGutter, kSpace1, kGutter, 6),
       child: Container(
@@ -296,7 +302,7 @@ class _SummaryBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '$total calculators',
+                    l10n.summaryCalculators(total),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -304,8 +310,8 @@ class _SummaryBanner extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     favorites == 0
-                        ? '$pinned starter picks · everything runs on device'
-                        : '$favorites pinned · everything runs on device',
+                        ? l10n.summaryStarterPicks(pinned)
+                        : l10n.summaryPinned(favorites),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -452,7 +458,7 @@ class _PinTile extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  tool.title,
+                  toolTitle(context.l10n, tool.id),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelMedium?.copyWith(
@@ -510,7 +516,7 @@ class _ToolRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tool.title,
+                      toolTitle(context.l10n, tool.id),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleSmall?.copyWith(
@@ -519,7 +525,7 @@ class _ToolRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      tool.subtitle,
+                      toolSubtitle(context.l10n, tool.id),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -531,7 +537,7 @@ class _ToolRow extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               IconButton(
-                tooltip: pinned ? 'Unpin' : 'Pin',
+                tooltip: pinned ? context.l10n.actionUnpin : context.l10n.actionPin,
                 visualDensity: VisualDensity.compact,
                 onPressed: onTogglePin,
                 icon: Icon(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -73,11 +74,12 @@ class _PositionSizeScreenState extends ConsumerState<PositionSizeScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Max Quantity': fmtNum(r.maxQty),
-      'Position Value': fmtAmount(r.totalValue),
-      'Stop Distance': fmtPct(r.movePct),
+      l10n.resultMaxQuantity: fmtNum(r.maxQty),
+      l10n.resultPositionValue: fmtAmount(r.totalValue),
+      l10n.resultStopDistance: fmtPct(r.movePct),
     };
   }
 
@@ -94,13 +96,20 @@ class _PositionSizeScreenState extends ConsumerState<PositionSizeScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('size');
     final result = _result;
     return CalculatorScaffold(
@@ -110,12 +119,12 @@ class _PositionSizeScreenState extends ConsumerState<PositionSizeScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Position Setup',
+          title: l10n.sectionPositionSetup,
           children: [
             SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: true, label: Text('Long')),
-                ButtonSegment(value: false, label: Text('Short')),
+              segments: [
+                ButtonSegment(value: true, label: Text(l10n.segmentLong)),
+                ButtonSegment(value: false, label: Text(l10n.segmentShort)),
               ],
               selected: {_isLong},
               showSelectedIcon: false,
@@ -124,31 +133,31 @@ class _PositionSizeScreenState extends ConsumerState<PositionSizeScreen> {
             ),
             const SizedBox(height: 16),
             NumberField(
-              label: 'Entry Price',
+              label: l10n.fieldEntryPrice,
               controller: _entryCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Stop Price',
+              label: l10n.fieldStopPrice,
               controller: _stopCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Max Loss',
+              label: l10n.fieldMaxLoss,
               controller: _lossCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
             LabeledSwitch(
-              label: 'Quick Stop %',
+              label: l10n.fieldQuickStop,
               children: [
                 for (final pct in [3, 5, 10])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: QuickChip(
-                      label: 'Stop $pct%',
+                      label: l10n.labelStopPct('$pct'),
                       color: tool.color,
                       onTap: () => _setStopByPct(pct.toDouble()),
                     ),
@@ -161,9 +170,9 @@ class _PositionSizeScreenState extends ConsumerState<PositionSizeScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Max Quantity', fmtNum(result.maxQty)),
-            ResultRow('Position Value', fmtAmount(result.totalValue)),
-            ResultRow('Stop Distance', fmtPct(result.movePct)),
+            ResultRow(l10n.resultMaxQuantity, fmtNum(result.maxQty)),
+            ResultRow(l10n.resultPositionValue, fmtAmount(result.totalValue)),
+            ResultRow(l10n.resultStopDistance, fmtPct(result.movePct)),
           ],
         ),
       ],

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/tools.dart';
+import '../l10n/l10n.dart';
 import '../models/saved_record.dart';
 import '../models/tool_definition.dart';
 import '../providers/providers.dart';
@@ -42,9 +43,10 @@ class CalculatorScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(title: Text(tool.title)),
+      appBar: AppBar(title: Text(toolTitle(l10n, tool.id))),
       body: SafeArea(
         top: false,
         child: ListView(
@@ -68,7 +70,7 @@ class CalculatorScaffold extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Loaded: $loadedTitle',
+                        l10n.calcLoaded(loadedTitle!),
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12.5,
@@ -109,7 +111,7 @@ class CalculatorScaffold extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onSave,
                     icon: const Icon(Icons.bookmark_add_outlined, size: 19),
-                    label: const Text('Save'),
+                    label: Text(l10n.actionSave),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -117,7 +119,7 @@ class CalculatorScaffold extends StatelessWidget {
                   child: FilledButton.icon(
                     onPressed: onSaveAs,
                     icon: const Icon(Icons.save_alt_rounded, size: 19),
-                    label: const Text('Save As'),
+                    label: Text(l10n.actionSaveAs),
                   ),
                 ),
               ],
@@ -139,17 +141,19 @@ Future<SavedRecord?> persistRecord({
   required Map<String, dynamic> inputs,
   required Map<String, dynamic> results,
 }) async {
+  final l10n = context.l10n;
   final draft = await showSaveRecordDialog(
     context,
-    initialTitle: current?.title ?? tool.title,
+    initialTitle: current?.title ?? toolTitle(l10n, tool.id),
     initialNote: current?.note ?? '',
-    actionLabel: asNew ? 'Save As' : 'Save',
+    asNew: asNew,
   );
   if (draft == null) return null;
 
+  final toolName = toolTitle(l10n, tool.id);
   final record = SavedRecord()
     ..toolId = tool.id
-    ..toolName = tool.title
+    ..toolName = toolName
     ..title = draft.title
     ..note = draft.note
     ..inputsJson = jsonEncode(inputs)

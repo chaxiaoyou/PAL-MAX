@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_title">MS Brokerage Account</string>
+    <string name="widget_description">ウォッチリストをひと目で。アプリが株価を更新すると自動で反映されます。</string>
+    <string name="widget_empty_hint">%1$s を開いて更新すると株価が表示されます</string>
+    <string name="widget_last_fetch">最終更新: %1$s</string>
+</resources>

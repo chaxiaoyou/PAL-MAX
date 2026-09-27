@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../models/tool_definition.dart';
 import '../../utils/calculators.dart';
@@ -109,11 +110,12 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Total Position Value': fmtAmount(r.totalAmount),
-      'Total Quantity': fmtNum(r.totalQty),
-      'Average Cost': fmtAmount(r.avgCost),
+      l10n.resultTotalPositionValue: fmtAmount(r.totalAmount),
+      l10n.resultTotalQuantity: fmtNum(r.totalQty),
+      l10n.resultAverageCost: fmtAmount(r.avgCost),
     };
   }
 
@@ -130,20 +132,27 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('position');
     final result = _result;
     final tableRows = [
       for (final row in _rows)
         [
           fmtDate(row.date),
-          row.isBuy ? 'Add' : 'Reduce',
+          row.isBuy ? l10n.actionAdd : l10n.actionReduce,
           fmtAmount(parseNum(row.priceCtrl.text)),
           fmtNum(parseNum(row.qtyCtrl.text)),
           fmtAmount(parseNum(row.priceCtrl.text) * parseNum(row.qtyCtrl.text)),
@@ -157,9 +166,9 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Add / Reduce Records',
+          title: l10n.sectionAddReduceRecords,
           trailing: Text(
-            '${_rows.length} records',
+            l10n.recordsCount(_rows.length),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12.5,
@@ -178,7 +187,7 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
                   _rows.add(_PositionRow(date: DateTime.now()));
                 }),
                 icon: const Icon(Icons.add_rounded, size: 19),
-                label: const Text('Add Record'),
+                label: Text(l10n.actionAddRecord),
               ),
             ),
           ],
@@ -187,17 +196,26 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Total Position Value', fmtAmount(result.totalAmount)),
-            ResultRow('Total Quantity', fmtNum(result.totalQty)),
-            ResultRow('Average Cost', fmtAmount(result.avgCost)),
+            ResultRow(
+              l10n.resultTotalPositionValue,
+              fmtAmount(result.totalAmount),
+            ),
+            ResultRow(l10n.resultTotalQuantity, fmtNum(result.totalQty)),
+            ResultRow(l10n.resultAverageCost, fmtAmount(result.avgCost)),
           ],
         ),
         if (tableRows.isNotEmpty) ...[
           const SizedBox(height: 16),
           TableCard(
-            title: 'Record Details',
+            title: l10n.tableRecordDetails,
             accent: tool.color,
-            columns: ['Date', 'Side', 'Price', 'Qty', 'Amount'],
+            columns: [
+              l10n.tableDate,
+              l10n.tableSide,
+              l10n.tablePrice,
+              l10n.tableQty,
+              l10n.tableAmount,
+            ],
             rows: tableRows,
           ),
         ],
@@ -258,7 +276,7 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
           Row(
             children: [
               ChoiceChip(
-                label: const Text('Add'),
+                label: Text(context.l10n.actionAdd),
                 selected: row.isBuy,
                 showCheckmark: false,
                 visualDensity: VisualDensity.compact,
@@ -272,7 +290,7 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
               ),
               const SizedBox(width: 8),
               ChoiceChip(
-                label: const Text('Reduce'),
+                label: Text(context.l10n.actionReduce),
                 selected: !row.isBuy,
                 showCheckmark: false,
                 visualDensity: VisualDensity.compact,
@@ -292,7 +310,7 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
             children: [
               Expanded(
                 child: NumberField(
-                  label: 'Price',
+                  label: context.l10n.fieldPrice,
                   controller: row.priceCtrl,
                   onChanged: (_) => setState(() {}),
                 ),
@@ -300,7 +318,7 @@ class _PositionCostScreenState extends ConsumerState<PositionCostScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: NumberField(
-                  label: 'Qty',
+                  label: context.l10n.fieldQty,
                   controller: row.qtyCtrl,
                   onChanged: (_) => setState(() {}),
                 ),

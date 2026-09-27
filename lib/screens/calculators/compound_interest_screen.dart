@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -71,12 +72,13 @@ class _CompoundInterestScreenState
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Total Balance': fmtAmount(r.total),
-      'Total Interest': fmtAmount(r.totalInterest),
-      'Total Return': fmtPct(r.totalReturnRate),
-      'Total Invested': fmtAmount(r.totalInvested),
+      l10n.resultTotalBalance: fmtAmount(r.total),
+      l10n.resultTotalInterest: fmtAmount(r.totalInterest),
+      l10n.resultTotalReturn: fmtPct(r.totalReturnRate),
+      l10n.resultTotalInvested: fmtAmount(r.totalInvested),
     };
   }
 
@@ -93,18 +95,25 @@ class _CompoundInterestScreenState
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('compound');
     final result = _result;
     final rows = result.rows
         .map((row) => [
-              'Year ${row.year}',
+              l10n.yearLabel(row.year),
               fmtAmount(row.contributed),
               fmtAmount(row.interest),
               fmtPct(row.yearRate),
@@ -119,27 +128,33 @@ class _CompoundInterestScreenState
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Inputs',
+          title: l10n.historyInputs,
           children: [
             NumberField(
-              label: 'Initial Principal',
+              label: l10n.fieldInitialPrincipal,
               controller: _principalCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Periodic Contribution',
+              label: l10n.fieldPeriodicContribution,
               controller: _addCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             LabeledSwitch(
-              label: 'Frequency',
+              label: l10n.fieldFrequency,
               children: [
                 SegmentedButton<bool>(
-                  segments: const [
-                    ButtonSegment(value: true, label: Text('Monthly')),
-                    ButtonSegment(value: false, label: Text('Yearly')),
+                  segments: [
+                    ButtonSegment(
+                      value: true,
+                      label: Text(l10n.segmentMonthly),
+                    ),
+                    ButtonSegment(
+                      value: false,
+                      label: Text(l10n.segmentYearly),
+                    ),
                   ],
                   selected: {_monthly},
                   showSelectedIcon: false,
@@ -150,15 +165,15 @@ class _CompoundInterestScreenState
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Annual Rate',
+              label: l10n.fieldAnnualRate,
               suffix: '%',
               controller: _rateCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Term',
-              suffix: 'years',
+              label: l10n.fieldTerm,
+              suffix: l10n.suffixYears,
               controller: _termCtrl,
               onChanged: (_) => setState(() {}),
             ),
@@ -169,7 +184,7 @@ class _CompoundInterestScreenState
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: QuickChip(
-                      label: 'Rate $rate%',
+                      label: l10n.quickRate(rate),
                       color: tool.color,
                       onTap: () {
                         _rateCtrl.text = rate;
@@ -186,7 +201,7 @@ class _CompoundInterestScreenState
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: QuickChip(
-                      label: '${term}y',
+                      label: l10n.quickTermYears(term),
                       color: tool.color,
                       onTap: () {
                         _termCtrl.text = term;
@@ -202,18 +217,25 @@ class _CompoundInterestScreenState
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Total Balance', fmtAmount(result.total)),
-            ResultRow('Total Interest', fmtAmount(result.totalInterest)),
-            ResultRow('Total Return', fmtPct(result.totalReturnRate)),
-            ResultRow('Total Invested', fmtAmount(result.totalInvested)),
+            ResultRow(l10n.resultTotalBalance, fmtAmount(result.total)),
+            ResultRow(l10n.resultTotalInterest, fmtAmount(result.totalInterest)),
+            ResultRow(l10n.resultTotalReturn, fmtPct(result.totalReturnRate),
+                tone: ResultTone.gain),
+            ResultRow(l10n.resultTotalInvested, fmtAmount(result.totalInvested)),
           ],
         ),
         if (rows.isNotEmpty) ...[
           const SizedBox(height: 16),
           TableCard(
-            title: 'Yearly Breakdown',
+            title: l10n.resultYearlyBreakdown,
             accent: tool.color,
-            columns: ['Year', 'Principal', 'Interest', 'Year Rate', 'Balance'],
+            columns: [
+              l10n.tableYear,
+              l10n.tablePrincipal,
+              l10n.tableInterest,
+              l10n.tableYearRate,
+              l10n.tableBalance,
+            ],
             rows: rows,
           ),
         ],

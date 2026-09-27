@@ -13,6 +13,11 @@
 # 主 Activity（清单中引用，R8 默认保留，这里显式声明更稳妥）。
 -keep class com.pjtza.app.MainActivity { *; }
 
+# flutter_local_notifications 用 GSON 反序列化已调度的通知，R8 会裁掉它反射
+# 用到的类，导致通知在 release 包里静默失效（debug 包却又正常）。
+-keep class com.dexterous.** { *; }
+-keep class com.google.gson.** { *; }
+
 # 插件与第三方库可能依赖的注解/签名元数据。
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
 

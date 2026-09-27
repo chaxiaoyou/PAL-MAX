@@ -1,0 +1,552 @@
+{
+  "@@locale": "en",
+
+  "navWatchlist": "Watchlist",
+  "navCalculators": "Calculators",
+  "navSaved": "Saved",
+  "navPortfolio": "Portfolio",
+  "navMarket": "Market",
+  "navAlerts": "Alerts",
+
+  "portfolioTitle": "Portfolio",
+  "portfolioTotalValue": "Total value",
+  "portfolioToday": "Today",
+  "portfolioUnrealized": "Unrealized",
+  "portfolioRealized": "Realized",
+  "portfolioInvested": "Invested",
+  "portfolioAllocation": "Allocation",
+  "portfolioPositions": "Positions",
+  "portfolioHoldingCount": "{count} positions",
+  "@portfolioHoldingCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "portfolioEmptyTitle": "No positions yet",
+  "portfolioEmptyBody": "Record a buy to start tracking cost, P&L and allocation.",
+  "portfolioPartialData": "Some holdings could not be priced — totals are partial.",
+  "portfolioMissingSymbols": "No price for {symbols}",
+  "@portfolioMissingSymbols": {
+    "placeholders": {
+      "symbols": { "type": "String" }
+    }
+  },
+  "portfolioRefresh": "Refresh quotes",
+  "portfolioAddTransaction": "Add transaction",
+  "columnSymbol": "Symbol",
+  "columnQuantity": "Qty",
+  "columnAverageCost": "Avg cost",
+  "columnPrice": "Price",
+  "columnMarketValue": "Value",
+  "columnPnl": "P&L",
+  "columnWeight": "Weight",
+  "warningOversell": "{symbol}: a sell exceeded your holding by {quantity}",
+  "@warningOversell": {
+    "placeholders": {
+      "symbol": { "type": "String" },
+      "quantity": { "type": "String" }
+    }
+  },
+
+  "alertsTitle": "Price alerts",
+  "alertsEmptyTitle": "No alerts yet",
+  "alertsEmptyBody": "Create a rule and the app will tell you when the price crosses it.",
+  "alertAdd": "New alert",
+  "alertKindPriceAbove": "Price above",
+  "alertKindPriceBelow": "Price below",
+  "alertKindPercentAbove": "Day change above",
+  "alertKindPercentBelow": "Day change below",
+  "alertSymbol": "Symbol",
+  "alertThreshold": "Threshold",
+  "alertStatusArmed": "Armed",
+  "alertStatusPaused": "Paused",
+  "alertStatusTriggered": "Triggered {time}",
+  "@alertStatusTriggered": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "alertDistanceAhead": "{distance} to go",
+  "@alertDistanceAhead": {
+    "placeholders": {
+      "distance": { "type": "String" }
+    }
+  },
+  "alertDistanceCrossed": "Threshold crossed",
+  "alertNoPrice": "Waiting for a price",
+  "alertReArm": "Re-arm",
+  "alertDeleteTitle": "Delete alert",
+  "alertDeleteMessage": "Delete the alert for {symbol}?",
+  "@alertDeleteMessage": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "alertNeedSymbol": "Enter a symbol",
+  "alertNeedThreshold": "Enter a valid threshold",
+  "alertNotificationTitle": "{symbol} price alert",
+  "@alertNotificationTitle": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "alertNotificationBody": "{condition} — last {price}",
+  "@alertNotificationBody": {
+    "placeholders": {
+      "condition": { "type": "String" },
+      "price": { "type": "String" }
+    }
+  },
+  "alertChannelName": "Price alerts",
+  "alertChannelDescription": "Tells you when one of your price rules is met.",
+
+  "actionCancel": "Cancel",
+  "actionRemove": "Remove",
+  "actionDelete": "Delete",
+  "actionRetry": "Retry",
+  "actionSave": "Save",
+  "actionSaveAs": "Save As",
+  "actionAdd": "Add",
+  "actionAdded": "Added",
+  "actionPin": "Pin",
+  "actionUnpin": "Unpin",
+  "actionClear": "Clear",
+  "actionLoad": "Load",
+  "actionOptions": "Options",
+
+  "resultPanelTitle": "Results",
+  "disclaimerFooter": "For reference only — not investment advice.",
+
+  "homeTitle": "Markets",
+  "tooltipAddSymbols": "Add symbols",
+  "tooltipSettings": "Settings",
+  "tooltipRefreshNow": "Refresh now",
+  "filterAll": "All",
+  "filterGainers": "Gainers",
+  "filterLosers": "Losers",
+  "sectionMarketIndices": "Market indices",
+  "sectionPinned": "Pinned",
+  "watchlistTitle": "Watchlist",
+  "statusUpdating": "Updating…",
+  "statusUpdated": "Updated {time}",
+  "@statusUpdated": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "errorQuotesFetchFailed": "Unable to fetch quotes. Check your connection and try again.",
+  "removeSymbolTitle": "Remove symbol",
+  "removeSymbolMessage": "Remove {symbol} from your watchlist?",
+  "@removeSymbolMessage": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "emptyWatchlistTitle": "Your watchlist is empty",
+  "emptyOnlyIndices": "Only indices so far — add a few stocks",
+  "emptyNoGainers": "No gainers in the watchlist",
+  "emptyNoLosers": "No losers in the watchlist",
+  "emptyBuildTitle": "Build your watchlist",
+  "emptyBuildBody": "Search a ticker or company name to start tracking live quotes.",
+  "footerAutoRefresh": "Auto-refresh every {minutes} min",
+  "@footerAutoRefresh": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "footerNextFetch": "next {time}",
+  "@footerNextFetch": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "footerNoFetchYet": "no fetch yet",
+
+  "toolsTitle": "Calculators",
+  "tooltipSearchCalculators": "Search calculators",
+  "tooltipSavedResults": "Saved results",
+  "searchHintCalculators": "Search by name or what you want to work out",
+  "sectionStartHere": "Start here",
+  "hintStarToPin": "Star a tool to pin it",
+  "hintTapToUnpin": "Tap ★ to unpin",
+  "sectionResults": "Results",
+  "noCalculatorMatches": "No calculator matches \"{query}\"",
+  "@noCalculatorMatches": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "resultsShownOfTotal": "{shown} of {total}",
+  "@resultsShownOfTotal": {
+    "placeholders": {
+      "shown": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "summaryCalculators": "{total} calculators",
+  "@summaryCalculators": {
+    "placeholders": {
+      "total": { "type": "int" }
+    }
+  },
+  "summaryStarterPicks": "{pinned} starter picks · everything runs on device",
+  "@summaryStarterPicks": {
+    "placeholders": {
+      "pinned": { "type": "int" }
+    }
+  },
+  "summaryPinned": "{favorites} pinned · everything runs on device",
+  "@summaryPinned": {
+    "placeholders": {
+      "favorites": { "type": "int" }
+    }
+  },
+  "categoryTrading": "Trading",
+  "categoryTradingHint": "Entries, exits and position sizing",
+  "categoryInvestment": "Investment",
+  "categoryInvestmentHint": "Compounding, allocation and returns",
+
+  "toolCompoundTitle": "Compound Interest",
+  "toolCompoundSubtitle": "See the power of compounding over time",
+  "toolRiskTitle": "Risk / Reward",
+  "toolRiskSubtitle": "Quickly judge whether a trade is worth it",
+  "toolPositionTitle": "Position Cost",
+  "toolPositionSubtitle": "Track average cost across multiple entries",
+  "toolSizeTitle": "Position Size",
+  "toolSizeSubtitle": "Derive position size from your max loss",
+  "toolDividendTitle": "Dividend Reinvest",
+  "toolDividendSubtitle": "Put cash dividends back to work",
+  "toolAllocationTitle": "Asset Allocation",
+  "toolAllocationSubtitle": "Build an allocation that fits you",
+  "toolProfitTitle": "Profit & Loss",
+  "toolProfitSubtitle": "See at a glance how much you made",
+  "toolTargetTitle": "Target Price",
+  "toolTargetSubtitle": "Work backward from a return target",
+  "toolRateTitle": "Annual Return",
+  "toolRateSubtitle": "Reverse-engineer the annualized return",
+  "toolTimeTitle": "Time to Target",
+  "toolTimeSubtitle": "How long until you reach your goal",
+  "toolRoiTitle": "ROI Calculator",
+  "toolRoiSubtitle": "Measure the real return on your investment",
+
+  "settingsTitle": "Settings",
+  "sectionAppearance": "Appearance",
+  "settingTheme": "Theme",
+  "themeSystem": "Follow system",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingLanguage": "Language",
+  "languageSystem": "Follow system",
+  "languageEnglish": "English",
+  "languageSpanish": "Español",
+  "languageJapanese": "日本語",
+  "settingAutoSort": "Auto-sort by daily change",
+  "settingAutoSortSub": "Sort watchlist by today’s percent change",
+  "sectionQuotes": "Quotes",
+  "settingRefreshInterval": "Refresh interval",
+  "minutesCount": "{minutes} minutes",
+  "@minutesCount": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "settingRoundPrices": "Round prices to 2 decimals",
+  "sectionAbout": "About",
+  "aboutDataSource": "Data source",
+  "aboutDataSourceSub": "Quotes & charts by Yahoo Finance",
+  "aboutCalculators": "Calculators",
+  "aboutCalculatorsSub": "Trading & investment math runs entirely on device",
+  "aboutDisclaimer": "Disclaimer",
+  "aboutDisclaimerSub": "For reference only — not investment advice.",
+
+  "historyTitle": "Saved results",
+  "historyEmptyTitle": "No saved results yet",
+  "historyEmptyBody": "Save any calculation to keep it here.",
+  "historyNote": "Note: {note}",
+  "@historyNote": {
+    "placeholders": {
+      "note": { "type": "String" }
+    }
+  },
+  "historyInputs": "Inputs",
+  "historyResults": "Results",
+  "historyDeleteTitle": "Delete result",
+  "historyDeleteMessage": "Delete \"{title}\"? This cannot be undone.",
+  "@historyDeleteMessage": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+
+  "searchTitle": "Add symbols",
+  "searchHint": "Search symbol or company (e.g. AAPL)",
+  "searchTrending": "Trending",
+  "searchTrendingFailed": "Unable to load trending symbols",
+  "searchNoResults": "No symbols found",
+  "searchFailed": "Search failed. Please try again.",
+  "searchAlreadyInWatchlist": "{symbol} is already in your watchlist",
+  "@searchAlreadyInWatchlist": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "searchAddedToWatchlist": "{symbol} added to watchlist",
+  "@searchAddedToWatchlist": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+
+  "detailRemoveFromWatchlist": "Remove from watchlist",
+  "detailAddToWatchlist": "Add to watchlist",
+  "detailRefreshQuote": "Refresh quote",
+  "detailRemovedFromWatchlist": "{symbol} removed from watchlist",
+  "@detailRemovedFromWatchlist": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "detailAddedToWatchlist": "{symbol} added to watchlist",
+  "@detailAddedToWatchlist": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "detailChartFailed": "Unable to load chart data.",
+  "detailRefreshFailed": "Unable to refresh quote",
+  "marketOpen": "Market open",
+  "marketPreMarket": "Pre-market",
+  "marketAfterHours": "After hours",
+  "marketClosed": "Market closed",
+  "detailKeyStatistics": "Key statistics",
+  "statOpen": "Open",
+  "statPreviousClose": "Previous close",
+  "statDayRange": "Day range",
+  "statVolume": "Volume",
+  "statMarketCap": "Market cap",
+  "statPeRatio": "P/E ratio",
+  "stat52WeekRange": "52-week range",
+  "stat50DayAvg": "50-day avg.",
+  "stat200DayAvg": "200-day avg.",
+  "detailRelatedNews": "Related news",
+  "detailNoNews": "No news available",
+  "detailOpenArticleFailed": "Unable to open the article",
+  "chartRangeMax": "Max",
+  "chartNotEnoughData": "Not enough chart data",
+
+  "calcLoaded": "Loaded: {title}",
+  "@calcLoaded": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "recordSavedAs": "Saved as \"{title}\"",
+  "@recordSavedAs": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "recordSaved": "Saved \"{title}\"",
+  "@recordSaved": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "dialogSaveAsRecord": "Save As Record",
+  "dialogSaveRecord": "Save Record",
+  "fieldRecordName": "Record name",
+  "fieldRecordNameHint": "e.g. 2026 plan",
+  "fieldRecordNote": "Note (optional)",
+  "errorRecordNameRequired": "Please enter a record name",
+
+  "fieldPrincipal": "Principal",
+  "fieldTargetAmount": "Target Amount",
+  "fieldInitialPrincipal": "Initial Principal",
+  "fieldPeriodicContribution": "Periodic Contribution",
+  "fieldFrequency": "Frequency",
+  "segmentMonthly": "Monthly",
+  "segmentYearly": "Yearly",
+  "fieldAnnualRate": "Annual Rate",
+  "fieldTerm": "Term",
+  "suffixYears": "years",
+  "quickRate": "Rate {rate}%",
+  "@quickRate": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "quickTermYears": "{term}y",
+  "@quickTermYears": {
+    "placeholders": {
+      "term": { "type": "String" }
+    }
+  },
+  "resultTotalBalance": "Total Balance",
+  "resultTotalInterest": "Total Interest",
+  "resultTotalReturn": "Total Return",
+  "resultTotalInvested": "Total Invested",
+  "resultYearlyBreakdown": "Yearly Breakdown",
+  "tableYear": "Year",
+  "tablePrincipal": "Principal",
+  "tableInterest": "Interest",
+  "tableYearRate": "Year Rate",
+  "tableBalance": "Balance",
+  "yearLabel": "Year {year}",
+  "@yearLabel": {
+    "placeholders": {
+      "year": { "type": "int" }
+    }
+  },
+
+  "sectionTradeSetup": "Trade Setup",
+  "segmentLong": "Long",
+  "segmentShort": "Short",
+  "segmentSpot": "Spot",
+  "segmentFutures": "Futures",
+  "fieldEntryPrice": "Entry Price",
+  "fieldStopPrice": "Stop Price",
+  "fieldTargetPrice": "Target Price",
+  "fieldQuantity": "Quantity",
+  "suffixUnits": "units",
+  "fieldContractMultiplier": "Contract Multiplier",
+  "suffixPerPoint": "/ point",
+  "fieldMargin": "Margin",
+  "fieldQuickStop": "Quick Stop %",
+  "labelStopPct": "Stop {pct}%",
+  "@labelStopPct": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "fieldQuickRr": "Quick R/R",
+  "labelRrRatio": "R/R 1:{ratio}",
+  "@labelRrRatio": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "resultRiskReward": "Risk / Reward",
+  "resultTargetProfit": "Target Profit",
+  "resultExpectedLoss": "Expected Loss",
+  "resultMarginRequired": "Margin Required",
+  "resultReturnOnMargin": "Return on Margin",
+
+  "sectionPositionSetup": "Position Setup",
+  "fieldMaxLoss": "Max Loss",
+  "resultMaxQuantity": "Max Quantity",
+  "resultPositionValue": "Position Value",
+  "resultStopDistance": "Stop Distance",
+
+  "sectionTradeParameters": "Trade Parameters",
+  "fieldExitPrice": "Exit Price",
+  "fieldFeeRate": "Fee Rate (optional)",
+  "resultPnl": "P&L",
+  "resultReturn": "Return",
+  "resultFees": "Fees",
+
+  "sectionAddReduceRecords": "Add / Reduce Records",
+  "recordsCount": "{count} records",
+  "@recordsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "actionAddRecord": "Add Record",
+  "actionReduce": "Reduce",
+  "resultTotalPositionValue": "Total Position Value",
+  "resultTotalQuantity": "Total Quantity",
+  "resultAverageCost": "Average Cost",
+  "tableRecordDetails": "Record Details",
+  "tableDate": "Date",
+  "tableSide": "Side",
+  "tablePrice": "Price",
+  "tableQty": "Qty",
+  "tableAmount": "Amount",
+  "fieldPrice": "Price",
+  "fieldQty": "Qty",
+
+  "fieldAssetPrice": "Asset Price",
+  "fieldDividendPerShare": "Dividend per Share",
+  "fieldSharesHeld": "Shares Held",
+  "suffixShares": "shares",
+  "resultDividendYield": "Dividend Yield",
+  "resultTotalDividend": "Total Dividend",
+  "resultReinvestShares": "Reinvest Shares",
+  "resultTotalSharesAfter": "Total Shares After",
+
+  "sectionTotalAssets": "Total Assets",
+  "sectionAllocations": "Allocations",
+  "itemsCount": "{count} items",
+  "@itemsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "actionAddAsset": "Add Asset",
+  "fieldAssetName": "Asset name",
+  "fieldAmount": "Amount",
+  "fieldPercent": "Percent",
+  "resultAllocatedAmount": "Allocated Amount",
+  "resultAllocatedPct": "Allocated %",
+  "resultRemaining": "Remaining",
+  "resultPctDifference": "% Difference",
+  "allocationRemainingHint": "{amount} not yet allocated",
+  "@allocationRemainingHint": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "allocationExceedsHint": "Allocation exceeds total assets by {amount}",
+  "@allocationExceedsHint": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "allocationNotFullHint": "Allocation is not 100% (missing {pct})",
+  "@allocationNotFullHint": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+
+  "segmentLongUpside": "Long · Upside",
+  "segmentShortDownside": "Short · Downside",
+  "fieldCurrentPrice": "Current Price",
+  "fieldExpectedReturn": "Expected Return",
+  "fieldQuickReturn": "Quick Return",
+  "quickReturnPct": "{rate}%",
+  "@quickReturnPct": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "resultTargetPrice": "Target Price",
+  "resultExpectedChange": "Expected Change",
+
+  "resultYearsNeeded": "Years Needed",
+  "resultApprox": "Approx.",
+  "yearsCount": "{years} years",
+  "@yearsCount": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "yearsMonthsCount": "{years} years {months} months",
+  "@yearsMonthsCount": {
+    "placeholders": {
+      "years": { "type": "int" },
+      "months": { "type": "int" }
+    }
+  },
+  "resultAnnualizedReturn": "Annualized Return",
+
+  "fieldInvestedCost": "Invested Cost",
+  "segmentReturnAmount": "Return Amount",
+  "segmentFinalValue": "Final Value",
+  "resultRoi": "ROI",
+  "resultNetProfit": "Net Profit",
+
+  "errorUnableToFetchQuotes": "Unable to fetch quotes",
+  "errorSymbolNotFound": "Symbol not found",
+  "errorNoChartData": "No chart data available"
+}

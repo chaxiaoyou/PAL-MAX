@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../models/tool_definition.dart';
 import '../../utils/format.dart';
@@ -117,8 +118,8 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
       };
 
   Map<String, dynamic> _resultsJson() => {
-        'Allocated Amount': fmtAmount(_sumAmount),
-        'Allocated %': fmtPct(_sumPct),
+        context.l10n.resultAllocatedAmount: fmtAmount(_sumAmount),
+        context.l10n.resultAllocatedPct: fmtPct(_sumPct),
       };
 
   Future<void> _save({required bool asNew}) async {
@@ -134,13 +135,20 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('allocation');
     final remaining = _total - _sumAmount;
     final pctDiff = 100 - _sumPct;
@@ -151,10 +159,10 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Total Assets',
+          title: l10n.sectionTotalAssets,
           children: [
             NumberField(
-              label: 'Total Assets',
+              label: l10n.sectionTotalAssets,
               controller: _totalCtrl,
               onChanged: (_) => setState(() {}),
             ),
@@ -162,9 +170,9 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
         ),
         const SizedBox(height: 16),
         SectionCard(
-          title: 'Allocations',
+          title: l10n.sectionAllocations,
           trailing: Text(
-            '${_rows.length} items',
+            l10n.itemsCount(_rows.length),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12.5,
@@ -181,7 +189,7 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => setState(() => _rows.add(_AssetRow())),
                 icon: const Icon(Icons.add_rounded, size: 19),
-                label: const Text('Add Asset'),
+                label: Text(l10n.actionAddAsset),
               ),
             ),
           ],
@@ -190,16 +198,16 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Allocated Amount', fmtAmount(_sumAmount)),
-            ResultRow('Allocated %', fmtPct(_sumPct)),
+            ResultRow(l10n.resultAllocatedAmount, fmtAmount(_sumAmount)),
+            ResultRow(l10n.resultAllocatedPct, fmtPct(_sumPct)),
             ResultRow(
-              'Remaining',
+              l10n.resultRemaining,
               remaining >= 0
                   ? fmtAmount(remaining)
                   : '-${fmtAmount(-remaining)}',
             ),
             ResultRow(
-              '% Difference',
+              l10n.resultPctDifference,
               pctDiff >= 0
                   ? fmtPct(pctDiff)
                   : '-${fmtPct(-pctDiff)}',
@@ -217,10 +225,14 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
                 Expanded(
                   child: Text(
                     remaining > 0.005
-                        ? '${fmtAmount(remaining)} not yet allocated'
+                        ? l10n.allocationRemainingHint(fmtAmount(remaining))
                         : remaining < -0.005
-                            ? 'Allocation exceeds total assets by ${fmtAmount(-remaining)}'
-                            : 'Allocation is not 100% (missing ${fmtPct(pctDiff.abs())})',
+                            ? l10n.allocationExceedsHint(
+                                fmtAmount(-remaining),
+                              )
+                            : l10n.allocationNotFullHint(
+                                fmtPct(pctDiff.abs()),
+                              ),
                     style: TextStyle(
                       fontSize: 12.5,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -257,7 +269,7 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
                     color: theme.colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Asset name',
+                    hintText: context.l10n.fieldAssetName,
                     isDense: true,
                     filled: false,
                     border: InputBorder.none,
@@ -289,7 +301,7 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
             children: [
               Expanded(
                 child: NumberField(
-                  label: 'Amount',
+                  label: context.l10n.fieldAmount,
                   controller: row.amountCtrl,
                   onChanged: (_) => _onAmountChanged(row),
                 ),
@@ -297,7 +309,7 @@ class _AssetAllocationScreenState extends ConsumerState<AssetAllocationScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: NumberField(
-                  label: 'Percent',
+                  label: context.l10n.fieldPercent,
                   suffix: '%',
                   controller: row.pctCtrl,
                   onChanged: (_) => _onPctChanged(row),

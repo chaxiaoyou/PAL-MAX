@@ -2,6 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Required for the Yahoo Finance quotes / chart / news requests. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Price alerts post a local notification when a rule is met (Android 13+
+         requires the runtime permission; the app asks when the first rule is
+         created, not on launch). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- 强制移除媒体库/存储权限：依赖库若合并进来这些权限，这里统一剥离。
          应用本身不读取相册/相册文件，也不需要外部存储。 -->
     <uses-permission
@@ -17,7 +21,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:node="remove"/>
     <application
-        android:label="PJTZA Inc"
+        android:label="MS Brokerage Account"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

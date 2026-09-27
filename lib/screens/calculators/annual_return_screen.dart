@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -62,10 +63,11 @@ class _AnnualReturnScreenState extends ConsumerState<AnnualReturnScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Total Return': fmtPct(r.totalReturnPct),
-      'Annualized Return': fmtPct(r.annualizedPct),
+      l10n.resultTotalReturn: fmtPct(r.totalReturnPct),
+      l10n.resultAnnualizedReturn: fmtPct(r.annualizedPct),
     };
   }
 
@@ -82,13 +84,20 @@ class _AnnualReturnScreenState extends ConsumerState<AnnualReturnScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('rate');
     final result = _result;
     return CalculatorScaffold(
@@ -98,23 +107,23 @@ class _AnnualReturnScreenState extends ConsumerState<AnnualReturnScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Inputs',
+          title: l10n.historyInputs,
           children: [
             NumberField(
-              label: 'Principal',
+              label: l10n.fieldPrincipal,
               controller: _principalCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Target Amount',
+              label: l10n.fieldTargetAmount,
               controller: _targetCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Term',
-              suffix: 'years',
+              label: l10n.fieldTerm,
+              suffix: l10n.suffixYears,
               controller: _yearsCtrl,
               onChanged: (_) => setState(() {}),
             ),
@@ -124,8 +133,10 @@ class _AnnualReturnScreenState extends ConsumerState<AnnualReturnScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Total Return', fmtPct(result.totalReturnPct)),
-            ResultRow('Annualized Return', fmtPct(result.annualizedPct)),
+            ResultRow(l10n.resultTotalReturn, fmtPct(result.totalReturnPct),
+                tone: ResultTone.gain),
+            ResultRow(l10n.resultAnnualizedReturn, fmtPct(result.annualizedPct),
+                tone: ResultTone.gain),
           ],
         ),
       ],

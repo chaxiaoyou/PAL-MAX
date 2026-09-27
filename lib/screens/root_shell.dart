@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'history_screen.dart';
 import 'home_screen.dart';
 import 'tools_screen.dart';
@@ -19,6 +20,7 @@ class _RootShellState extends State<RootShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: IndexedStack(
         index: _index,
@@ -31,21 +33,21 @@ class _RootShellState extends State<RootShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) => setState(() => _index = value),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.show_chart_rounded),
-            selectedIcon: Icon(Icons.show_chart_rounded),
-            label: 'Watchlist',
+            icon: const Icon(Icons.show_chart_rounded),
+            selectedIcon: const Icon(Icons.show_chart_rounded),
+            label: l10n.navWatchlist,
           ),
           NavigationDestination(
-            icon: Icon(Icons.calculate_outlined),
-            selectedIcon: Icon(Icons.calculate_rounded),
-            label: 'Calculators',
+            icon: const Icon(Icons.calculate_outlined),
+            selectedIcon: const Icon(Icons.calculate_rounded),
+            label: l10n.navCalculators,
           ),
           NavigationDestination(
-            icon: Icon(Icons.bookmark_border_rounded),
-            selectedIcon: Icon(Icons.bookmark_rounded),
-            label: 'Saved',
+            icon: const Icon(Icons.bookmark_border_rounded),
+            selectedIcon: const Icon(Icons.bookmark_rounded),
+            label: l10n.navSaved,
           ),
         ],
       ),

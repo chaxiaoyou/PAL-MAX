@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n/l10n.dart';
 import '../models/quote.dart';
 import '../providers/providers.dart';
 import '../services/yahoo_service.dart';
@@ -14,15 +15,7 @@ import 'search_screen.dart';
 import 'settings_screen.dart';
 
 /// How the list below the index strip is filtered.
-enum _ListFilter {
-  all('All'),
-  gainers('Gainers'),
-  losers('Losers');
-
-  const _ListFilter(this.label);
-
-  final String label;
-}
+enum _ListFilter { all, gainers, losers }
 
 /// Watchlist home.
 ///
@@ -142,9 +135,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   String _messageFor(Object error) {
-    if (error is YahooFinanceException) return error.message;
-    return 'Unable to fetch quotes. Check your connection and try again.';
+    final l10n = context.l10n;
+    if (error is YahooFinanceException) {
+      return switch (error.code) {
+        YahooFinanceError.quotes => l10n.errorUnableToFetchQuotes,
+        YahooFinanceError.symbolNotFound => l10n.errorSymbolNotFound,
+        YahooFinanceError.chart => l10n.errorNoChartData,
+        _ => error.message,
+      };
+    }
+    return l10n.errorQuotesFetchFailed;
   }
+
+  /// Chip labels for the watchlist filter rail.
+  String _filterLabel(_ListFilter filter) => switch (filter) {
+        _ListFilter.all => context.l10n.filterAll,
+        _ListFilter.gainers => context.l10n.filterGainers,
+        _ListFilter.losers => context.l10n.filterLosers,
+      };
 
   /// Quotes still present in the watchlist, so a swipe-removed row disappears
   /// immediately instead of waiting for the next fetch.
@@ -154,15 +162,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<bool> _askRemove(Quote quote) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove symbol'),
-        content: Text('Remove ${quote.symbol} from your watchlist?'),
+        title: Text(l10n.removeSymbolTitle),
+        content: Text(l10n.removeSymbolMessage(quote.symbol)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -170,7 +179,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               foregroundColor: Theme.of(dialogContext).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Remove'),
+            child: Text(l10n.actionRemove),
           ),
         ],
       ),
@@ -198,6 +207,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildHeader(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, kSpace3, kSpace2, kSpace1),
       child: Row(
@@ -216,7 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Markets',
+                  l10n.homeTitle,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.4,
@@ -226,12 +236,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'Add symbols',
+            tooltip: l10n.tooltipAddSymbols,
             onPressed: _openSearch,
             icon: const Icon(Icons.add_circle_outline_rounded),
           ),
           IconButton(
-            tooltip: 'Settings',
+            tooltip: l10n.tooltipSettings,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -282,7 +292,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        indices.isNotEmpty ? 'Market indices' : 'Pinned',
+                        indices.isNotEmpty
+                            ? context.l10n.sectionMarketIndices
+                            : context.l10n.sectionPinned,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                             ),
@@ -363,7 +375,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                'Watchlist',
+                context.l10n.watchlistTitle,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -388,7 +400,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: ChoiceChip(
-                    label: Text(filter.label),
+                    label: Text(_filterLabel(filter)),
                     selected: _filter == filter,
                     showCheckmark: false,
                     visualDensity: VisualDensity.compact,
@@ -415,7 +427,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Row(
       children: [
         Text(
-          last == null ? 'Updating…' : 'Updated ${hhMm(last)}',
+          last == null
+              ? context.l10n.statusUpdating
+              : context.l10n.statusUpdated(hhMm(last)),
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -432,7 +446,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           )
         else
           IconButton(
-            tooltip: 'Refresh now',
+            tooltip: context.l10n.tooltipRefreshNow,
             visualDensity: VisualDensity.compact,
             onPressed: () => _fetch(manual: true),
             icon: const Icon(Icons.refresh_rounded, size: 20),
@@ -443,6 +457,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildNoRows(BuildContext context, bool emptyHero) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final message = emptyHero
+        ? l10n.emptyWatchlistTitle
+        : switch (_filter) {
+            _ListFilter.all => l10n.emptyOnlyIndices,
+            _ListFilter.gainers => l10n.emptyNoGainers,
+            _ListFilter.losers => l10n.emptyNoLosers,
+          };
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
       child: Container(
@@ -462,11 +484,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              emptyHero
-                  ? 'Your watchlist is empty'
-                  : _filter == _ListFilter.all
-                      ? 'Only indices so far — add a few stocks'
-                      : 'No ${_filter.label.toLowerCase()} in the watchlist',
+              message,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -476,7 +494,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             FilledButton.icon(
               onPressed: _openSearch,
               icon: const Icon(Icons.search_rounded),
-              label: const Text('Add symbols'),
+              label: Text(l10n.tooltipAddSymbols),
             ),
           ],
         ),
@@ -486,6 +504,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -499,14 +518,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: 14),
             Text(
-              'Build your watchlist',
+              l10n.emptyBuildTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              'Search a ticker or company name to start tracking live quotes.',
+              l10n.emptyBuildBody,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -516,7 +535,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             FilledButton.icon(
               onPressed: _openSearch,
               icon: const Icon(Icons.search_rounded),
-              label: const Text('Add symbols'),
+              label: Text(l10n.tooltipAddSymbols),
             ),
           ],
         ),
@@ -526,6 +545,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildErrorState(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -549,7 +569,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             FilledButton.icon(
               onPressed: () => _fetch(manual: true),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(l10n.actionRetry),
             ),
           ],
         ),
@@ -559,6 +579,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildFooter(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final prefs = ref.watch(appPrefsProvider);
     final last = _lastFetch;
     final next = last?.add(Duration(minutes: prefs.refreshMinutes));
@@ -566,8 +587,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       padding: const EdgeInsets.fromLTRB(20, 6, 20, 26),
       child: Center(
         child: Text(
-          'Auto-refresh every ${prefs.refreshMinutes} min'
-          '  ·  ${next == null ? 'no fetch yet' : 'next ${hhMm(next)}'}',
+          '${l10n.footerAutoRefresh(prefs.refreshMinutes)}'
+          '  ·  ${next == null ? l10n.footerNoFetchYet : l10n.footerNextFetch(hhMm(next))}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -817,7 +838,7 @@ class _WatchRow extends StatelessWidget {
                   ],
                 ),
                 PopupMenuButton<String>(
-                  tooltip: 'Options',
+                  tooltip: context.l10n.actionOptions,
                   padding: EdgeInsets.zero,
                   icon: Icon(
                     Icons.more_vert_rounded,
@@ -827,8 +848,11 @@ class _WatchRow extends StatelessWidget {
                   onSelected: (value) {
                     if (value == 'remove') onRemove();
                   },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'remove', child: Text('Remove')),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: 'remove',
+                      child: Text(context.l10n.actionRemove),
+                    ),
                   ],
                 ),
               ],

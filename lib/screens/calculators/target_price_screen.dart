@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/tools.dart';
+import '../../l10n/l10n.dart';
 import '../../models/saved_record.dart';
 import '../../utils/calculators.dart';
 import '../../utils/format.dart';
@@ -60,10 +61,11 @@ class _TargetPriceScreenState extends ConsumerState<TargetPriceScreen> {
       };
 
   Map<String, dynamic> _resultsJson() {
+    final l10n = context.l10n;
     final r = _result;
     return {
-      'Target Price': fmtAmount(r.target),
-      'Expected Change': fmtSigned(r.change),
+      l10n.resultTargetPrice: fmtAmount(r.target),
+      l10n.resultExpectedChange: fmtSigned(r.change),
     };
   }
 
@@ -80,13 +82,20 @@ class _TargetPriceScreenState extends ConsumerState<TargetPriceScreen> {
     if (saved != null && mounted) {
       setState(() => _record = saved);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(asNew ? 'Saved as "${saved.title}"' : 'Saved "${saved.title}"')),
+        SnackBar(
+          content: Text(
+            asNew
+                ? context.l10n.recordSavedAs(saved.title)
+                : context.l10n.recordSaved(saved.title),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tool = toolById('target');
     final result = _result;
     return CalculatorScaffold(
@@ -96,12 +105,18 @@ class _TargetPriceScreenState extends ConsumerState<TargetPriceScreen> {
       onSaveAs: () => _save(asNew: true),
       children: [
         SectionCard(
-          title: 'Inputs',
+          title: l10n.historyInputs,
           children: [
             SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: true, label: Text('Long · Upside')),
-                ButtonSegment(value: false, label: Text('Short · Downside')),
+              segments: [
+                ButtonSegment(
+                  value: true,
+                  label: Text(l10n.segmentLongUpside),
+                ),
+                ButtonSegment(
+                  value: false,
+                  label: Text(l10n.segmentShortDownside),
+                ),
               ],
               selected: {_isLong},
               showSelectedIcon: false,
@@ -110,26 +125,26 @@ class _TargetPriceScreenState extends ConsumerState<TargetPriceScreen> {
             ),
             const SizedBox(height: 16),
             NumberField(
-              label: 'Current Price',
+              label: l10n.fieldCurrentPrice,
               controller: _priceCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             NumberField(
-              label: 'Expected Return',
+              label: l10n.fieldExpectedReturn,
               suffix: '%',
               controller: _rateCtrl,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
             LabeledSwitch(
-              label: 'Quick Return',
+              label: l10n.fieldQuickReturn,
               children: [
                 for (final rate in ['5', '10', '20', '50'])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: QuickChip(
-                      label: '$rate%',
+                      label: l10n.quickReturnPct(rate),
                       color: tool.color,
                       onTap: () {
                         _rateCtrl.text = rate;
@@ -145,8 +160,8 @@ class _TargetPriceScreenState extends ConsumerState<TargetPriceScreen> {
         ResultCard(
           accent: tool.color,
           rows: [
-            ResultRow('Target Price', fmtAmount(result.target)),
-            ResultRow('Expected Change', fmtSigned(result.change)),
+            ResultRow(l10n.resultTargetPrice, fmtAmount(result.target)),
+            ResultRow(l10n.resultExpectedChange, fmtSigned(result.change)),
           ],
         ),
       ],

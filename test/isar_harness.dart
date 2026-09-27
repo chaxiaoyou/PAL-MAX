@@ -5,6 +5,8 @@ import 'package:isar_community/isar.dart';
 import 'package:isar_community/src/native/isar_core.dart';
 import 'package:pjza/models/app_setting.dart';
 import 'package:pjza/models/saved_record.dart';
+import 'package:pjza/models/stored_alert.dart';
+import 'package:pjza/models/stored_transaction.dart';
 
 /// Path to the native Isar library shipped with isar_community_flutter_libs, or
 /// null when the host does not have it (then the caller should skip).
@@ -24,7 +26,12 @@ Future<Isar?> openTestIsar(String name) async {
   await initializeCoreBinary(libraries: {Abi.current(): coreLib});
   final dir = Directory.systemTemp.createTempSync('${name}_dir');
   return Isar.open(
-    [SavedRecordSchema, AppSettingSchema],
+    [
+      SavedRecordSchema,
+      AppSettingSchema,
+      StoredTransactionSchema,
+      StoredAlertSchema,
+    ],
     directory: dir.path,
     name: name,
   );

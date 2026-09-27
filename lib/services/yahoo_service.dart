@@ -91,13 +91,19 @@ class YahooFinanceApi {
         'Quotes request failed with HTTP ${response.statusCode}',
       );
     }
-    throw const YahooFinanceException('Unable to fetch quotes');
+    throw const YahooFinanceException(
+      'Unable to fetch quotes',
+      code: YahooFinanceError.quotes,
+    );
   }
 
   Future<List<Quote>> fetchQuote(String symbol) async {
     final quotes = await fetchQuotes([symbol]);
     if (quotes.isEmpty) {
-      throw const YahooFinanceException('Symbol not found');
+      throw const YahooFinanceException(
+        'Symbol not found',
+        code: YahooFinanceError.symbolNotFound,
+      );
     }
     return quotes;
   }
@@ -133,16 +139,25 @@ class YahooFinanceApi {
     final rawResult =
         (chart is Map<String, dynamic>) ? chart['result'] : null;
     if (rawResult is! List || rawResult.isEmpty) {
-      throw const YahooFinanceException('No chart data available');
+      throw const YahooFinanceException(
+        'No chart data available',
+        code: YahooFinanceError.chart,
+      );
     }
     final first = rawResult.first;
     if (first is! Map<String, dynamic>) {
-      throw const YahooFinanceException('No chart data available');
+      throw const YahooFinanceException(
+        'No chart data available',
+        code: YahooFinanceError.chart,
+      );
     }
     final timestamps = first['timestamp'];
     final closes = first['indicators']?['quote']?[0]?['close'];
     if (timestamps is! List || closes is! List) {
-      throw const YahooFinanceException('No chart data available');
+      throw const YahooFinanceException(
+        'No chart data available',
+        code: YahooFinanceError.chart,
+      );
     }
     final points = <ChartPoint>[];
     for (var i = 0; i < timestamps.length && i < closes.length; i++) {
@@ -475,10 +490,21 @@ class _HttpResult {
   final Uri finalUrl;
 }
 
+/// Stable error codes. The UI maps them to localized copy, so the service
+/// never needs a `BuildContext` (or a locale) to report a failure.
+abstract final class YahooFinanceError {
+  static const quotes = 'quotes';
+  static const symbolNotFound = 'symbolNotFound';
+  static const chart = 'chart';
+}
+
 class YahooFinanceException implements Exception {
-  const YahooFinanceException(this.message);
+  const YahooFinanceException(this.message, {this.code});
 
   final String message;
+
+  /// One of [YahooFinanceError]; null when only a diagnostic message exists.
+  final String? code;
 
   @override
   String toString() => message;

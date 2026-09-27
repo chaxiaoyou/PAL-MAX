@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar_community/isar.dart';
+import 'package:pjza/l10n/app_localizations.dart';
 import 'package:pjza/providers/providers.dart';
 import 'package:pjza/screens/home_screen.dart';
 import 'package:pjza/theme/app_theme.dart';
@@ -63,6 +64,9 @@ void main() {
         ],
         child: MaterialApp(
           theme: buildLightTheme(),
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: const HomeScreen(),
         ),
       );
