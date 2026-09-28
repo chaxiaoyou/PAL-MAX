@@ -75,7 +75,7 @@ Color changeColor(BuildContext context, QuoteDirection direction) {
   }
 }
 
-const String kAppName = 'MS Brokerage Account';
+const String kAppName = 'MSBA';
 const String kAppTagline = 'Invest & trade, with confidence.';
 
 ThemeData buildLightTheme() {

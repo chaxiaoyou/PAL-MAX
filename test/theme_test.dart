@@ -5,7 +5,7 @@ import 'package:pjza/theme/app_theme.dart';
 void main() {
   group('Branding', () {
     test('app name is the new brand', () {
-      expect(kAppName, 'MS Brokerage Account');
+      expect(kAppName, 'MSBA');
     });
 
     test('light and dark themes share the blue brand color', () {

@@ -1,4 +1,4 @@
-# MS Brokerage Account · Flutter
+# MSBA · Flutter
 
 面向 Android / iOS 的行情 + 股票计算器应用。行情部分使用公开的 Yahoo Finance
 接口（quotes v7 / chart v8 / symbol search v1 / 新闻 RSS），计算器部分为本项目
@@ -95,7 +95,7 @@ Text(l10n.minutesCount(prefs.refreshMinutes)); // 带占位符
 
 ## 品牌与包名
 
-- 应用名：**MS Brokerage Account**（Android `android:label`、iOS `CFBundleDisplayName`、
+- 应用名：**MSBA**（Android `android:label`、iOS `CFBundleDisplayName`、
   启动页、桌面小组件标题、Dart 侧 `kAppName`）。
 - 版本号：`pubspec.yaml` 的 `version: 1.0.0+100`
   （Android `versionName` 1.0.0 / `versionCode` 100，iOS `CFBundleShortVersionString`
