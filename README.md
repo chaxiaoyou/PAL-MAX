@@ -1,4 +1,4 @@
-# PJTZA Inc · Flutter
+# MS Brokerage Account · Flutter
 
 面向 Android / iOS 的行情 + 股票计算器应用。行情部分使用公开的 Yahoo Finance
 接口（quotes v7 / chart v8 / symbol search v1 / 新闻 RSS），计算器部分为本项目
@@ -95,18 +95,21 @@ Text(l10n.minutesCount(prefs.refreshMinutes)); // 带占位符
 
 ## 品牌与包名
 
-- 应用名：**PJTZA Inc**（Android `android:label`、iOS `CFBundleDisplayName`、
+- 应用名：**MS Brokerage Account**（Android `android:label`、iOS `CFBundleDisplayName`、
   启动页、桌面小组件标题、Dart 侧 `kAppName`）。
+- 版本号：`pubspec.yaml` 的 `version: 1.0.0+100`
+  （Android `versionName` 1.0.0 / `versionCode` 100，iOS `CFBundleShortVersionString`
+  1.0.0 / `CFBundleVersion` 100）。
 - 启动图标：`assets/icon/app_icon.png`，通过 `flutter_launcher_icons` 生成
   Android mipmap 与 iOS AppIcon 各尺寸。
 - **包名**：Android `namespace` / `applicationId` 与 iOS
-  `PRODUCT_BUNDLE_IDENTIFIER` 均为 `com.pjtza.app`
-  （Kotlin 源码位于 `android/app/src/main/kotlin/com/pjtza/app/`）。
+  `PRODUCT_BUNDLE_IDENTIFIER` 均为 `com.msbrokerage.app`
+  （Kotlin 源码位于 `android/app/src/main/kotlin/com/msbrokerage/app/`）。
 - **签名**：release 使用 `android/key.properties`（被 git 忽略，不入库）指向的
-  keystore。本机当前为 `~/Documents/PJTZAkeystore/pjtza-release.jks`，
+  keystore。本机当前为 `~/Documents/MSBrokerageKeystore/msbrokerage-release.jks`，
   alias `key0`，口令写在同目录的 `key doc.txt`。签名证书 SHA-256
-  `25:45:39:27:B9:3C:02:74:40:1B:87:D9:FC:3D:AF:CE:34:C8:14:82:1D:CA:88:55:EB:FF:F5:FC:80:2B:99:E0`，
-  有效期至 2054-02-10。**务必把 keystore + `key doc.txt` 备份到仓库之外**
+  `92:E1:83:09:57:7E:5E:0A:D2:F7:6B:D5:5B:8C:3B:53:EE:CE:5A:CB:A7:94:37:16:F0:94:A6:96:FF:AB:9D:98`，
+  有效期至 2054-02-13。**务必把 keystore + `key doc.txt` 备份到仓库之外**
   （云盘/密码管理器），丢失后无法再更新已上架的包；换机器时只需还原这两个文件
   并同步 `android/key.properties`。
 ## 技术栈
@@ -199,7 +202,7 @@ lib/
 Android 原生部分：
 
 ```text
-android/app/src/main/kotlin/com/pjtza/app/
+android/app/src/main/kotlin/com/msbrokerage/app/
 ├── MainActivity.kt            # MethodChannel 接收快照
 └── StocksWidgetProvider.kt    # AppWidgetProvider + RemoteViews 渲染
 android/app/src/main/res/

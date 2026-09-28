@@ -1,4 +1,4 @@
-package com.pjtza.app
+package com.msbrokerage.app
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
