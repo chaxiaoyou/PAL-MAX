@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# PJTZA Inc release 打包脚本（APK / AAB / IPA）
+# PJTz release 打包脚本（APK / AAB / IPA）
 #
 # 用法:
 #   ./tool/build_release.sh          # 依次构建 APK 与 AAB

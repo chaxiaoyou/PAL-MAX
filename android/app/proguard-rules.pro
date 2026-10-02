@@ -1,4 +1,4 @@
-# PJTZA Inc  ProGuard / R8 rules
+# PJTz  ProGuard / R8 rules
 #
 # Flutter 引擎在运行时通过反射加载插件与注册表，R8 混淆会把这些类重命名
 # 导致启动崩溃，因此保留整个 io.flutter 包及其生成的插件注册类。

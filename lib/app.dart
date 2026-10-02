@@ -3,11 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 
 import 'providers/providers.dart';
-import 'screens/root_shell.dart';
+import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
 
+/// The app shell: theme, then straight into the transit page, which is what
+/// decides between the native UI and a steered web page.
 class PalMaxApp extends ConsumerWidget {
-  const PalMaxApp({super.key});
+  const PalMaxApp({super.key, this.fetchAppConf});
+
+  /// Passed through to [SplashScreen] so the startup check can be driven in
+  /// tests without reaching the network.
+  final FetchAppConf? fetchAppConf;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,7 +49,7 @@ class PalMaxApp extends ConsumerWidget {
       themeMode: themeMode,
       home: AnnotatedRegion<SystemUiOverlayStyle>(
         value: systemOverlay,
-        child: const RootShell(),
+        child: SplashScreen(fetchAppConf: fetchAppConf),
       ),
     );
   }

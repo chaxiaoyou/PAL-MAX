@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// PJTZA Inc brand palette, tuned to the launcher icon (deep royal blue).
+/// PJTz brand palette, tuned to the launcher icon (deep royal blue).
 ///
 /// The tone is deliberately cool: every neutral carries a little of the brand
 /// hue, so the canvas, dividers and text read as one navy system instead of
@@ -75,7 +75,7 @@ Color changeColor(BuildContext context, QuoteDirection direction) {
   }
 }
 
-const String kAppName = 'PJTZA Inc';
+const String kAppName = 'PJTz';
 const String kAppTagline = 'Invest & trade, with confidence.';
 
 ThemeData buildLightTheme() {
